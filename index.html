@@ -1827,6 +1827,14 @@ function onFechaNominaChange(){
 
 const DIAS_NOM=['Mar','Mié','Jue','Vie','Sáb','Dom'];
 
+function calcPago(sueldo, tipo, diasTrab){
+  // tipo: 'dia' = sueldo × días trabajados
+  //       'semana' = sueldo ÷ 6 × días trabajados
+  if(!sueldo) return 0;
+  if(tipo==='dia') return Math.round(sueldo * diasTrab);
+  return Math.round((sueldo/6) * diasTrab);
+}
+
 function renderNomina(){
   const emps=NCity==='wash'?EW:EC;
   const key=nomKey(NCity,currentFechaNomina);
@@ -1837,11 +1845,13 @@ function renderNomina(){
   let total=0;
   emps.forEach((emp,i)=>{
     const empData=saved[i]||{};
-    const sueldoBase=emp.s||0; // sueldo configurado en empleados
-    const sueldo=empData.sueldo||sueldoBase; // nómina guardada o el base
+    const sueldoBase=emp.s||0;
+    const tipoBase=emp.t||'dia'; // tipo guardado en el empleado
+    const sueldo=empData.sueldo!==undefined?empData.sueldo:sueldoBase;
+    const tipo=empData.tipo||tipoBase;
     const dias=empData.dias||{};
-    const diasTrab=Object.values(dias).filter(v=>v==='P').length||6;
-    const pago=sueldo>0?Math.round((sueldo/6)*diasTrab):0;
+    const diasTrab=Object.values(dias).filter(v=>v==='P').length||(tipo==='semana'?6:0);
+    const pago=calcPago(sueldo,tipo,diasTrab);
     total+=pago;
     const ini=emp.n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
     const row=document.createElement('div');row.className='nrow';
@@ -1851,19 +1861,37 @@ function renderNomina(){
       const icon=st==='P'?'✓':st==='D'?'D':'✗';
       return `<div class="nday"><div class="nday-lbl">${d}</div><button class="nday-btn ${cls}" data-emp="${i}" data-day="${k}" onclick="toggleNDay(this)">${icon}</button></div>`;
     }).join('');
+    const lblTipo=tipo==='dia'?'$/día':'$/semana';
     row.innerHTML=`
       <div class="nav2">${ini}</div>
       <div class="ninfo">
         <div class="nname">${emp.n}</div>
         <div class="npos">${emp.p}</div>
         <div class="ndays">${daysHTML}</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
-          <span style="font-size:.7rem;color:var(--t3);font-weight:700">Sueldo base/sem:</span>
-          <input class="nsuel" type="number" min="0" value="${sueldo||''}" placeholder="$0" data-emp="${i}" oninput="updNT()">
+        <div style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap">
+          <!-- Tipo toggle -->
+          <div style="display:flex;border:1.5px solid var(--g3);border-radius:8px;overflow:hidden;flex-shrink:0">
+            <button data-emp="${i}" data-tipo="dia"
+              class="ntipo-btn ${tipo==='dia'?'ntipo-active':''}"
+              onclick="setNTipo(${i},'dia',this)"
+              style="padding:5px 9px;border:none;font-family:'Nunito',sans-serif;font-size:.68rem;font-weight:800;cursor:pointer;background:${tipo==='dia'?'var(--n)':'white'};color:${tipo==='dia'?'white':'var(--t3)'}">
+              📅 Día
+            </button>
+            <button data-emp="${i}" data-tipo="semana"
+              class="ntipo-btn ${tipo==='semana'?'ntipo-active':''}"
+              onclick="setNTipo(${i},'semana',this)"
+              style="padding:5px 9px;border:none;border-left:1.5px solid var(--g3);font-family:'Nunito',sans-serif;font-size:.68rem;font-weight:800;cursor:pointer;background:${tipo==='semana'?'var(--n)':'white'};color:${tipo==='semana'?'white':'var(--t3)'}">
+              📆 Sem.
+            </button>
+          </div>
+          <input class="nsuel" type="number" min="0" value="${sueldo||''}" placeholder="$0"
+            data-emp="${i}" data-tipo="${tipo}" oninput="updNT()"
+            style="flex:1;min-width:70px">
+          <span id="nlbl-${i}" style="font-size:.65rem;color:var(--t3);font-weight:700;white-space:nowrap">${lblTipo}</span>
         </div>
       </div>
       <div class="nright">
-        <div class="npago-lbl">${diasTrab} días</div>
+        <div class="npago-lbl" id="ndias-${i}">${diasTrab} días</div>
         <div class="npago" id="npago-${i}">$${fmt(pago)}</div>
       </div>`;
     card.appendChild(row);
@@ -1872,6 +1900,23 @@ function renderNomina(){
   tr.innerHTML=`<span>💰 Total a Pagar esta Semana</span><span id="ntotal">$${fmt(total)}</span>`;
   card.appendChild(tr);c.appendChild(card);
   updateNomSemanaLabel();
+}
+
+function setNTipo(empIdx, tipo, btn){
+  // Update toggle button styles
+  const row=btn.closest('.nrow');
+  row.querySelectorAll('.ntipo-btn').forEach(b=>{
+    const isThis=b.dataset.tipo===tipo;
+    b.style.background=isThis?'var(--n)':'white';
+    b.style.color=isThis?'white':'var(--t3)';
+  });
+  // Update input data attribute
+  const inp=row.querySelector(`.nsuel[data-emp="${empIdx}"]`);
+  if(inp) inp.dataset.tipo=tipo;
+  // Update label
+  const lbl=document.getElementById(`nlbl-${empIdx}`);
+  if(lbl) lbl.textContent=tipo==='dia'?'$/día':'$/semana';
+  updNT();
 }
 
 function toggleNDay(btn){
@@ -1883,12 +1928,16 @@ function toggleNDay(btn){
   const next=cycle[cur]||'P';
   btn.className=`nday-btn ${clsMap[next]}`;
   btn.textContent=icons[next];
-  const sueldo=parseFloat(document.querySelector(`.nsuel[data-emp="${empIdx}"]`)?.value||0);
+  const inp=document.querySelector(`.nsuel[data-emp="${empIdx}"]`);
+  const sueldo=parseFloat(inp?.value||0);
+  const tipo=inp?.dataset.tipo||'dia';
   const allDays=document.querySelectorAll(`.nday-btn[data-emp="${empIdx}"]`);
   const diasTrab=[...allDays].filter(b=>b.classList.contains('on')).length;
-  const pago=sueldo>0?Math.round((sueldo/6)*diasTrab):0;
+  const pago=calcPago(sueldo,tipo,diasTrab);
   const pagoEl=document.getElementById(`npago-${empIdx}`);
+  const diasEl=document.getElementById(`ndias-${empIdx}`);
   if(pagoEl) pagoEl.textContent='$'+fmt(pago);
+  if(diasEl) diasEl.textContent=diasTrab+' días';
   updNT();
 }
 
@@ -1896,12 +1945,16 @@ function updNT(){
   let t=0;
   const emps=NCity==='wash'?EW:EC;
   emps.forEach((_,i)=>{
-    const sueldo=parseFloat(document.querySelector(`.nsuel[data-emp="${i}"]`)?.value||0);
+    const inp=document.querySelector(`.nsuel[data-emp="${i}"]`);
+    const sueldo=parseFloat(inp?.value||0);
+    const tipo=inp?.dataset.tipo||'dia';
     const allDays=document.querySelectorAll(`.nday-btn[data-emp="${i}"]`);
-    const diasTrab=[...allDays].filter(b=>b.classList.contains('on')).length||6;
-    const pago=sueldo>0?Math.round((sueldo/6)*diasTrab):0;
+    const diasTrab=[...allDays].filter(b=>b.classList.contains('on')).length;
+    const pago=calcPago(sueldo,tipo,diasTrab);
     const pagoEl=document.getElementById(`npago-${i}`);
+    const diasEl=document.getElementById(`ndias-${i}`);
     if(pagoEl) pagoEl.textContent='$'+fmt(pago);
+    if(diasEl) diasEl.textContent=diasTrab+' días';
     t+=pago;
   });
   const el=document.getElementById('ntotal');if(el)el.textContent='$'+fmt(t);
@@ -1912,15 +1965,17 @@ async function guardarNomina(){
   const key=nomKey(NCity,currentFechaNomina);
   const s={};
   emps.forEach((_,i)=>{
-    const sueldo=parseFloat(document.querySelector(`.nsuel[data-emp="${i}"]`)?.value||0);
+    const inp=document.querySelector(`.nsuel[data-emp="${i}"]`);
+    const sueldo=parseFloat(inp?.value||0);
+    const tipo=inp?.dataset.tipo||'dia';
     const dias={};
     document.querySelectorAll(`.nday-btn[data-emp="${i}"]`).forEach(btn=>{
       const st=btn.classList.contains('on')?'P':btn.classList.contains('off')?'A':'D';
       dias[btn.dataset.day]=st;
     });
     const diasTrab=Object.values(dias).filter(v=>v==='P').length;
-    const pago=sueldo>0?Math.round((sueldo/6)*diasTrab):0;
-    s[i]={sueldo,dias,diasTrab,pago};
+    const pago=calcPago(sueldo,tipo,diasTrab);
+    s[i]={sueldo,tipo,dias,diasTrab,pago};
   });
   const totalNuevo=Object.values(s).reduce((a,v)=>a+(v.pago||0),0);
   const keyAntes=DN[key];
@@ -2440,35 +2495,183 @@ function renderCfgE(){
   const emps=CECity==='wash'?EW:EC;
   const c=document.getElementById('cfg-el');if(!c)return;c.innerHTML='';
   if(!emps.length){c.innerHTML='<p style="color:var(--t3);font-size:.85rem;padding:8px">No hay empleados.</p>';return;}
+
+  // ── Asignación por grupo ──
+  const grupoWrap=document.createElement('div');
+  grupoWrap.style.cssText='background:var(--ns);border:1.5px solid var(--nm);border-radius:var(--Rs);padding:12px 14px;margin-bottom:12px';
+  grupoWrap.innerHTML=`
+    <div style="font-size:.75rem;font-weight:900;color:var(--n);margin-bottom:10px">👥 Asignar sueldo por grupo</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="emp-sel-btn" onclick="seleccionarTodos()" style="padding:5px 12px;border-radius:20px;border:1.5px solid var(--n);background:white;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;color:var(--n);cursor:pointer">✅ Todos</button>
+      <button class="emp-sel-btn" onclick="deseleccionarTodos()" style="padding:5px 12px;border-radius:20px;border:1.5px solid var(--g3);background:white;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;color:var(--t3);cursor:pointer">⬜ Ninguno</button>
+    </div>
+    <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+      <div style="flex:1;min-width:120px">
+        <div style="font-size:.65rem;font-weight:800;color:var(--t3);margin-bottom:3px;text-transform:uppercase">Monto</div>
+        <input type="number" min="0" id="grupo-sueldo-inp" placeholder="Ej: 150"
+          style="width:100%;border:1.5px solid var(--nm);border-radius:8px;padding:9px 12px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;background:white;outline:none;color:var(--t)"
+          onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--nm)'">
+      </div>
+      <div>
+        <div style="font-size:.65rem;font-weight:800;color:var(--t3);margin-bottom:3px;text-transform:uppercase">Tipo</div>
+        <div style="display:flex;border:1.5px solid var(--g3);border-radius:8px;overflow:hidden">
+          <button id="grupo-tipo-dia" onclick="setGrupoTipo('dia')"
+            style="padding:9px 14px;border:none;font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer;background:var(--n);color:white;transition:all .15s">
+            📅 Día
+          </button>
+          <button id="grupo-tipo-semana" onclick="setGrupoTipo('semana')"
+            style="padding:9px 14px;border:none;border-left:1.5px solid var(--g3);font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer;background:white;color:var(--t3);transition:all .15s">
+            📆 Semana
+          </button>
+        </div>
+      </div>
+      <button onclick="aplicarSueldoGrupo()"
+        style="background:var(--n);border:none;border-radius:8px;padding:10px 16px;color:white;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;white-space:nowrap">
+        ⚡ Aplicar
+      </button>
+    </div>
+    <div id="grupo-selcount" style="font-size:.7rem;color:var(--n);font-weight:700;margin-top:8px">0 empleados seleccionados</div>`;
+  c.appendChild(grupoWrap);
+
+  // ── Lista de empleados ──
   emps.forEach((emp,i)=>{
     const ini=emp.n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
     const sueldo=emp.s||0;
-    const row=document.createElement('div');row.className='eitem';row.style.alignItems='center';
+    const row=document.createElement('div');row.className='eitem';row.style.cssText='align-items:center;cursor:pointer';
+    row.dataset.idx=i;
     row.innerHTML=`
-      <div class="eav">${ini}</div>
+      <div class="emp-check" data-idx="${i}"
+        style="width:22px;height:22px;border-radius:6px;border:2px solid var(--g3);background:white;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:.8rem"></div>
+      <div class="eav" style="margin-left:4px">${ini}</div>
       <div class="einfo" style="flex:1">
         <div class="ename">${emp.n}</div>
         <div class="epos">${emp.p||'—'}</div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
         <div style="text-align:right">
-          <div style="font-size:.6rem;font-weight:800;color:var(--t3);text-transform:uppercase;margin-bottom:2px">$/día</div>
-          <input type="number" min="0" data-city="${CECity}" data-idx="${i}"
-            value="${sueldo||''}" placeholder="0"
-            style="width:75px;text-align:right;border:1.5px solid var(--g3);border-radius:8px;padding:6px 8px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;background:var(--g2);outline:none;color:var(--t)"
-            class="emp-sueldo-inp"
-            onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
+          <div style="font-size:.6rem;font-weight:800;color:var(--t3);text-transform:uppercase;margin-bottom:2px">Tipo / Monto</div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <div style="display:flex;border:1.5px solid var(--g3);border-radius:6px;overflow:hidden">
+              <button data-emp="${i}" data-city="${CECity}" data-tipo="dia"
+                class="cfg-tipo-btn"
+                onclick="event.stopPropagation();setCfgTipo(${i},'dia',this)"
+                style="padding:4px 7px;border:none;font-family:'Nunito',sans-serif;font-size:.65rem;font-weight:800;cursor:pointer;background:${(emp.t||'dia')==='dia'?'var(--n)':'white'};color:${(emp.t||'dia')==='dia'?'white':'var(--t3)'}">Día</button>
+              <button data-emp="${i}" data-city="${CECity}" data-tipo="semana"
+                class="cfg-tipo-btn"
+                onclick="event.stopPropagation();setCfgTipo(${i},'semana',this)"
+                style="padding:4px 7px;border:none;border-left:1.5px solid var(--g3);font-family:'Nunito',sans-serif;font-size:.65rem;font-weight:800;cursor:pointer;background:${emp.t==='semana'?'var(--n)':'white'};color:${emp.t==='semana'?'white':'var(--t3)'}">Sem.</button>
+            </div>
+            <input type="number" min="0" data-city="${CECity}" data-idx="${i}" data-tipo="${emp.t||'dia'}"
+              value="${sueldo||''}" placeholder="$0"
+              onclick="event.stopPropagation()"
+              style="width:70px;text-align:right;border:1.5px solid var(--g3);border-radius:8px;padding:6px 8px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;background:var(--g2);outline:none;color:var(--t)"
+              class="emp-sueldo-inp"
+              onfocus="this.style.borderColor='var(--n)';event.stopPropagation()" onblur="this.style.borderColor='var(--g3)'">
+          </div>
         </div>
-        <button class="bdang" onclick="confirmDel('emp',null,${i})">🗑️</button>
+        <button class="bdang" onclick="event.stopPropagation();confirmDel('emp',null,${i})">🗑️</button>
       </div>`;
+    // Toggle selection on row click
+    row.onclick=()=>toggleEmpSel(i, row);
     c.appendChild(row);
   });
-  // Save button at bottom
+
+  // Save button
   const saveBtn=document.createElement('button');
   saveBtn.className='bsave';saveBtn.style.marginTop='12px';
-  saveBtn.textContent='💾 GUARDAR SUELDOS';
+  saveBtn.textContent='💾 GUARDAR TODOS LOS SUELDOS';
   saveBtn.onclick=guardarSueldos;
   c.appendChild(saveBtn);
+}
+
+function toggleEmpSel(idx, row){
+  const chk=row.querySelector('.emp-check');
+  const selected=chk.style.background==='var(--n)' || chk.style.background==='rgb(234, 88, 12)';
+  if(selected){
+    chk.style.background='white';chk.style.borderColor='var(--g3)';chk.textContent='';
+    row.style.background='';
+  } else {
+    chk.style.background='var(--n)';chk.style.borderColor='var(--n)';chk.textContent='✓';chk.style.color='white';
+    row.style.background='var(--ns)';row.style.borderRadius='var(--Rs)';
+  }
+  updateSelCount();
+}
+
+function seleccionarTodos(){
+  document.querySelectorAll('#cfg-el .eitem').forEach(row=>{
+    const chk=row.querySelector('.emp-check');if(!chk)return;
+    chk.style.background='var(--n)';chk.style.borderColor='var(--n)';chk.textContent='✓';chk.style.color='white';
+    row.style.background='var(--ns)';row.style.borderRadius='var(--Rs)';
+  });
+  updateSelCount();
+}
+
+function deseleccionarTodos(){
+  document.querySelectorAll('#cfg-el .eitem').forEach(row=>{
+    const chk=row.querySelector('.emp-check');if(!chk)return;
+    chk.style.background='white';chk.style.borderColor='var(--g3)';chk.textContent='';
+    row.style.background='';
+  });
+  updateSelCount();
+}
+
+function updateSelCount(){
+  const total=document.querySelectorAll('#cfg-el .emp-check[style*="rgb(234, 88, 12)"], #cfg-el .emp-check[style*="var(--n)"]').length;
+  // Count manually
+  let count=0;
+  document.querySelectorAll('#cfg-el .emp-check').forEach(chk=>{
+    if(chk.textContent==='✓') count++;
+  });
+  const el=document.getElementById('grupo-selcount');
+  if(el) el.textContent=count===0?'0 empleados seleccionados':`${count} empleado${count!==1?'s':''} seleccionado${count!==1?'s':''}`;
+}
+
+function setGrupoTipo(tipo){
+  const dia=document.getElementById('grupo-tipo-dia');
+  const sem=document.getElementById('grupo-tipo-semana');
+  if(dia){dia.style.background=tipo==='dia'?'var(--n)':'white';dia.style.color=tipo==='dia'?'white':'var(--t3)';}
+  if(sem){sem.style.background=tipo==='semana'?'var(--n)':'white';sem.style.color=tipo==='semana'?'white':'var(--t3)';}
+}
+
+function getGrupoTipo(){
+  const dia=document.getElementById('grupo-tipo-dia');
+  // If dia button has orange background it's active
+  return dia?.style.background.includes('var(--n)')||dia?.style.background.includes('234')?'dia':'semana';
+}
+
+function aplicarSueldoGrupo(){
+  const sueldo=parseFloat(document.getElementById('grupo-sueldo-inp')?.value||0);
+  if(!sueldo){showToast('⚠️ Escribe el sueldo a aplicar');return;}
+  const tipo=getGrupoTipo();
+  let count=0;
+  document.querySelectorAll('#cfg-el .eitem').forEach(row=>{
+    const chk=row.querySelector('.emp-check');
+    if(!chk||chk.textContent!=='✓') return;
+    // Update salary input
+    const inp=row.querySelector('.emp-sueldo-inp');
+    if(inp){inp.value=sueldo;inp.dataset.tipo=tipo;}
+    // Update tipo toggle buttons in this row
+    row.querySelectorAll('.cfg-tipo-btn').forEach(b=>{
+      const isThis=b.dataset.tipo===tipo;
+      b.style.background=isThis?'var(--n)':'white';
+      b.style.color=isThis?'white':'var(--t3)';
+    });
+    count++;
+  });
+  if(!count){showToast('⚠️ Selecciona al menos un empleado');return;}
+  const tipoLbl=tipo==='dia'?'día':'semana';
+  showToast(`⚡ $${sueldo}/${tipoLbl} aplicado a ${count} empleado${count!==1?'s':''}`);
+}
+
+function setCfgTipo(empIdx, tipo, btn){
+  const row=btn.closest('.eitem');
+  row.querySelectorAll('.cfg-tipo-btn').forEach(b=>{
+    const isThis=b.dataset.tipo===tipo;
+    b.style.background=isThis?'var(--n)':'white';
+    b.style.color=isThis?'white':'var(--t3)';
+  });
+  const inp=row.querySelector(`.emp-sueldo-inp[data-idx="${empIdx}"]`);
+  if(inp) inp.dataset.tipo=tipo;
 }
 
 async function guardarSueldos(){
@@ -2476,12 +2679,13 @@ async function guardarSueldos(){
     const city=inp.dataset.city;
     const idx=parseInt(inp.dataset.idx);
     const sueldo=parseFloat(inp.value||0);
+    const tipo=inp.dataset.tipo||'dia';
     const emps=city==='wash'?EW:EC;
-    if(emps[idx]) emps[idx].s=sueldo;
+    if(emps[idx]){emps[idx].s=sueldo;emps[idx].t=tipo;}
   });
   await SD('EW',EW);await SD('EC',EC);
   renderCfgE();renderNomina();
-  showToast('✅ Sueldos guardados');
+  showToast('✅ Sueldos guardados correctamente');
 }
 function renderCfgMP(){
   const c=document.getElementById('cfg-mp-list');if(!c)return;c.innerHTML='';

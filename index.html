@@ -1862,32 +1862,19 @@ function renderNomina(){
       return `<div class="nday"><div class="nday-lbl">${d}</div><button class="nday-btn ${cls}" data-emp="${i}" data-day="${k}" onclick="toggleNDay(this)">${icon}</button></div>`;
     }).join('');
     const lblTipo=tipo==='dia'?'$/día':'$/semana';
+    const sueldoLabel=sueldo>0?`$${fmt(sueldo)} ${lblTipo}`:'Sin sueldo — configura en ⚙️ Empleados';
+    const sueldoColor=sueldo>0?'var(--t2)':'var(--r)';
     row.innerHTML=`
       <div class="nav2">${ini}</div>
       <div class="ninfo">
         <div class="nname">${emp.n}</div>
         <div class="npos">${emp.p}</div>
         <div class="ndays">${daysHTML}</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap">
-          <!-- Tipo toggle -->
-          <div style="display:flex;border:1.5px solid var(--g3);border-radius:8px;overflow:hidden;flex-shrink:0">
-            <button data-emp="${i}" data-tipo="dia"
-              class="ntipo-btn ${tipo==='dia'?'ntipo-active':''}"
-              onclick="setNTipo(${i},'dia',this)"
-              style="padding:5px 9px;border:none;font-family:'Nunito',sans-serif;font-size:.68rem;font-weight:800;cursor:pointer;background:${tipo==='dia'?'var(--n)':'white'};color:${tipo==='dia'?'white':'var(--t3)'}">
-              📅 Día
-            </button>
-            <button data-emp="${i}" data-tipo="semana"
-              class="ntipo-btn ${tipo==='semana'?'ntipo-active':''}"
-              onclick="setNTipo(${i},'semana',this)"
-              style="padding:5px 9px;border:none;border-left:1.5px solid var(--g3);font-family:'Nunito',sans-serif;font-size:.68rem;font-weight:800;cursor:pointer;background:${tipo==='semana'?'var(--n)':'white'};color:${tipo==='semana'?'white':'var(--t3)'}">
-              📆 Sem.
-            </button>
-          </div>
-          <input class="nsuel" type="number" min="0" value="${sueldo||''}" placeholder="$0"
-            data-emp="${i}" data-tipo="${tipo}" oninput="updNT()"
-            style="flex:1;min-width:70px">
-          <span id="nlbl-${i}" style="font-size:.65rem;color:var(--t3);font-weight:700;white-space:nowrap">${lblTipo}</span>
+        <!-- Sueldo solo lectura — se edita en Config → Empleados -->
+        <div style="display:flex;align-items:center;gap:6px;margin-top:8px;background:var(--g2);border-radius:8px;padding:6px 10px">
+          <span style="font-size:.65rem;color:var(--t3)">💰 Sueldo:</span>
+          <span style="font-size:.82rem;font-weight:900;color:${sueldoColor}">${sueldoLabel}</span>
+          <input type="hidden" class="nsuel" data-emp="${i}" data-tipo="${tipo}" value="${sueldo||0}">
         </div>
       </div>
       <div class="nright">
@@ -1902,23 +1889,6 @@ function renderNomina(){
   updateNomSemanaLabel();
 }
 
-function setNTipo(empIdx, tipo, btn){
-  // Update toggle button styles
-  const row=btn.closest('.nrow');
-  row.querySelectorAll('.ntipo-btn').forEach(b=>{
-    const isThis=b.dataset.tipo===tipo;
-    b.style.background=isThis?'var(--n)':'white';
-    b.style.color=isThis?'white':'var(--t3)';
-  });
-  // Update input data attribute
-  const inp=row.querySelector(`.nsuel[data-emp="${empIdx}"]`);
-  if(inp) inp.dataset.tipo=tipo;
-  // Update label
-  const lbl=document.getElementById(`nlbl-${empIdx}`);
-  if(lbl) lbl.textContent=tipo==='dia'?'$/día':'$/semana';
-  updNT();
-}
-
 function toggleNDay(btn){
   const cycle={P:'A',A:'D',D:'P'};
   const icons={P:'✓',A:'✗',D:'D'};
@@ -1928,6 +1898,11 @@ function toggleNDay(btn){
   const next=cycle[cur]||'P';
   btn.className=`nday-btn ${clsMap[next]}`;
   btn.textContent=icons[next];
+  recalcEmp(empIdx);
+  updNT();
+}
+
+function recalcEmp(empIdx){
   const inp=document.querySelector(`.nsuel[data-emp="${empIdx}"]`);
   const sueldo=parseFloat(inp?.value||0);
   const tipo=inp?.dataset.tipo||'dia';
@@ -1938,25 +1913,13 @@ function toggleNDay(btn){
   const diasEl=document.getElementById(`ndias-${empIdx}`);
   if(pagoEl) pagoEl.textContent='$'+fmt(pago);
   if(diasEl) diasEl.textContent=diasTrab+' días';
-  updNT();
+  return pago;
 }
 
 function updNT(){
   let t=0;
   const emps=NCity==='wash'?EW:EC;
-  emps.forEach((_,i)=>{
-    const inp=document.querySelector(`.nsuel[data-emp="${i}"]`);
-    const sueldo=parseFloat(inp?.value||0);
-    const tipo=inp?.dataset.tipo||'dia';
-    const allDays=document.querySelectorAll(`.nday-btn[data-emp="${i}"]`);
-    const diasTrab=[...allDays].filter(b=>b.classList.contains('on')).length;
-    const pago=calcPago(sueldo,tipo,diasTrab);
-    const pagoEl=document.getElementById(`npago-${i}`);
-    const diasEl=document.getElementById(`ndias-${i}`);
-    if(pagoEl) pagoEl.textContent='$'+fmt(pago);
-    if(diasEl) diasEl.textContent=diasTrab+' días';
-    t+=pago;
-  });
+  emps.forEach((_,i)=>{ t+=recalcEmp(i); });
   const el=document.getElementById('ntotal');if(el)el.textContent='$'+fmt(t);
 }
 

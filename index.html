@@ -44,8 +44,8 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
 .btn-login:active{transform:scale(.98)}
 
 /* SYNC BAR — 3s countdown */
-#syncBar{height:3px;background:var(--g3);position:relative}
-#syncBarFill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--n),var(--am));border-radius:2px;width:100%}
+#syncBar{height:3px;background:var(--g3)}
+#syncBarFill{height:100%;background:linear-gradient(90deg,var(--n),var(--am));border-radius:2px;width:0%;transition:width .3s ease}
 
 /* HEADER */
 .hdr{background:linear-gradient(135deg,var(--cb) 0%,var(--cb2) 100%);color:white;padding:14px 16px 0;position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,.4)}
@@ -69,7 +69,8 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
 #notif{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--v);color:white;padding:10px 18px;border-radius:30px;font-size:.82rem;font-weight:800;z-index:9999;display:none;box-shadow:var(--sh2);white-space:nowrap;animation:popIn .3s ease;border:1px solid rgba(22,163,74,.3)}
 
 /* PUESTO SELECTOR */
-.psel{display:flex;gap:6px;overflow-x:auto;padding:0 0 12px;scrollbar-width:none}
+.psel{display:flex;gap:6px;overflow-x:auto;padding:0 0 12px;scrollbar-width:none;transition:all .2s}
+.psel:empty,.psel[style*="none"]{padding:0}
 .psel::-webkit-scrollbar{display:none}
 .pbtn{flex-shrink:0;background:rgba(255,255,255,.08);color:#d97706;border:1px solid rgba(234,88,12,.2);padding:6px 14px;border-radius:20px;font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
 .pbtn.active{background:var(--n);color:white;border-color:var(--n);box-shadow:0 4px 12px rgba(234,88,12,.35)}
@@ -292,7 +293,7 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
     </div>
     <div class="hdr-right">
       <div class="hdr-date" id="hdrDate"></div>
-      <div id="syncStatus" onclick="syncNow()"><span class="sdot green" id="sdot"></span><span id="stxt">En vivo</span></div>
+      <div id="syncStatus" onclick="syncNow()" title="Tocar para cargar datos de la nube"><span class="sdot green" id="sdot"></span><span id="stxt">🔄 Actualizar</span></div>
       <div class="ubadge" onclick="doLogout()"><span id="ubName">—</span><span id="ubRole"></span><span>↩</span></div>
     </div>
   </div>
@@ -305,7 +306,7 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
 <!-- DASHBOARD -->
 <div class="view active" id="view-dashboard">
   <div class="tip"><h3 id="tipG">¡Bienvenido! 🔥</h3><p id="tipT">—</p></div>
-  <div class="live-badge"><span class="live-dot"></span>SINCRONIZACIÓN EN VIVO — cada 3 segundos</div>
+  <div class="live-badge"><span class="live-dot" style="animation:none;background:var(--v)"></span>Datos locales — presiona 🔄 para actualizar desde la nube</div>
   <div class="kgrid">
     <div class="kcard n" data-i="💰"><div class="ki">💰</div><div class="kv" id="kv">$0</div><div class="kl">Ventas</div></div>
     <div class="kcard r" data-i="📤"><div class="ki">📤</div><div class="kv" id="kg">$0</div><div class="kl">Gastos</div></div>
@@ -373,8 +374,23 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
 <div class="view" id="view-asist">
   <div class="sh" id="atit">Asistencia</div>
   <div class="card">
-    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
-      <span class="badge v">✅ P</span><span class="badge r">❌ A</span><span class="badge az">🔵 JV</span><span class="badge am">⚫ D</span>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;background:var(--vs);padding:8px 10px;border-radius:10px">
+        <span style="font-size:16px">✅</span>
+        <div><div style="font-size:.78rem;font-weight:900;color:var(--v)">P — Presente</div><div style="font-size:.62rem;color:var(--v);opacity:.8">Trabajó ese día</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:var(--rs);padding:8px 10px;border-radius:10px">
+        <span style="font-size:16px">❌</span>
+        <div><div style="font-size:.78rem;font-weight:900;color:var(--r)">A — Ausente</div><div style="font-size:.62rem;color:var(--r);opacity:.8">No se presentó</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:var(--azs);padding:8px 10px;border-radius:10px">
+        <span style="font-size:16px">🔵</span>
+        <div><div style="font-size:.78rem;font-weight:900;color:var(--az)">JV — Justificado</div><div style="font-size:.62rem;color:var(--az);opacity:.8">Permiso / Vacaciones</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:var(--g3);padding:8px 10px;border-radius:10px">
+        <span style="font-size:16px">⚫</span>
+        <div><div style="font-size:.78rem;font-weight:900;color:var(--t2)">D — Descanso</div><div style="font-size:.62rem;color:var(--t2);opacity:.8">Día libre (Lunes)</div></div>
+      </div>
     </div>
     <div class="agrid" style="margin-bottom:8px">
       <div></div><div class="ach">Mar</div><div class="ach">Mié</div><div class="ach">Jue</div><div class="ach">Vie</div><div class="ach">Sáb</div><div class="ach">Dom</div>
@@ -492,7 +508,12 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
     </div>
   </div>
   <div id="cfg-usuarios" style="display:none">
-    <div class="sh"><span>🔐 Usuarios del Sistema</span><button class="shbtn" onclick="openM('addU')">+ Agregar</button></div>
+    <div class="sh"><span>🔐 Usuarios del Sistema</span>
+      <div style="display:flex;gap:6px">
+        <button class="bdang" style="font-size:.7rem;padding:4px 10px" onclick="eliminarTodosUsuarios()">🗑️ Borrar todos</button>
+        <button class="shbtn" onclick="openM('addU')">+ Agregar</button>
+      </div>
+    </div>
     <div class="card" id="cfg-ul"></div>
     <div class="infobox" style="margin-top:8px">
       <p>👑 <strong>Admin</strong> — Acceso total a toda la app<br><br>👷 <strong>Encargado</strong> — Solo ve y registra su puesto asignado</p>
@@ -627,8 +648,6 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
 
 <script>
 const GS='https://script.google.com/macros/s/AKfycby9ub41AcbRqhRo1KMnfvfiTcnNldNs9CCiFewET4EqD7zZqWZ5sxBqlcxCegQm9FUF2Q/exec';
-const SYNC_MS=3000; // 3 SECONDS
-
 // DEFAULTS
 const DW=['North Gate','Sahara','Renton','Tacoma','Rainier Beach','Pendiente'];
 const DC=['Chi-1a','Chi-2b','Chi-3c','Chi-4d','Chi-5e','Chi-6f','Chi-7g','Chi-8h'];
@@ -683,8 +702,7 @@ const DMP=[
 ];
 
 let CU=null,CP='',NCity='wash',CECity='wash',AS={};
-let syncInterval=null,barInterval=null;
-let lastPuestosHash=''; // detect changes from other users
+let isSaving=false;
 
 // STORAGE
 const LL=(k,d)=>{try{const v=localStorage.getItem('lct_'+k);return v?JSON.parse(v):d}catch{return d}};
@@ -698,78 +716,48 @@ let DP=LL('DP',{}),DN=LL('DN',{wash:{},chi:{}}),DA=LL('DA',{}),DF=LL('DF',{}),DG
 
 const allP=()=>[...PW,...PC];
 
-// GOOGLE SHEETS
+// GOOGLE SHEETS — saves only when user presses a save button
 async function gsG(t){try{const r=await fetch(`${GS}?tabla=${t}`);const j=await r.json();const res={};Object.entries(j.data||{}).forEach(([k,v])=>{try{res[k]=JSON.parse(v)}catch{res[k]=v}});return res}catch{return null}}
 async function gsS(t,k,v){try{await fetch(GS,{method:'POST',body:JSON.stringify({tabla:t,clave:k,valor:JSON.stringify(v)})});return true}catch{return false}}
-async function SD(k,v){SL(k,v);const ok=await gsS(k,k,v);setST(ok?'✅ Guardado':'⚠️ Local');return ok}
 
-function setST(t){const el=document.getElementById('stxt');if(el)el.textContent=t;}
-function setDot(s){const d=document.getElementById('sdot');if(!d)return;d.className='sdot '+s;}
-
-// AUTO SYNC — 3 SECONDS
-function startSync(){
-  if(syncInterval)clearInterval(syncInterval);
-  if(barInterval)clearInterval(barInterval);
-  syncInterval=setInterval(liveSync,SYNC_MS);
-  animateBar();
-}
-
-function animateBar(){
-  const f=document.getElementById('syncBarFill');if(!f)return;
-  let s=Date.now();
-  if(barInterval)clearInterval(barInterval);
-  f.style.transition='none';f.style.width='100%';
-  setTimeout(()=>{f.style.transition=`width ${SYNC_MS/1000}s linear`;f.style.width='0%';},30);
-  barInterval=setInterval(()=>{
-    if(Date.now()-s>=SYNC_MS){
-      s=Date.now();
-      f.style.transition='none';f.style.width='100%';
-      setTimeout(()=>{f.style.transition=`width ${SYNC_MS/1000}s linear`;f.style.width='0%';},30);
-    }
-  },SYNC_MS);
-}
-
-async function liveSync(){
+async function SD(k,v){
+  isSaving=true;
+  SL(k,v);
+  setST('💾 Guardando...');
   setDot('orange');
+  // Animate bar
+  const f=document.getElementById('syncBarFill');
+  if(f){f.style.width='60%';}
+  const ok=await gsS(k,k,v);
+  if(f){f.style.width='100%';setTimeout(()=>{f.style.width='0%';},600);}
+  setST(ok?'✅ Guardado':'⚠️ Solo local');
+  setDot(ok?'green':'red');
+  setTimeout(()=>{ isSaving=false; setDot('green'); },1500);
+  return ok;
+}
+
+// Manual sync — load latest data from Sheets
+async function syncNow(){
+  setST('🔄 Cargando...');setDot('orange');
+  showToast('🔄 Cargando datos...');
   const tabs=['DP','DN','DA','DF','DG','PW','PC','EW','EC','US','MP'];
-  let changed=[];
   for(const t of tabs){
     const data=await gsG(t);
     if(data&&data[t]!==undefined){
-      const newVal=data[t];
-      const oldStr=JSON.stringify(LL(t,null));
-      const newStr=JSON.stringify(newVal);
-      if(oldStr!==newStr){
-        changed.push(t);
-        SL(t,newVal);
-        if(t==='DP')DP=newVal;
-        if(t==='DN')DN=newVal;
-        if(t==='DA')DA=newVal;
-        if(t==='DF')DF=newVal;
-        if(t==='DG')DG=newVal;
-        if(t==='PW')PW=newVal;
-        if(t==='PC')PC=newVal;
-        if(t==='EW')EW=newVal;
-        if(t==='EC')EC=newVal;
-        if(t==='US')US=newVal;
-        if(t==='MP'){MP=newVal;renderMPRows();}
-      }
+      const val=data[t];SL(t,val);
+      if(t==='DP')DP=val;if(t==='DN')DN=val;if(t==='DA')DA=val;
+      if(t==='DF')DF=val;if(t==='DG')DG=val;if(t==='PW')PW=val;
+      if(t==='PC')PC=val;if(t==='EW')EW=val;if(t==='EC')EC=val;
+      if(t==='US')US=val;if(t==='MP'){MP=val;renderMPRows();}
     }
   }
-  if(changed.length){
-    buildPSel();renderDash();
-    if(changed.includes('DA'))renderAsist();
-    if(changed.includes('DN'))renderNomina();
-    // Notify if another user saved data
-    const pCh=changed.filter(t=>['DP','DA','DN'].includes(t));
-    if(pCh.length) showNotif('🔄 Datos actualizados por otro usuario');
-  }
-  setDot('green');
-  const now=new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  setST(`🔄 ${now}`);
+  buildPSel();renderDash();renderReportes();renderAsist();renderNomina();
+  setST('✅ Actualizado');setDot('green');
+  showToast('✅ Datos actualizados');
 }
 
-async function syncNow(){showToast('🔄 Sincronizando...');await liveSync();renderReportes();renderAsist();renderNomina();showToast('✅ Sincronizado');}
+function setST(t){const el=document.getElementById('stxt');if(el)el.textContent=t;}
+function setDot(s){const d=document.getElementById('sdot');if(!d)return;d.className='sdot '+s;}
 
 // AUTH
 function doLogin(){
@@ -816,8 +804,6 @@ function confirmarPuesto(){
 function doLogout(){
   if(!confirm('¿Cerrar sesión?'))return;
   CU=null;SL('session',null);
-  if(syncInterval)clearInterval(syncInterval);
-  if(barInterval)clearInterval(barInterval);
   document.getElementById('loginScreen').classList.add('show');
   document.getElementById('puestoScreen').style.display='none';
   ['mainHdr','appContent','mainNav'].forEach(id=>document.getElementById(id).style.display='none');
@@ -849,11 +835,15 @@ function showApp(){
   document.getElementById('ubRole').innerHTML=isA?'<span class="r-admin">Admin</span>':'<span class="r-enc">Encargado</span>';
   document.getElementById('hdrSub').textContent=isA?'Washington · Chicago · 14 Puestos · 37 Empleados':`Puesto: ${CU.puesto}`;
   CP=isA?(PW[0]||PC[0]):CU.puesto;
-  buildPSel();renderDash();
+  buildPSel();
+  // Hide puesto selector by default (dashboard is first view)
+  const psel=document.getElementById('puestoSel');
+  if(psel) psel.style.display='none';
+  renderDash();
   if(can('asist'))renderAsist();
   if(isA||can('nomina'))renderNomina();
   if(isA||can('reportes'))renderReportes();
-  populateEditSel();updateTip();startSync();
+  populateEditSel();updateTip();
   renderMPRows();
   document.getElementById('hdrDate').textContent=new Date().toLocaleDateString('es',{weekday:'short',day:'numeric',month:'short'});
   loadVF(CP);
@@ -910,11 +900,17 @@ function setP(p){
 }
 
 // NAV
+// Views that use the puesto selector
+const VIEWS_WITH_PSEL=['ventas','asist'];
+
 function showV(id,btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
   document.getElementById('view-'+id)?.classList.add('active');
   if(btn)btn.classList.add('active');
+  // Show puesto selector only on ventas and asistencia
+  const psel=document.getElementById('puestoSel');
+  if(psel) psel.style.display=VIEWS_WITH_PSEL.includes(id)?'flex':'none';
 }
 function setTab(id,btn){
   document.querySelectorAll('#view-reportes .tabs .tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');
@@ -1288,6 +1284,18 @@ async function addEmpleado(){
   document.getElementById('ne-nom').value='';closeM('addE');showToast(`✅ ${nom} agregado`);
 }
 
+async function eliminarTodosUsuarios(){
+  if(!confirm('¿Eliminar TODOS los usuarios excepto admin?'))return;
+  isSaving=true;
+  US=US.filter(u=>u.user==='admin');
+  SL('US',US);
+  renderCfgU();
+  showToast('🗑️ Todos los usuarios eliminados');
+  const ok=await gsS('US','US',JSON.stringify(US));
+  setST(ok?'✅ Guardado en la nube':'⚠️ Solo local');
+  setTimeout(()=>isSaving=false,2000);
+}
+
 // CONFIRM DELETE
 let pendDel=null;
 function confirmDel(type,sub,idx){
@@ -1312,8 +1320,19 @@ function confirmDel(type,sub,idx){
     };
   } else if(type==='usuario'){
     const nom=US[idx]?.user;
-    title='⚠️ Eliminar Usuario';msg=`¿Eliminar el usuario "${nom}"? Ya no podrá entrar a la app.`;
-    action=async()=>{US.splice(idx,1);await SD('US',US);renderCfgU();closeM('confirm');showToast(`🗑️ "${nom}" eliminado`);};
+    title='⚠️ Eliminar Usuario';msg=`¿Eliminar a "${nom}"? Ya no podrá entrar a la app.`;
+    action=async()=>{
+      closeM('confirm');
+      // Immediately remove from local + UI
+      US.splice(idx,1);
+      SL('US',US);
+      renderCfgU();
+      showToast(`🗑️ "${nom}" eliminado`);
+      // Then save to cloud
+      const ok=await gsS('US','US',JSON.stringify(US));
+      setST(ok?'✅ Guardado':'⚠️ Local');
+      isSaving=false;
+    };
   }
   document.getElementById('cf-title').textContent=title;
   document.getElementById('cf-msg').textContent=msg;

@@ -662,11 +662,12 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
 
 <!-- CONFIG -->
 <div class="view" id="view-config">
-  <div class="tabs">
+  <div class="tabs" style="overflow-x:auto;flex-wrap:nowrap">
     <button class="tab active" onclick="setCT('puestos',this)">📍 Puestos</button>
     <button class="tab" onclick="setCT('empleados',this)">👷 Empleados</button>
     <button class="tab" onclick="setCT('editar',this)">✏️ Editar</button>
     <button class="tab" onclick="setCT('usuarios',this)">🔐 Usuarios</button>
+    <button class="tab" onclick="setCT('mp',this)">🧅 Precios MP</button>
     <button class="tab" onclick="setCT('historial',this)">📋 Historial</button>
   </div>
   <div id="cfg-puestos" style="display:none">
@@ -757,6 +758,18 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
     <div id="hist-empty" style="text-align:center;padding:32px;color:var(--t3);font-size:.9rem;display:none">
       📋 No hay registros aún.<br>Cada vez que guardes algo aparecerá aquí.
     </div>
+  </div>
+
+  <!-- MATERIA PRIMA CATALOG — admin only -->
+  <div id="cfg-mp" style="display:none">
+    <div class="sh">
+      <span>🧅 Catálogo de Materia Prima</span>
+      <button class="shbtn" onclick="openM('addMP')">+ Agregar</button>
+    </div>
+    <div class="infobox">
+      <p>Los precios aquí afectan el cálculo de costos en <strong>todos los puestos</strong>. Solo el admin puede modificarlos.</p>
+    </div>
+    <div class="card" id="cfg-mp-list"></div>
   </div>
 </div>
 
@@ -1253,7 +1266,7 @@ function setTab(id,btn){
 function setCT(id,btn){
   document.querySelectorAll('#view-config .tabs .tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
-  ['puestos','empleados','editar','usuarios','historial'].forEach(t=>{
+  ['puestos','empleados','editar','usuarios','mp','historial'].forEach(t=>{
     const el=document.getElementById('cfg-'+t);
     if(el) el.style.display=t===id?'block':'none';
   });
@@ -1261,12 +1274,13 @@ function setCT(id,btn){
   if(id==='empleados') renderCfgE();
   if(id==='editar') populateEditSel();
   if(id==='usuarios') renderCfgU();
+  if(id==='mp') renderCfgMP();
   if(id==='historial') renderHistorial();
 }
 function setNC(city,btn){NCity=city;document.querySelectorAll('#view-nomina .cchip').forEach(c=>c.classList.remove('active'));btn.classList.add('active');renderNomina();}
 function renderCfg(){
   document.querySelectorAll('#view-config .tabs .tab').forEach((t,i)=>t.classList.toggle('active',i===0));
-  ['puestos','empleados','editar','usuarios','historial'].forEach(t=>{
+  ['puestos','empleados','editar','usuarios','mp','historial'].forEach(t=>{
     const el=document.getElementById('cfg-'+t);
     if(el) el.style.display=t==='puestos'?'block':'none';
   });
@@ -1994,6 +2008,31 @@ function renderCfgE(){
     c.appendChild(row);
   });
 }
+function renderCfgMP(){
+  const c=document.getElementById('cfg-mp-list');if(!c)return;c.innerHTML='';
+  if(!MP.length){
+    c.innerHTML='<p style="color:var(--t3);font-size:.85rem;padding:16px;text-align:center">Sin productos. Toca + Agregar.</p>';
+    return;
+  }
+  MP.forEach((item,i)=>{
+    const row=document.createElement('div');row.className='eitem';row.style.alignItems='flex-start';
+    row.innerHTML=`
+      <div class="eav" style="font-size:1.2rem;background:var(--ns);color:var(--n2)">${item.emoji}</div>
+      <div class="einfo">
+        <div class="ename">${item.nombre}</div>
+        <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap">
+          <span style="font-size:.78rem;font-weight:900;color:var(--n)">$${item.precio} / ${item.unidad}</span>
+          <span style="font-size:.72rem;color:var(--t3)">Afecta todos los puestos</span>
+        </div>
+      </div>
+      <div class="ebtns">
+        <button class="bedit" onclick="editMP(${i});openM('addMP')" style="white-space:nowrap">✏️ Editar</button>
+        <button class="bdang" onclick="delMP(${i})">🗑️</button>
+      </div>`;
+    c.appendChild(row);
+  });
+}
+
 function renderCfgU(){
   const c=document.getElementById('cfg-ul');if(!c)return;c.innerHTML='';
   US.forEach((u,i)=>{
@@ -2325,6 +2364,7 @@ function renderMPRows(){
   }
   const key=dpKey(CP,currentFecha);
   const saved=DP[key]||{};
+  const isAdmin=CU?.rol==='admin';
   MP.forEach((item,i)=>{
     const sal=saved[`mp-sal-${i}`]??'';
     const reg=saved[`mp-reg-${i}`]??'';
@@ -2338,16 +2378,21 @@ function renderMPRows(){
     row.innerHTML=`
       <div style="min-width:0;padding-top:2px">
         <div style="font-size:.82rem;font-weight:800;color:var(--t)">${item.emoji} ${item.nombre}</div>
-        <div style="font-size:.6rem;color:var(--t3);margin-top:3px">$${item.precio}/${item.unidad}</div>
+        <div style="font-size:.6rem;color:var(--t3);margin-top:3px">
+          ${isAdmin?`$${item.precio}/${item.unidad}`:`<span style="color:var(--t3);font-style:italic">Solo admin ve precios</span>`}
+        </div>
         ${consumido!==null||despVal>0?`
         <div style="margin-top:4px;display:flex;flex-direction:column;gap:2px">
-          ${consumido!==null?`<span style="font-size:.62rem;color:var(--n);font-weight:800">🔥 $${fmt(costoConsumo)}</span>`:''}
-          ${despVal>0?`<span style="font-size:.62rem;color:var(--r);font-weight:800">🗑️ $${fmt(costoDesp)}</span>`:''}
+          ${consumido!==null&&isAdmin?`<span style="font-size:.62rem;color:var(--n);font-weight:800">🔥 $${fmt(costoConsumo)}</span>`:''}
+          ${despVal>0&&isAdmin?`<span style="font-size:.62rem;color:var(--r);font-weight:800">🗑️ $${fmt(costoDesp)}</span>`:''}
+          ${consumido!==null&&!isAdmin?`<span style="font-size:.62rem;color:var(--n);font-weight:800">🔥 Usó: ${consumido} ${item.unidad}</span>`:''}
+          ${despVal>0&&!isAdmin?`<span style="font-size:.62rem;color:var(--r);font-weight:800">🗑️ Daño: ${despVal} ${item.unidad}</span>`:''}
         </div>`:''}
+        ${isAdmin?`
         <div style="display:flex;gap:4px;margin-top:4px">
           <button class="bedit" style="padding:2px 7px;font-size:.62rem;border-radius:6px" onclick="editMP(${i})">✏️</button>
           <button class="bdang" style="padding:2px 7px;font-size:.62rem;border-radius:6px" onclick="delMP(${i})">🗑️</button>
-        </div>
+        </div>`:''}
       </div>
       <input class="mp-inp-sal" type="number" min="0" id="mp-sal-${i}" placeholder="0"
         value="${sal}" oninput="calcMPRow(${i})">
@@ -2400,6 +2445,7 @@ function calcMPRow(i){
 }
 
 function calcMPTotal(){
+  const isAdmin=CU?.rol==='admin';
   let totalConsumo=0,totalDesp=0;let hasAny=false;
   MP.forEach((item,i)=>{
     const sal=parseFloat(document.getElementById(`mp-sal-${i}`)?.value||0);
@@ -2411,7 +2457,7 @@ function calcMPTotal(){
     if(des>0){totalDesp+=des*item.precio;hasAny=true;}
   });
   const wrap=document.getElementById('mp-totales');
-  if(wrap) wrap.style.display=hasAny?'block':'none';
+  if(wrap) wrap.style.display=hasAny&&isAdmin?'block':'none';
   const cv=document.getElementById('mp-costo-val');if(cv)cv.textContent='$'+fmt(totalConsumo);
   const dv=document.getElementById('mp-desp-val');if(dv)dv.textContent='$'+fmt(totalDesp);
   const tv=document.getElementById('mp-total-val');if(tv)tv.textContent='$'+fmt(totalConsumo+totalDesp);
@@ -2453,11 +2499,14 @@ async function saveMP(){
   const precio=parseFloat(document.getElementById('mp-precio').value||0);
   const unidad=document.getElementById('mp-unidad').value;
   if(!nombre){showToast('⚠️ Escribe el nombre del producto');return;}
+  const antes=!isNew?`$${MP[idx]?.precio}/${MP[idx]?.unidad}`:null;
   if(isNew){MP.push({emoji,nombre,precio,unidad});}
   else{MP[idx]={emoji,nombre,precio,unidad};}
   await SD('MP',MP);
-  renderMPRows();closeM('addMP');
-  showToast(isNew?`✅ "${nombre}" agregado`:`✅ "${nombre}" actualizado`);
+  await logChange('Materia Prima',isNew?`Nuevo: ${nombre}`:`Precio actualizado: ${nombre}`,
+    antes,`$${precio}/${unidad}`);
+  renderMPRows();renderCfgMP();closeM('addMP');
+  showToast(isNew?`✅ "${nombre}" agregado`:`✅ "${nombre}" actualizado — todos los puestos`);
 }
 
 async function delMP(idx){
@@ -2465,7 +2514,8 @@ async function delMP(idx){
   if(!confirm(`¿Eliminar "${nom}" de la lista?`))return;
   MP.splice(idx,1);
   await SD('MP',MP);
-  renderMPRows();
+  await logChange('Materia Prima',`Eliminado: ${nom}`,null,null);
+  renderMPRows();renderCfgMP();
   showToast(`🗑️ "${nom}" eliminado`);
 }
 

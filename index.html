@@ -498,32 +498,13 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
     </div>
   </div>
   <div class="card">
-    <div class="ctit">💰 Efectivo por Día</div>
-    <div class="dgrid">
-      <div class="dh">Lun</div><div class="dh">Mar</div><div class="dh">Mié</div><div class="dh">Jue</div><div class="dh">Vie</div><div class="dh">Sáb</div><div class="dh">Dom</div>
-      <input class="di lun" value="D" readonly>
-      <input class="di" type="number" min="0" id="ve-mar-ef" oninput="calcV()">
-      <input class="di" type="number" min="0" id="ve-mie-ef" oninput="calcV()">
-      <input class="di" type="number" min="0" id="ve-jue-ef" oninput="calcV()">
-      <input class="di" type="number" min="0" id="ve-vie-ef" oninput="calcV()">
-      <input class="di" type="number" min="0" id="ve-sab-ef" oninput="calcV()">
-      <input class="di" type="number" min="0" id="ve-dom-ef" oninput="calcV()">
-    </div>
+    <div class="ctit">💰 Ventas del Día</div>
+    <p style="font-size:.72rem;color:var(--t3);margin-bottom:12px" id="ventas-dia-lbl">Registrando para la fecha seleccionada arriba</p>
+    <div class="crow"><span class="clbl">💵 Efectivo</span><input class="cinp" type="number" min="0" id="ve-dia-ef" oninput="calcV()" placeholder="$0.00"></div>
+    <div class="crow"><span class="clbl">💳 Tarjeta</span><input class="cinp" type="number" min="0" id="ve-dia-tj" oninput="calcV()" placeholder="$0.00"></div>
+    <div class="crow"><span class="clbl">📱 Otros pagos</span><input class="cinp" type="number" min="0" id="ve-dia-ot" oninput="calcV()" placeholder="$0.00"></div>
     <div class="ftot"><span>💵 Efectivo</span><span id="tef">$0</span></div>
-  </div>
-  <div class="card">
-    <div class="ctit">💳 Tarjeta por Día</div>
-    <div class="dgrid">
-      <div class="dh">Lun</div><div class="dh">Mar</div><div class="dh">Mié</div><div class="dh">Jue</div><div class="dh">Vie</div><div class="dh">Sáb</div><div class="dh">Dom</div>
-      <input class="di lun" value="D" readonly>
-      <input class="di" type="number" min="0" id="ve-mar-tj" oninput="calcV()">
-      <input class="di" type="number" min="0" id="ve-mie-tj" oninput="calcV()">
-      <input class="di" type="number" min="0" id="ve-jue-tj" oninput="calcV()">
-      <input class="di" type="number" min="0" id="ve-vie-tj" oninput="calcV()">
-      <input class="di" type="number" min="0" id="ve-sab-tj" oninput="calcV()">
-      <input class="di" type="number" min="0" id="ve-dom-tj" oninput="calcV()">
-    </div>
-    <div class="ftot"><span>💳 Tarjeta</span><span id="ttj">$0</span></div>
+    <div class="ftot" style="margin-top:4px"><span>💳 Tarjeta + Otros</span><span id="ttj">$0</span></div>
     <div class="ftot b" style="margin-top:6px"><span>🏆 VENTAS BRUTAS</span><span id="tbruto">$0</span></div>
   </div>
   <div class="card">
@@ -532,7 +513,17 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
     <div class="crow"><span class="clbl">🧊 Hielo</span><input class="cinp" type="number" id="g-hie" oninput="calcV()"></div>
     <div class="crow"><span class="clbl">🔧 Reparación</span><input class="cinp" type="number" id="g-rep" oninput="calcV()"></div>
     <div class="crow"><span class="clbl">🛣️ Casetas</span><input class="cinp" type="number" id="g-cas" oninput="calcV()"></div>
-    <div class="crow"><span class="clbl">📦 Otros</span><input class="cinp" type="number" id="g-otr" oninput="calcV()"></div>
+    <!-- Otros con descripción -->
+    <div style="padding:10px 0;border-bottom:1px solid var(--g2)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <span class="clbl" style="flex:1">📦 Otros</span>
+        <input class="cinp" type="number" id="g-otr" oninput="calcV()" style="width:100px">
+      </div>
+      <input type="text" id="g-otr-desc" placeholder="¿Qué compraron? Ej: bolsas, servilletas, limpieza..."
+        style="width:100%;border:1.5px solid var(--g3);border-radius:8px;padding:8px 10px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:600;color:var(--t);background:var(--g2);outline:none;transition:all .15s"
+        onfocus="this.style.borderColor='var(--n)';this.style.background='white'"
+        onblur="this.style.borderColor='var(--g3)';this.style.background='var(--g2)'">
+    </div>
     <div class="ftot d"><span>Total Gastos</span><span id="gtot">$0</span></div>
   </div>
   <div class="card">
@@ -1288,26 +1279,32 @@ function setCEC(city,btn){
 
 // VENTAS
 function calcV(){
-  const ds=['mar','mie','jue','vie','sab','dom'];let ef=0,tj=0;
-  ds.forEach(d=>{ef+=parseFloat(document.getElementById(`ve-${d}-ef`)?.value||0);tj+=parseFloat(document.getElementById(`ve-${d}-tj`)?.value||0);});
+  const ef=parseFloat(document.getElementById('ve-dia-ef')?.value||0);
+  const tj=parseFloat(document.getElementById('ve-dia-tj')?.value||0);
+  const ot=parseFloat(document.getElementById('ve-dia-ot')?.value||0);
   document.getElementById('tef').textContent='$'+fmt(ef);
-  document.getElementById('ttj').textContent='$'+fmt(tj);
-  document.getElementById('tbruto').textContent='$'+fmt(ef+tj);
+  document.getElementById('ttj').textContent='$'+fmt(tj+ot);
+  document.getElementById('tbruto').textContent='$'+fmt(ef+tj+ot);
   const g=['gas','hie','rep','cas','otr'].reduce((a,k)=>a+parseFloat(document.getElementById(`g-${k}`)?.value||0),0);
   document.getElementById('gtot').textContent='$'+fmt(g);
 }
+
 function loadVF(p,fecha){
   const key=dpKey(p,fecha||currentFecha);
   const d=DP[key]||{};
-  ['mar','mie','jue','vie','sab','dom'].forEach(dia=>{
-    const ef=document.getElementById(`ve-${dia}-ef`);const tj=document.getElementById(`ve-${dia}-tj`);
-    if(ef)ef.value=d[`ve-${dia}-ef`]||'';if(tj)tj.value=d[`ve-${dia}-tj`]||'';
-  });
+  // Load single-day fields
+  const ef=document.getElementById('ve-dia-ef');if(ef)ef.value=d['ve-ef']||'';
+  const tj=document.getElementById('ve-dia-tj');if(tj)tj.value=d['ve-tj']||'';
+  const ot=document.getElementById('ve-dia-ot');if(ot)ot.value=d['ve-ot']||'';
   ['gas','hie','rep','cas','otr'].forEach(k=>{const el=document.getElementById(`g-${k}`);if(el)el.value=d[`g-${k}`]||'';});
-  // Update date status label
+  // Otros descripción
+  const desc=document.getElementById('g-otr-desc');if(desc)desc.value=d['g-otr-desc']||'';
+  // Update date label
   const lbl=document.getElementById('fechaVentasLabel');
   const status=document.getElementById('fechaVentasStatus');
+  const dlbl=document.getElementById('ventas-dia-lbl');
   if(lbl) lbl.textContent=fmtFecha(fecha||currentFecha);
+  if(dlbl) dlbl.textContent=`📅 ${fmtFecha(fecha||currentFecha)}`;
   if(status) status.textContent=d.fechaGuardado?`Último guardado: ${d.fechaGuardado} por ${d.guardadoPor||'—'}`:'Sin registro para esta fecha';
   renderMPRows();
   calcV();
@@ -1318,13 +1315,14 @@ function onFechaChange(){
   if(!fecha)return;
   currentFecha=fecha;
   loadVF(CP,fecha);
-  // Also update asistencia date
   const aKey=`${CP}__${fecha}`;
   if(DA[aKey]) renderAsist();
 }
+
 function limpiarV(){
-  ['mar','mie','jue','vie','sab','dom'].forEach(d=>{['ef','tj'].forEach(t=>{const el=document.getElementById(`ve-${d}-${t}`);if(el)el.value='';});});
+  ['ve-dia-ef','ve-dia-tj','ve-dia-ot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['gas','hie','rep','cas','otr'].forEach(k=>{const el=document.getElementById(`g-${k}`);if(el)el.value='';});
+  const desc=document.getElementById('g-otr-desc');if(desc)desc.value='';
   MP.forEach((_,i)=>{
     const sal=document.getElementById(`mp-sal-${i}`);if(sal)sal.value='';
     const reg=document.getElementById(`mp-reg-${i}`);if(reg)reg.value='';
@@ -1333,22 +1331,24 @@ function limpiarV(){
   const wrap=document.getElementById('mp-costo-total');if(wrap)wrap.style.display='none';
   calcV();showToast('🗑️ Formulario limpiado');
 }
+
 async function guardarVentas(){
   const d={};
-  ['mar','mie','jue','vie','sab','dom'].forEach(dia=>{d[`ve-${dia}-ef`]=parseFloat(document.getElementById(`ve-${dia}-ef`)?.value||0);d[`ve-${dia}-tj`]=parseFloat(document.getElementById(`ve-${dia}-tj`)?.value||0);});
+  // Single-day values
+  d['ve-ef']=parseFloat(document.getElementById('ve-dia-ef')?.value||0);
+  d['ve-tj']=parseFloat(document.getElementById('ve-dia-tj')?.value||0);
+  d['ve-ot']=parseFloat(document.getElementById('ve-dia-ot')?.value||0);
   ['gas','hie','rep','cas','otr'].forEach(k=>{d[`g-${k}`]=parseFloat(document.getElementById(`g-${k}`)?.value||0);});
+  d['g-otr-desc']=document.getElementById('g-otr-desc')?.value?.trim()||'';
   // Save materia prima: salida, regreso y consumido
   MP.forEach((item,i)=>{
     const sal=parseFloat(document.getElementById(`mp-sal-${i}`)?.value||0);
     const reg=parseFloat(document.getElementById(`mp-reg-${i}`)?.value||0);
     const consumido=Math.max(0,sal-reg);
-    d[`mp-sal-${i}`]=sal;
-    d[`mp-reg-${i}`]=reg;
-    d[`mp-con-${i}`]=consumido;
-    d[`mp-cos-${i}`]=consumido*item.precio; // costo
+    d[`mp-sal-${i}`]=sal;d[`mp-reg-${i}`]=reg;
+    d[`mp-con-${i}`]=consumido;d[`mp-cos-${i}`]=consumido*item.precio;
   });
-  const ds=['mar','mie','jue','vie','sab','dom'];
-  d.totalVentas=ds.reduce((a,dia)=>a+d[`ve-${dia}-ef`]+d[`ve-${dia}-tj`],0);
+  d.totalVentas=d['ve-ef']+d['ve-tj']+d['ve-ot'];
   d.totalGastos=['gas','hie','rep','cas','otr'].reduce((a,k)=>a+(d[`g-${k}`]||0),0);
   d.fechaGuardado=new Date().toLocaleString('es');
   d.fechaRegistro=currentFecha;
@@ -1357,15 +1357,14 @@ async function guardarVentas(){
   const antes=DP[key];
   DP[key]=d;
   await SD('DP',DP);
-  // Build MP summary for log
   const mpResumen=MP.map((item,i)=>{
     const sal=d[`mp-sal-${i}`]||0;const reg=d[`mp-reg-${i}`]||0;const con=d[`mp-con-${i}`]||0;
     return sal>0?`${item.emoji}${item.nombre}: ${sal}→${reg} (usó ${con})`:null;
   }).filter(Boolean).join(', ');
-
+  const otrosDesc=d['g-otr-desc']?` | Otros: ${d['g-otr-desc']}`:'';
   await logChange('Ventas',`${CP} — ${fmtFecha(currentFecha)}`,
     antes?`$${fmt(antes.totalVentas||0)} ventas`:null,
-    `$${fmt(d.totalVentas)} ventas / $${fmt(d.totalGastos)} gastos${mpResumen?` | MP: ${mpResumen}`:''}`);
+    `$${fmt(d.totalVentas)} ventas / $${fmt(d.totalGastos)} gastos${otrosDesc}${mpResumen?` | MP: ${mpResumen}`:''}`);
   renderDash();renderReportes();
   showToast('✅ Guardado — '+CP+' · '+fmtFecha(currentFecha));
 }
@@ -2281,15 +2280,16 @@ function loadEditForm(){
   const key=dpKey(p,fecha);
   c.style.display='block';
   const d=DP[key]||{};
-  const ds=['mar','mie','jue','vie','sab','dom'];
-  const ef=ds.reduce((a,dia)=>a+parseFloat(d[`ve-${dia}-ef`]||0),0);
-  const tj=ds.reduce((a,dia)=>a+parseFloat(d[`ve-${dia}-tj`]||0),0);
-  document.getElementById('ed-ef').value=ef||'';document.getElementById('ed-tj').value=tj||'';
+  // Use new single-day keys, fall back to old week keys for legacy data
+  const ef=d['ve-ef']||0;
+  const tj=(d['ve-tj']||0)+(d['ve-ot']||0);
+  document.getElementById('ed-ef').value=ef||'';
+  document.getElementById('ed-tj').value=tj||'';
   ['gas','hie','rep','cas','otr'].forEach(k=>{const el=document.getElementById(`ed-${k}`);if(el)el.value=d[`g-${k}`]||'';});
-  // Show existing record info
   const info=document.getElementById('editFormInfo');
   if(info) info.textContent=d.fechaGuardado?`Último guardado: ${d.fechaGuardado} por ${d.editadoPor||d.guardadoPor||'—'}`:'Sin registro para esta fecha';
 }
+
 async function guardarEdicion(){
   const p=document.getElementById('editPsel').value;if(!p)return;
   const fecha=document.getElementById('editFechaSel')?.value||currentFecha;
@@ -2297,10 +2297,11 @@ async function guardarEdicion(){
   const d=DP[key]||{};
   const ef=parseFloat(document.getElementById('ed-ef').value||0);
   const tj=parseFloat(document.getElementById('ed-tj').value||0);
-  ['mar','mie','jue','vie','sab','dom'].forEach(dia=>{d[`ve-${dia}-ef`]=ef/6;d[`ve-${dia}-tj`]=tj/6;});
+  d['ve-ef']=ef;d['ve-tj']=tj;d['ve-ot']=0;
   ['gas','hie','rep','cas','otr'].forEach(k=>{d[`g-${k}`]=parseFloat(document.getElementById(`ed-${k}`).value||0);});
   const antes=DP[key]?`$${fmt(DP[key].totalVentas||0)} ventas`:null;
-  d.totalVentas=ef+tj;d.totalGastos=['gas','hie','rep','cas','otr'].reduce((a,k)=>a+(d[`g-${k}`]||0),0);
+  d.totalVentas=ef+tj;
+  d.totalGastos=['gas','hie','rep','cas','otr'].reduce((a,k)=>a+(d[`g-${k}`]||0),0);
   d.fechaGuardado=new Date().toLocaleString('es');d.fechaRegistro=fecha;d.editadoPor=CU?.user||'admin';
   DP[key]=d;await SD('DP',DP);
   await logChange('Ventas',`Edición: ${p} — ${fmtFecha(fecha)}`,antes,`$${fmt(d.totalVentas)} ventas / $${fmt(d.totalGastos)} gastos`);

@@ -683,7 +683,28 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
       <p style="font-size:.72rem;color:var(--t3);margin-top:-8px;margin-bottom:12px">💡 Si lo dejas vacío, el empleado podrá elegir su puesto cuando inicie sesión</p>
     </div>
     <div id="mu-permisos-wrap" style="background:var(--g2);border-radius:var(--Rs);padding:14px;margin-bottom:12px">
-      <label class="mlbl" style="margin-bottom:12px">🔑 Permisos del Encargado</label>
+
+      <!-- CIUDAD ACCESS -->
+      <label class="mlbl" style="margin-bottom:10px">🌎 Acceso por Ciudad</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:white;padding:10px;border-radius:10px;border:1.5px solid var(--g3)" id="ciudad-wash-label">
+          <input type="checkbox" id="perm-ciudad-wash" style="width:17px;height:17px;accent-color:var(--n)" onchange="onCiudadPermChange()">
+          <div><div style="font-size:.82rem;font-weight:800">🌲 Washington</div><div style="font-size:.62rem;color:var(--t3)">Ver todos sus puestos</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:white;padding:10px;border-radius:10px;border:1.5px solid var(--g3)" id="ciudad-chi-label">
+          <input type="checkbox" id="perm-ciudad-chi" style="width:17px;height:17px;accent-color:var(--az)" onchange="onCiudadPermChange()">
+          <div><div style="font-size:.82rem;font-weight:800">🌆 Chicago</div><div style="font-size:.62rem;color:var(--t3)">Ver todos sus puestos</div></div>
+        </label>
+      </div>
+
+      <!-- PUESTO ESPECIFICO (solo visible si NO es manager de ciudad) -->
+      <div id="mu-puesto-especifico-wrap">
+        <label class="mlbl" style="margin-bottom:6px">📍 O un puesto específico</label>
+        <p style="font-size:.68rem;color:var(--t3);margin-bottom:8px">Si marcas una ciudad arriba, verá todos sus puestos. Si no, selecciona uno específico.</p>
+      </div>
+
+      <!-- PERMISOS DE SECCIONES -->
+      <label class="mlbl" style="margin-bottom:10px;margin-top:4px">🔑 Permisos de Secciones</label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:white;padding:10px;border-radius:10px;border:1.5px solid var(--g3)">
           <input type="checkbox" id="perm-ventas" style="width:17px;height:17px;accent-color:var(--n)">
@@ -710,7 +731,7 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
           <span style="font-size:.82rem;font-weight:800">🏠 Dashboard</span>
         </label>
       </div>
-      <p style="font-size:.7rem;color:var(--t3);margin-top:10px">💡 Ventas y Dashboard siempre activos por defecto</p>
+      <p style="font-size:.68rem;color:var(--t3);margin-top:10px">💡 Un manager de ciudad ve todos los puestos de esa ciudad en el selector de puestos</p>
     </div>
     <div class="macts"><button class="bmcancel" onclick="closeM('addU')">Cancelar</button><button class="bsave" id="mu-savebtn" onclick="saveUsuario()">✅ GUARDAR</button></div>
   </div>
@@ -873,7 +894,6 @@ function doLogin(){
   const nombre=document.getElementById('liUser').value.trim();
   const pass=document.getElementById('liPass').value;
   const err=document.getElementById('loginErr');
-  // Search by name (case insensitive) and password
   const found=US.find(u=>u.user.toLowerCase()===nombre.toLowerCase()&&u.pass===pass);
   if(!found){
     err.style.display='block';
@@ -882,9 +902,10 @@ function doLogin(){
     return;
   }
   CU=found;SL('session',found);err.style.display='none';
-  // If encargado with no puesto assigned, show puesto selector
-  if(CU.rol==='encargado'&&!CU.puesto){
-    showPuestoSelector();
+  // Check if user needs to pick a puesto
+  const hasCiudad=CU.perms?.['ciudad-wash']||CU.perms?.['ciudad-chi'];
+  if(CU.rol==='encargado'&&!CU.puesto&&!hasCiudad){
+    showPuestoSelector(); // no city access and no puesto — must pick one
   } else {
     showApp();
   }
@@ -894,7 +915,13 @@ function showPuestoSelector(){
   document.getElementById('loginScreen').classList.remove('show');
   const sel=document.getElementById('puestoScreenSel');
   sel.innerHTML='<option value="">— Selecciona tu puesto —</option>';
-  allP().forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);});
+  // Only show puestos from accessible cities
+  const p=CU.perms||{};
+  const showWash=p['ciudad-wash'];
+  const showChi=p['ciudad-chi'];
+  // If no city perm, show all (encargado will pick one specific puesto)
+  const lista=(showWash||showChi)?[...(showWash?PW:[]),...(showChi?PC:[])]:allP();
+  lista.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);});
   document.getElementById('puestoScreen').style.display='flex';
 }
 
@@ -928,10 +955,10 @@ function showApp(){
   // Helper: can user access this section?
   const can=(section)=>isA||perms[section]===true;
 
-  // Admin-only nav buttons (nomina, reportes, config)
+  // Admin-only nav buttons
   document.querySelectorAll('.ao').forEach(el=>el.style.display=isA?'':'none');
 
-  // Per-permission nav buttons for encargados
+  // Per-permission nav buttons
   document.querySelectorAll('.nbtn').forEach(btn=>{
     const lbl=btn.querySelector('.nl')?.textContent||'';
     if(lbl==='Ventas')   btn.style.display=can('ventas')?'':'none';
@@ -940,12 +967,26 @@ function showApp(){
     if(lbl==='Reportes') btn.style.display=isA||can('reportes')?'':'none';
     if(lbl==='Config')   btn.style.display=isA||can('config')?'':'none';
   });
+
   document.getElementById('ubName').textContent=CU.user;
   document.getElementById('ubRole').innerHTML=isA?'<span class="r-admin">Admin</span>':'<span class="r-enc">Encargado</span>';
-  document.getElementById('hdrSub').textContent=isA?'Washington · Chicago · 14 Puestos · 37 Empleados':`Puesto: ${CU.puesto}`;
-  CP=isA?(PW[0]||PC[0]):CU.puesto;
+
+  // Build subtitle based on city access
+  if(isA){
+    document.getElementById('hdrSub').textContent='Washington · Chicago · 14 Puestos · 37 Empleados';
+  } else {
+    const ciudades=getUserCiudades();
+    const puestosUser=getUserPuestos();
+    if(ciudades.length===2) document.getElementById('hdrSub').textContent='Washington · Chicago';
+    else if(ciudades.includes('wash')) document.getElementById('hdrSub').textContent='🌲 Washington';
+    else if(ciudades.includes('chi')) document.getElementById('hdrSub').textContent='🌆 Chicago';
+    else document.getElementById('hdrSub').textContent=`Puesto: ${CU.puesto||'—'}`;
+  }
+
+  // Set default puesto
+  const userPuestos=isA?allP():getUserPuestos();
+  CP=userPuestos[0]||'';
   buildPSel();
-  // Hide puesto selector by default (dashboard is first view)
   const psel=document.getElementById('puestoSel');
   if(psel) psel.style.display='none';
   renderDash();
@@ -955,13 +996,9 @@ function showApp(){
   populateEditSel();updateTip();
   renderMPRows();
   document.getElementById('hdrDate').textContent=new Date().toLocaleDateString('es',{weekday:'short',day:'numeric',month:'short'});
-  // Initialize date picker with today
-  currentFecha=todayStr();
-  currentFechaNomina=todayStr();
-  const fp=document.getElementById('fechaVentas');
-  if(fp) fp.value=currentFecha;
-  const fn=document.getElementById('fechaNomina');
-  if(fn){ fn.value=currentFechaNomina; updateNomSemanaLabel(); }
+  currentFecha=todayStr();currentFechaNomina=todayStr();
+  const fp=document.getElementById('fechaVentas');if(fp) fp.value=currentFecha;
+  const fn=document.getElementById('fechaNomina');if(fn){fn.value=currentFechaNomina;updateNomSemanaLabel();}
   loadVF(CP);
 }
 
@@ -995,10 +1032,31 @@ function updateTip(){
 }
 
 // PUESTO SELECTOR
+// Get which cities the current user can access
+function getUserCiudades(){
+  if(!CU||CU.rol==='admin') return ['wash','chi'];
+  const p=CU.perms||{};
+  const ciudades=[];
+  if(p['ciudad-wash']) ciudades.push('wash');
+  if(p['ciudad-chi']) ciudades.push('chi');
+  return ciudades;
+}
+
+// Get all puestos the current user can access
+function getUserPuestos(){
+  if(!CU||CU.rol==='admin') return allP();
+  const ciudades=getUserCiudades();
+  let lista=[];
+  if(ciudades.includes('wash')) lista=[...lista,...PW];
+  if(ciudades.includes('chi')) lista=[...lista,...PC];
+  // If no city access but has a specific puesto, use that
+  if(!lista.length&&CU.puesto) lista=[CU.puesto];
+  return lista;
+}
+
 function buildPSel(){
   const sel=document.getElementById('puestoSel');if(!sel)return;sel.innerHTML='';
-  const isA=CU?.rol==='admin';
-  const lista=isA?allP():[CU?.puesto].filter(Boolean);
+  const lista=getUserPuestos();
   if(!CP||!lista.includes(CP))CP=lista[0]||'';
   lista.forEach(p=>{
     const btn=document.createElement('button');
@@ -1328,17 +1386,30 @@ function getDPuesto(p){
 // DASHBOARD
 function renderDash(){
   const isA=CU?.rol==='admin';
+  const ciudades=getUserCiudades();
   let tV=0,tG=0,tN=0;
-  ['wash','chi'].forEach(city=>{const emps=city==='wash'?EW:EC;const s=DN[city]||{};emps.forEach((_,i)=>tN+=parseFloat(s[i]?.sueldo||0));});
-  const lista=isA?allP():[CU?.puesto].filter(Boolean);
+  // Sum nómina only for accessible cities
+  const nomCities=isA?['wash','chi']:ciudades;
+  nomCities.forEach(city=>{
+    const emps=city==='wash'?EW:EC;
+    // Sum across all date keys for this city
+    Object.keys(DN).filter(k=>k.startsWith(city+'__')||k===city).forEach(key=>{
+      const s=DN[key]||{};
+      emps.forEach((_,i)=>{if(s[i]?.pago)tN+=parseFloat(s[i].pago||0);else if(s[i]?.sueldo)tN+=parseFloat(s[i].sueldo||0);});
+    });
+  });
+  const lista=getUserPuestos();
   lista.forEach(p=>{const d=getDPuesto(p);tV+=d.totalVentas;tG+=d.totalGastos;});
-  const util=tV-tG-(isA?tN:0);
+  const util=tV-tG;
   document.getElementById('kv').textContent='$'+fmt(tV);
   document.getElementById('kg').textContent='$'+fmt(tG);
-  document.getElementById('kn').textContent=isA?'$'+fmt(tN):'—';
+  document.getElementById('kn').textContent=(isA||ciudades.length>0)?'$'+fmt(tN):'—';
   document.getElementById('ku').textContent='$'+fmt(util);
-  if(isA){renderPL('lwash',PW,'w');renderPL('lchi',PC,'c');}
-  else{const p=CU?.puesto;renderPL('lwash',PW.includes(p)?[p]:[],'w');renderPL('lchi',PC.includes(p)?[p]:[],'c');}
+  // Show only accessible city puestos
+  const showWash=isA||ciudades.includes('wash');
+  const showChi=isA||ciudades.includes('chi');
+  renderPL('lwash',showWash?PW:lista.filter(p=>PW.includes(p)),'w');
+  renderPL('lchi',showChi?PC:lista.filter(p=>PC.includes(p)),'c');
   renderMB();
 }
 function renderPL(cid,puestos,ciudad){
@@ -1477,26 +1548,36 @@ function renderCfgE(){
 function renderCfgU(){
   const c=document.getElementById('cfg-ul');if(!c)return;c.innerHTML='';
   US.forEach((u,i)=>{
-    const row=document.createElement('div');row.className='eitem';
-    row.style.alignItems='flex-start';
+    const row=document.createElement('div');row.className='eitem';row.style.alignItems='flex-start';
     const bg=u.rol==='admin'?'linear-gradient(135deg,var(--n),var(--n2))':'linear-gradient(135deg,var(--az),#1d4ed8)';
     const prot=u.user==='admin';
     const p=u.perms||{};
+
+    // City access line
+    const ciudadStr=u.rol==='encargado'?(
+      p['ciudad-wash']&&p['ciudad-chi']?'🌎 Washington + Chicago':
+      p['ciudad-wash']?'🌲 Washington':
+      p['ciudad-chi']?'🌆 Chicago':
+      u.puesto?`📍 ${u.puesto}`:'Sin puesto asignado'
+    ):'';
+
+    const badge=(txt,bg,fg)=>`<span style="font-size:.58rem;background:${bg};color:${fg};padding:2px 6px;border-radius:20px;font-weight:800">${txt}</span>`;
     const permBadges=u.rol==='encargado'?`
+      <div style="font-size:.68rem;color:var(--az);font-weight:800;margin-top:3px">${ciudadStr}</div>
       <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:5px">
-        ${p.ventas!==false?'<span style="font-size:.58rem;background:var(--ns);color:var(--n2);padding:2px 6px;border-radius:20px;font-weight:800">💰Ventas</span>':'<span style="font-size:.58rem;background:var(--rs);color:var(--r);padding:2px 6px;border-radius:20px;font-weight:800">💰Ventas</span>'}
-        ${p.asist?'<span style="font-size:.58rem;background:var(--vs);color:var(--v);padding:2px 6px;border-radius:20px;font-weight:800">✅Asist.</span>':'<span style="font-size:.58rem;background:var(--rs);color:var(--r);padding:2px 6px;border-radius:20px;font-weight:800">✅Asist.</span>'}
-        ${p.nomina?'<span style="font-size:.58rem;background:var(--ams);color:#92400E;padding:2px 6px;border-radius:20px;font-weight:800">👷Nómina</span>':''}
-        ${p.reportes?'<span style="font-size:.58rem;background:var(--azs);color:var(--az);padding:2px 6px;border-radius:20px;font-weight:800">📊Rep.</span>':''}
-        ${p.config?'<span style="font-size:.58rem;background:var(--g3);color:var(--t2);padding:2px 6px;border-radius:20px;font-weight:800">⚙️Config</span>':''}
-        ${p.dashboard!==false?'<span style="font-size:.58rem;background:var(--vs);color:var(--v);padding:2px 6px;border-radius:20px;font-weight:800">🏠Inicio</span>':''}
-      </div>`:
-      '<div style="font-size:.68rem;color:var(--t3);margin-top:3px">Acceso total a todo el sistema</div>';
+        ${p.ventas?badge('💰Ventas','var(--ns)','var(--n2)'):''}
+        ${p.asist?badge('✅Asist.','var(--vs)','var(--v)'):''}
+        ${p.nomina?badge('👷Nómina','var(--ams)','#92400E'):''}
+        ${p.reportes?badge('📊Rep.','var(--azs)','var(--az)'):''}
+        ${p.config?badge('⚙️Config','var(--g3)','var(--t2)'):''}
+        ${p.dashboard?badge('🏠Inicio','var(--vs)','var(--v)'):''}
+        ${!p.ventas&&!p.asist&&!p.nomina&&!p.reportes&&!p.config&&!p.dashboard?'<span style="font-size:.58rem;color:var(--t3)">Sin permisos de sección</span>':''}
+      </div>`:'<div style="font-size:.68rem;color:var(--t3);margin-top:3px">Acceso total a todo el sistema</div>';
     row.innerHTML=`
       <div class="eav" style="background:${bg};margin-top:2px">${u.rol==='admin'?'👑':'👷'}</div>
       <div class="einfo" style="flex:1;min-width:0">
         <div class="ename">${u.user}</div>
-        <div class="epos">${u.rol==='admin'?'Admin':`Encargado — ${u.puesto||'Sin puesto'}`}</div>
+        <div class="epos">${u.rol==='admin'?'Admin':'Encargado'}</div>
         ${permBadges}
       </div>
       <div class="ebtns" style="flex-shrink:0;margin-top:2px">
@@ -1534,13 +1615,49 @@ function togglePuestoField(){
   const isEnc=rol==='encargado';
   document.getElementById('mu-puesto-wrap').style.display=isEnc?'block':'none';
   document.getElementById('mu-permisos-wrap').style.display=isEnc?'block':'none';
+  // If a city is selected, hide the specific puesto selector
+  if(isEnc) updatePuestoVisibility();
+}
+
+function updatePuestoVisibility(){
+  const washChecked=document.getElementById('perm-ciudad-wash')?.checked;
+  const chiChecked=document.getElementById('perm-ciudad-chi')?.checked;
+  const hasCiudad=washChecked||chiChecked;
+  const wrap=document.getElementById('mu-puesto-wrap');
+  if(wrap){
+    // Show "— ciudad —" note or specific puesto selector
+    const puestoSel=document.getElementById('mu-puesto');
+    if(hasCiudad&&puestoSel){
+      puestoSel.style.opacity='0.4';
+      puestoSel.disabled=true;
+      puestoSel.value='';
+      const hint=document.querySelector('#mu-puesto-wrap .mlbl');
+      if(hint) hint.textContent='Puesto Asignado (se ignora cuando hay acceso a ciudad)';
+    } else if(puestoSel){
+      puestoSel.style.opacity='1';
+      puestoSel.disabled=false;
+      const hint=document.querySelector('#mu-puesto-wrap .mlbl');
+      if(hint) hint.textContent='Puesto Asignado';
+    }
+  }
 }
 
 const ALL_PERMS=['ventas','asist','nomina','reportes','config','dashboard'];
+const ALL_CIUDADES=['wash','chi'];
+
+function onCiudadPermChange(){
+  ['wash','chi'].forEach(c=>{
+    const lbl=document.getElementById(`ciudad-${c}-label`);
+    const chk=document.getElementById(`perm-ciudad-${c}`);
+    if(lbl&&chk) lbl.style.borderColor=chk.checked?(c==='wash'?'var(--n)':'var(--az)'):'var(--g3)';
+  });
+  updatePuestoVisibility();
+}
 
 function getPermsFromForm(){
   const p={};
   ALL_PERMS.forEach(k=>p[k]=document.getElementById(`perm-${k}`)?.checked||false);
+  ALL_CIUDADES.forEach(c=>p[`ciudad-${c}`]=document.getElementById(`perm-ciudad-${c}`)?.checked||false);
   return p;
 }
 
@@ -1549,6 +1666,11 @@ function setPermsToForm(perms){
     const el=document.getElementById(`perm-${k}`);
     if(el) el.checked=perms?.[k]===true;
   });
+  ALL_CIUDADES.forEach(c=>{
+    const el=document.getElementById(`perm-ciudad-${c}`);
+    if(el) el.checked=perms?.[`ciudad-${c}`]===true;
+  });
+  onCiudadPermChange();
 }
 
 function populatePuestoSelect(){
@@ -1569,7 +1691,9 @@ function editUsuario(idx){
   populatePuestoSelect();
   togglePuestoField();
   if(u.puesto)document.getElementById('mu-puesto').value=u.puesto;
-  setPermsToForm(u.perms||{asistencia:u.asistencia});
+  setPermsToForm(u.perms||{});
+  // Trigger city visibility update after setting perms
+  updatePuestoVisibility();
   document.getElementById('mu-savebtn').innerHTML='💾 GUARDAR CAMBIOS';
   document.getElementById('m-addU').classList.add('open');
 }
@@ -1577,12 +1701,14 @@ function editUsuario(idx){
 async function saveUsuario(){
   const idx=parseInt(document.getElementById('mu-idx').value);
   const isNew=idx===-1;
-  const user=document.getElementById('mu-user').value.trim(); // keep original casing
+  const user=document.getElementById('mu-user').value.trim();
   const pass=document.getElementById('mu-pass').value;
   const rol=document.getElementById('mu-rol').value;
-  const puesto=rol==='encargado'?document.getElementById('mu-puesto').value:'';
-  const asistencia=rol==='encargado'?document.getElementById('perm-asist').checked:true;
   const perms=rol==='encargado'?getPermsFromForm():{};
+  // If city access is granted, clear specific puesto (city access takes priority)
+  const hasCiudad=perms['ciudad-wash']||perms['ciudad-chi'];
+  const puesto=rol==='encargado'&&!hasCiudad?document.getElementById('mu-puesto').value:'';
+  const asistencia=rol==='encargado'?document.getElementById('perm-asist').checked:true;
 
   if(!user){showToast('⚠️ Escribe el nombre del empleado');return;}
   if(isNew&&!pass){showToast('⚠️ La contraseña es requerida');return;}
@@ -1592,6 +1718,12 @@ async function saveUsuario(){
   const existIdx=US.findIndex(u=>u.user.toLowerCase()===user.toLowerCase());
   if(isNew&&existIdx!==-1){showToast('⚠️ Ya existe un usuario con ese nombre');return;}
   if(!isNew&&existIdx!==-1&&existIdx!==idx){showToast('⚠️ Ese nombre ya está en uso');return;}
+
+  // Build display description for log
+  const accessDesc=hasCiudad?(
+    perms['ciudad-wash']&&perms['ciudad-chi']?'Washington+Chicago':
+    perms['ciudad-wash']?'Washington':'Chicago'
+  ):(puesto||'Sin puesto');
 
   if(isNew){
     US.push({user,pass,rol,puesto,asistencia,perms});
@@ -1603,19 +1735,18 @@ async function saveUsuario(){
     US[idx].asistencia=asistencia;
     US[idx].perms=perms;
     // If current user edited themselves, update session
-    if(CU&&CU.user===US[idx].user||(US[idx]&&US[idx].user===user)){
-      const updUser=US[idx];
-      SL('session',updUser);
-      document.getElementById('ubName').textContent=updUser.user;
+    if(CU&&(CU.user===user)){
+      SL('session',US[idx]);
+      document.getElementById('ubName').textContent=user;
     }
   }
 
   await SD('US',US);
   await logChange('Usuarios',isNew?`Nuevo usuario: ${user}`:`Editado: ${user}`,
-    isNew?null:`rol: ${US[idx]?.rol||''}, puesto: ${US[idx]?.puesto||''}`,
-    `rol: ${rol}, puesto: ${puesto||'sin asignar'}`);
+    isNew?null:`Acceso anterior`,
+    `Acceso: ${accessDesc}`);
   renderCfgU();closeM('addU');
-  showToast(isNew?`✅ Usuario "${user}" creado`:`✅ Usuario "${user}" actualizado`);
+  showToast(isNew?`✅ "${user}" creado`:`✅ "${user}" actualizado`);
 }
 
 async function addPuesto(){

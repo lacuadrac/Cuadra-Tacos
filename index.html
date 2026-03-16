@@ -361,6 +361,22 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
   <div class="ll">🌮</div>
   <div class="lt">La Cuadra Tacos</div>
   <div class="ls">Ingresa con tu nombre y contraseña</div>
+  <!-- Face ID / Touch ID button — solo aparece si está registrado -->
+  <div id="faceid-wrap" style="display:none;width:100%;max-width:340px;margin-bottom:16px">
+    <button onclick="loginConFaceID()" id="faceid-btn"
+      style="width:100%;background:linear-gradient(135deg,#1a1a1a,#333);border:none;border-radius:16px;padding:16px;color:white;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:.5px">
+      <span style="font-size:1.6rem">🔒</span>
+      <div style="text-align:left">
+        <div>Entrar con Face ID / Touch ID</div>
+        <div id="faceid-user-label" style="font-size:.72rem;opacity:.7;font-weight:600"></div>
+      </div>
+    </button>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+      <div style="flex:1;height:1px;background:rgba(255,255,255,.15)"></div>
+      <span style="font-size:.72rem;color:#a16207;font-weight:700">o ingresa con contraseña</span>
+      <div style="flex:1;height:1px;background:rgba(255,255,255,.15)"></div>
+    </div>
+  </div>
   <div class="lc">
     <div class="lerr" id="loginErr">❌ Nombre o contraseña incorrectos</div>
     <label class="ll2">Tu Nombre</label>
@@ -990,6 +1006,16 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
       </div>
       <div id="pin-status" style="font-size:.72rem;color:var(--t3);margin-top:8px"></div>
     </div>
+    <!-- Face ID / Touch ID -->
+    <div class="card">
+      <div class="ctit">🔒 Face ID / Touch ID</div>
+      <p style="font-size:.78rem;color:var(--t3);margin-bottom:12px">Registra tu cara o huella para entrar sin contraseña. Solo funciona en iPhone/iPad con Safari.</p>
+      <div id="faceid-status" style="font-size:.8rem;color:var(--t3);margin-bottom:12px;padding:8px 10px;background:var(--g2);border-radius:8px">Estado: verificando...</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="bsave" style="flex:1" onclick="registrarFaceID()">🔒 REGISTRAR FACE ID</button>
+        <button class="bdang" onclick="borrarFaceID()">🗑️ Borrar</button>
+      </div>
+    </div>
     <!-- Alertas -->
     <div class="card">
       <div class="ctit">⚠️ Alertas de Faltantes</div>
@@ -1472,6 +1498,7 @@ function showApp(){
 // INIT
 document.addEventListener('DOMContentLoaded',()=>{
   initDarkMode(); // Apply dark mode immediately before splash fades
+  initFaceIDStatus(); // Show Face ID button on login if registered
   setTimeout(()=>{
     const s=document.getElementById('splash');s.style.opacity='0';
     setTimeout(()=>{
@@ -1576,7 +1603,7 @@ function setCT(id,btn){
   if(id==='mp') renderCfgMP();
   if(id==='metas') renderCfgMetas();
   if(id==='prov') renderCfgProv();
-  if(id==='ajustes'){initPush();initPINStatus();checkFaltantes();}
+  if(id==='ajustes'){initPush();initPINStatus();checkFaltantes();initFaceIDStatus();}
   if(id==='historial') renderHistorial();
 }
 function setNC(city,btn){NCity=city;document.querySelectorAll('#view-nomina .cchip').forEach(c=>c.classList.remove('active'));btn.classList.add('active');renderNomina();}
@@ -3239,8 +3266,160 @@ function updateDarkSlider(isDark){
 }
 
 // ═══════════════════════════════════════════
-// 🔢 PIN RÁPIDO
+// 🔒 FACE ID / TOUCH ID — WebAuthn
 // ═══════════════════════════════════════════
+
+function faceIDSupported(){
+  return window.PublicKeyCredential !== undefined &&
+    typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function';
+}
+
+async function initFaceIDStatus(){
+  const status=document.getElementById('faceid-status');
+  const wrap=document.getElementById('faceid-wrap');
+
+  if(!faceIDSupported()){
+    if(status) status.textContent='⚠️ Face ID no disponible en este dispositivo/navegador. Usa Safari en iPhone/iPad.';
+    return;
+  }
+
+  const available=await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
+  const stored=LL('FACEID_DATA',null);
+
+  if(status){
+    if(!available) status.textContent='⚠️ Este dispositivo no tiene Face ID o Touch ID.';
+    else if(stored) status.textContent=`✅ Registrado para: ${stored.userName} — listo para usar al iniciar sesión.`;
+    else status.textContent='Sin registrar. Toca "Registrar Face ID" para activarlo.';
+  }
+
+  // Show Face ID button on login screen if registered
+  if(wrap){
+    if(stored&&available){
+      wrap.style.display='block';
+      const lbl=document.getElementById('faceid-user-label');
+      if(lbl) lbl.textContent=stored.userName;
+    } else {
+      wrap.style.display='none';
+    }
+  }
+}
+
+async function registrarFaceID(){
+  if(!faceIDSupported()){showToast('⚠️ Face ID no soportado en este navegador');return;}
+  const available=await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
+  if(!available){showToast('⚠️ Este dispositivo no tiene Face ID/Touch ID');return;}
+  if(!CU){showToast('⚠️ Debes estar conectado para registrar Face ID');return;}
+
+  const status=document.getElementById('faceid-status');
+  if(status) status.textContent='🔒 Esperando Face ID / Touch ID...';
+
+  try {
+    // Generate a random challenge
+    const challenge=new Uint8Array(32);
+    crypto.getRandomValues(challenge);
+
+    // User ID from username
+    const encoder=new TextEncoder();
+    const userId=encoder.encode(CU.user);
+
+    const credential=await navigator.credentials.create({
+      publicKey:{
+        challenge,
+        rp:{name:'La Cuadra Tacos',id:window.location.hostname||'localhost'},
+        user:{id:userId,name:CU.user,displayName:CU.user},
+        pubKeyCredParams:[
+          {alg:-7,type:'public-key'},  // ES256
+          {alg:-257,type:'public-key'} // RS256
+        ],
+        authenticatorSelection:{
+          authenticatorAttachment:'platform', // solo Face ID / Touch ID del dispositivo
+          userVerification:'required',
+          residentKey:'preferred'
+        },
+        timeout:60000,
+        attestation:'none'
+      }
+    });
+
+    // Save credential ID (we only store the ID, not the private key)
+    const credId=btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+    SL('FACEID_DATA',{
+      credId,
+      userName:CU.user,
+      fecha:new Date().toLocaleString('es')
+    });
+
+    await initFaceIDStatus();
+    showToast('✅ Face ID registrado correctamente');
+
+  } catch(err){
+    if(err.name==='NotAllowedError'){
+      if(status) status.textContent='❌ Face ID cancelado.';
+      showToast('Face ID cancelado');
+    } else {
+      if(status) status.textContent=`❌ Error: ${err.message}`;
+      showToast('⚠️ Error al registrar Face ID');
+    }
+  }
+}
+
+async function loginConFaceID(){
+  const stored=LL('FACEID_DATA',null);
+  if(!stored){showToast('⚠️ Face ID no registrado');return;}
+
+  const btn=document.getElementById('faceid-btn');
+  if(btn) btn.textContent='🔒 Verificando...';
+
+  try {
+    const challenge=new Uint8Array(32);
+    crypto.getRandomValues(challenge);
+
+    // Convert stored credId back to ArrayBuffer
+    const credIdBytes=Uint8Array.from(atob(stored.credId),c=>c.charCodeAt(0));
+
+    const assertion=await navigator.credentials.get({
+      publicKey:{
+        challenge,
+        rpId:window.location.hostname||'localhost',
+        allowCredentials:[{
+          id:credIdBytes.buffer,
+          type:'public-key',
+          transports:['internal']
+        }],
+        userVerification:'required',
+        timeout:60000
+      }
+    });
+
+    // Face ID verified — log in the stored user
+    const user=US.find(u=>u.user===stored.userName);
+    if(!user){showToast('⚠️ Usuario no encontrado');return;}
+
+    CU=user;SL('session',user);
+    const hasCiudad=CU.perms?.['ciudad-wash']||CU.perms?.['ciudad-chi'];
+    document.getElementById('loginScreen').classList.remove('show');
+    if(CU.rol==='encargado'&&!CU.puesto&&!hasCiudad) showPuestoSelector();
+    else showApp();
+    showToast(`✅ Bienvenido, ${CU.user}`);
+
+  } catch(err){
+    if(btn) btn.innerHTML='<span style="font-size:1.6rem">🔒</span><div style="text-align:left"><div>Entrar con Face ID / Touch ID</div><div id="faceid-user-label" style="font-size:.72rem;opacity:.7;font-weight:600">'+stored.userName+'</div></div>';
+    if(err.name==='NotAllowedError'){
+      showToast('Face ID cancelado');
+    } else {
+      showToast('⚠️ No se pudo verificar Face ID');
+    }
+  }
+}
+
+function borrarFaceID(){
+  if(!confirm('¿Eliminar Face ID registrado?'))return;
+  SL('FACEID_DATA',null);
+  const wrap=document.getElementById('faceid-wrap');
+  if(wrap) wrap.style.display='none';
+  initFaceIDStatus();
+  showToast('🗑️ Face ID eliminado');
+}
 let pinBuffer='';
 let pinTargetUser=null;
 

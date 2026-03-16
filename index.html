@@ -9,8 +9,8 @@
 <meta name="theme-color" content="#EA580C">
 <meta name="description" content="Sistema de administración La Cuadra Tacos">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon.svg">
-<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
 <title>🌮 La Cuadra Tacos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -669,7 +669,15 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
 <!-- ASISTENCIA -->
 <div class="view" id="view-asist">
   <div class="sh" id="atit">Asistencia</div>
+
+  <!-- Selector de ciudad -->
+  <div class="cchips">
+    <button class="cchip w active" id="asist-btn-wash" onclick="setAsistCity('wash',this)">🌲 Washington</button>
+    <button class="cchip c" id="asist-btn-chi" onclick="setAsistCity('chi',this)">🌆 Chicago</button>
+  </div>
+
   <div class="card">
+    <!-- Leyenda -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:8px;background:var(--vs);padding:8px 10px;border-radius:10px">
         <span style="font-size:16px">✅</span>
@@ -1239,6 +1247,7 @@ const DMP=[
 ];
 
 let CU=null,CP='',NCity='wash',CECity='wash',AS={};
+let asistCity='wash'; // ciudad activa en asistencia
 let isSaving=false;
 
 // STORAGE
@@ -1444,6 +1453,17 @@ function showApp(){
   const fn=document.getElementById('fechaNomina');if(fn){fn.value=currentFechaNomina;updateNomSemanaLabel();}
   loadVF(CP);
   renderVentaMeta();
+  // Init asist city buttons based on user permissions
+  const ciudadesUser=getUserCiudades();
+  const btnWash=document.getElementById('asist-btn-wash');
+  const btnChi=document.getElementById('asist-btn-chi');
+  if(!isA&&ciudadesUser.length===1){
+    asistCity=ciudadesUser[0];
+    if(btnWash) btnWash.classList.toggle('active',asistCity==='wash');
+    if(btnChi) btnChi.classList.toggle('active',asistCity==='chi');
+  }
+  if(btnWash) btnWash.style.display=(!isA&&ciudadesUser.length>0&&!ciudadesUser.includes('wash'))?'none':'';
+  if(btnChi) btnChi.style.display=(!isA&&ciudadesUser.length>0&&!ciudadesUser.includes('chi'))?'none':'';
   // Init new features
   initDarkMode();
   setTimeout(()=>{checkFaltantes();renderMetasEnDash();},300);
@@ -1525,7 +1545,7 @@ function setP(p){
 
 // NAV
 // Views that use the puesto selector
-const VIEWS_WITH_PSEL=['ventas','asist'];
+const VIEWS_WITH_PSEL=['ventas'];
 
 function showV(id,btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -1659,8 +1679,7 @@ function onFechaChange(){
   if(!fecha)return;
   currentFecha=fecha;
   loadVF(CP,fecha);
-  const aKey=`${CP}__${fecha}`;
-  if(DA[aKey]) renderAsist();
+  renderAsist();
 }
 
 function limpiarV(){
@@ -1731,35 +1750,60 @@ async function guardarVentas(){
 }
 
 // ASISTENCIA
+function setAsistCity(city, btn){
+  asistCity=city;
+  document.querySelectorAll('#view-asist .cchip').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  // Show/hide city buttons based on user permissions
+  const isA=CU?.rol==='admin';
+  const ciudades=getUserCiudades();
+  const atit=document.getElementById('atit');
+  if(atit) atit.textContent=`Asistencia — ${city==='wash'?'🌲 Washington':'🌆 Chicago'}`;
+  renderAsist();
+}
+
 function renderAsist(){
-  const key=`${CP}__${currentFecha}`;
+  // Use asistCity to determine which employees to show
+  const emps=asistCity==='wash'?EW:EC;
+  // Key based on city + date (not puesto)
+  const key=`asist-city__${asistCity}__${currentFecha}`;
   const saved=DA[key]||{};AS=JSON.parse(JSON.stringify(saved));
-  const emps=PW.includes(CP)?EW:EC;
   const dks=['mar','mie','jue','vie','sab','dom'];
   const c=document.getElementById('arows');if(!c)return;c.innerHTML='';
   emps.forEach((emp,i)=>{
     const row=document.createElement('div');row.className='agrid';
-    const nd=document.createElement('div');nd.className='aname';nd.textContent=emp.n;row.appendChild(nd);
+    const nd=document.createElement('div');nd.className='aname';
+    nd.innerHTML=`<div style="font-size:.82rem;font-weight:800">${emp.n}</div><div style="font-size:.6rem;color:var(--t3)">${emp.p||''}</div>`;
+    row.appendChild(nd);
     dks.forEach(dk=>{
-      const key=`${i}-${dk}`;const state=AS[key]||'P';
+      const k=`${i}-${dk}`;const state=AS[k]||'P';
       const btn=document.createElement('button');btn.className=`abtn ${state}`;btn.textContent=state;
-      btn.onclick=()=>{const cy={P:'A',A:'JV',JV:'D',D:'P'};const nx=cy[btn.textContent]||'P';btn.textContent=nx;btn.className=`abtn ${nx}`;AS[key]=nx;updAR(emps.length);};
+      btn.onclick=()=>{const cy={P:'A',A:'JV',JV:'D',D:'P'};const nx=cy[btn.textContent]||'P';btn.textContent=nx;btn.className=`abtn ${nx}`;AS[k]=nx;updAR(emps.length);};
       row.appendChild(btn);
     });
     c.appendChild(row);
   });
   updAR(emps.length);
 }
-function updAR(total){let p=0,a=0;Object.values(AS).forEach(v=>{if(v==='P')p++;else if(v==='A')a++;});const pct=total>0?Math.round(p/(total*6)*100):100;const el=document.getElementById('ares');if(el)el.textContent=`✅ ${p} presencias  ❌ ${a} ausencias  📊 ${pct}%`;}
+
+function updAR(total){
+  let p=0,a=0;
+  Object.values(AS).forEach(v=>{if(v==='P')p++;else if(v==='A')a++;});
+  const pct=total>0?Math.round(p/(total*6)*100):100;
+  const el=document.getElementById('ares');
+  if(el) el.textContent=`✅ ${p} presencias  ❌ ${a} ausencias  📊 ${pct}%`;
+}
+
 async function guardarAsist(){
-  const key=`${CP}__${currentFecha}`;
+  const key=`asist-city__${asistCity}__${currentFecha}`;
   const antes=DA[key];
   DA[key]=JSON.parse(JSON.stringify(AS));
   await SD('DA',DA);
-  await logChange('Asistencia',`${CP} — ${fmtFecha(currentFecha)}`,
-    antes?JSON.stringify(antes):null,
+  const ciudad=asistCity==='wash'?'Washington':'Chicago';
+  await logChange('Asistencia',`${ciudad} — ${fmtFecha(currentFecha)}`,
+    antes?`${Object.values(antes).filter(v=>v==='P').length} presentes`:null,
     `${Object.values(AS).filter(v=>v==='P').length} presentes`);
-  showToast('✅ Asistencia guardada — '+CP);
+  showToast(`✅ Asistencia guardada — ${ciudad}`);
 }
 
 // NOMINA
@@ -1793,7 +1837,8 @@ function renderNomina(){
   let total=0;
   emps.forEach((emp,i)=>{
     const empData=saved[i]||{};
-    const sueldo=empData.sueldo||0;
+    const sueldoBase=emp.s||0; // sueldo configurado en empleados
+    const sueldo=empData.sueldo||sueldoBase; // nómina guardada o el base
     const dias=empData.dias||{};
     const diasTrab=Object.values(dias).filter(v=>v==='P').length||6;
     const pago=sueldo>0?Math.round((sueldo/6)*diasTrab):0;
@@ -2397,10 +2442,46 @@ function renderCfgE(){
   if(!emps.length){c.innerHTML='<p style="color:var(--t3);font-size:.85rem;padding:8px">No hay empleados.</p>';return;}
   emps.forEach((emp,i)=>{
     const ini=emp.n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-    const row=document.createElement('div');row.className='eitem';
-    row.innerHTML=`<div class="eav">${ini}</div><div class="einfo"><div class="ename">${emp.n}</div><div class="epos">${emp.p}</div></div><button class="bdang" onclick="confirmDel('emp',null,${i})">🗑️</button>`;
+    const sueldo=emp.s||0;
+    const row=document.createElement('div');row.className='eitem';row.style.alignItems='center';
+    row.innerHTML=`
+      <div class="eav">${ini}</div>
+      <div class="einfo" style="flex:1">
+        <div class="ename">${emp.n}</div>
+        <div class="epos">${emp.p||'—'}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <div style="text-align:right">
+          <div style="font-size:.6rem;font-weight:800;color:var(--t3);text-transform:uppercase;margin-bottom:2px">$/día</div>
+          <input type="number" min="0" data-city="${CECity}" data-idx="${i}"
+            value="${sueldo||''}" placeholder="0"
+            style="width:75px;text-align:right;border:1.5px solid var(--g3);border-radius:8px;padding:6px 8px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;background:var(--g2);outline:none;color:var(--t)"
+            class="emp-sueldo-inp"
+            onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
+        </div>
+        <button class="bdang" onclick="confirmDel('emp',null,${i})">🗑️</button>
+      </div>`;
     c.appendChild(row);
   });
+  // Save button at bottom
+  const saveBtn=document.createElement('button');
+  saveBtn.className='bsave';saveBtn.style.marginTop='12px';
+  saveBtn.textContent='💾 GUARDAR SUELDOS';
+  saveBtn.onclick=guardarSueldos;
+  c.appendChild(saveBtn);
+}
+
+async function guardarSueldos(){
+  document.querySelectorAll('.emp-sueldo-inp').forEach(inp=>{
+    const city=inp.dataset.city;
+    const idx=parseInt(inp.dataset.idx);
+    const sueldo=parseFloat(inp.value||0);
+    const emps=city==='wash'?EW:EC;
+    if(emps[idx]) emps[idx].s=sueldo;
+  });
+  await SD('EW',EW);await SD('EC',EC);
+  renderCfgE();renderNomina();
+  showToast('✅ Sueldos guardados');
 }
 function renderCfgMP(){
   const c=document.getElementById('cfg-mp-list');if(!c)return;c.innerHTML='';
@@ -2658,7 +2739,7 @@ async function addPuesto(){
 async function addEmpleado(){
   const nom=document.getElementById('ne-nom').value.trim();const pos=document.getElementById('ne-pos').value;const ciu=document.getElementById('ne-ciu').value;
   if(!nom){showToast('⚠️ Escribe el nombre');return;}
-  if(ciu==='wash')EW.push({n:nom,p:pos});else EC.push({n:nom,p:pos});
+  if(ciu==='wash')EW.push({n:nom,p:pos,s:0});else EC.push({n:nom,p:pos,s:0});
   await SD('EW',EW);await SD('EC',EC);
   await logChange('Empleados',`Nuevo empleado: ${nom}`,null,`Posición: ${pos}, Ciudad: ${ciu==='wash'?'Washington':'Chicago'}`);
   renderNomina();renderAsist();renderCfg();

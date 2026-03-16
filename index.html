@@ -319,6 +319,13 @@ body.dark .modal{background:#1f2937}
 body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#4b5563}
 /* ALERTA FALTANTES */
 .alerta-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--rs);border-radius:10px;margin-bottom:8px}
+/* CONFIG CARD GRID */
+.cfg-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:white;border:1px solid var(--g3);border-radius:16px;padding:16px 14px;cursor:pointer;transition:all .18s;box-shadow:0 1px 4px rgba(0,0,0,.06);text-align:left;width:100%}
+.cfg-card:active{transform:scale(.97);box-shadow:none}
+.cfg-card-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.cfg-card-lbl{font-size:.88rem;font-weight:900;color:var(--t);line-height:1}
+.cfg-card-sub{font-size:.68rem;color:var(--t3);font-weight:600;line-height:1.3}
+
 /* TOAST */
 .toast{position:fixed;bottom:95px;left:50%;transform:translateX(-50%);background:var(--cb);color:white;padding:12px 20px;border-radius:30px;font-size:.85rem;font-weight:700;z-index:9998;display:none;box-shadow:var(--sh2);white-space:nowrap;border:1px solid rgba(234,88,12,.3)}
 
@@ -877,18 +884,89 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
 
 <!-- CONFIG -->
 <div class="view" id="view-config">
-  <div class="tabs" style="overflow-x:auto;flex-wrap:nowrap">
-    <button class="tab active" onclick="setCT('puestos',this)">📍 Puestos</button>
-    <button class="tab" onclick="setCT('empleados',this)">👷 Empleados</button>
-    <button class="tab" onclick="setCT('editar',this)">✏️ Editar</button>
-    <button class="tab" onclick="setCT('usuarios',this)">🔐 Usuarios</button>
-    <button class="tab" onclick="setCT('mp',this)">🧅 MP</button>
-    <button class="tab" onclick="setCT('metas',this)">🎯 Metas</button>
-    <button class="tab" onclick="setCT('reportes',this)">📊 Reportes</button>
-    <button class="tab" onclick="setCT('ajustes',this)">⚙️ Ajustes</button>
-    <button class="tab" onclick="setCT('historial',this)">📋 Historial</button>
+
+  <!-- CONFIG HOME — grid of category cards -->
+  <div id="cfg-home">
+    <div style="padding:16px 16px 8px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--t);letter-spacing:.5px">⚙️ Configuración</div>
+      <div style="font-size:.75rem;color:var(--t3);margin-top:2px">Gestiona tu negocio desde aquí</div>
+    </div>
+
+    <!-- Negocio -->
+    <div style="padding:0 16px;margin-bottom:4px">
+      <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:8px">🏢 Negocio</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="cfg-card" onclick="goCfg('puestos')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,var(--n),var(--n2))">📍</span>
+          <span class="cfg-card-lbl">Puestos</span>
+          <span class="cfg-card-sub">Washington y Chicago</span>
+        </button>
+        <button class="cfg-card" onclick="goCfg('empleados')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,var(--az),#1d4ed8)">👷</span>
+          <span class="cfg-card-lbl">Empleados</span>
+          <span class="cfg-card-sub">Sueldos y acceso</span>
+        </button>
+        <button class="cfg-card" onclick="goCfg('mp')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,var(--v),#15803d)">🧅</span>
+          <span class="cfg-card-lbl">Materia Prima</span>
+          <span class="cfg-card-sub">Precios del catálogo</span>
+        </button>
+        <button class="cfg-card" onclick="goCfg('metas')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,var(--am),#d97706)">🎯</span>
+          <span class="cfg-card-lbl">Metas</span>
+          <span class="cfg-card-sub">Objetivos de venta</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Registros -->
+    <div style="padding:0 16px;margin-bottom:4px;margin-top:14px">
+      <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:8px">📋 Registros</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="cfg-card" onclick="goCfg('editar')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">✏️</span>
+          <span class="cfg-card-lbl">Editar Ventas</span>
+          <span class="cfg-card-sub">Corregir registros</span>
+        </button>
+        <button class="cfg-card" onclick="goCfg('historial')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,#0891b2,#0e7490)">📋</span>
+          <span class="cfg-card-lbl">Historial</span>
+          <span class="cfg-card-sub">Cambios y auditoría</span>
+        </button>
+        <button class="cfg-card" onclick="goCfg('reportes')" style="grid-column:span 2">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,#db2777,#be185d)">📊</span>
+          <span class="cfg-card-lbl">Reportes</span>
+          <span class="cfg-card-sub">Ventas, nómina y exportar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sistema -->
+    <div style="padding:0 16px;margin-bottom:4px;margin-top:14px">
+      <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:8px">🔐 Sistema</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="cfg-card" onclick="goCfg('usuarios')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,#dc2626,#b91c1c)">🔐</span>
+          <span class="cfg-card-lbl">Usuarios</span>
+          <span class="cfg-card-sub">Acceso y permisos</span>
+        </button>
+        <button class="cfg-card" onclick="goCfg('ajustes')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,#374151,#1f2937)">⚙️</span>
+          <span class="cfg-card-lbl">Ajustes</span>
+          <span class="cfg-card-sub">PIN, Face ID, tema</span>
+        </button>
+      </div>
+    </div>
   </div>
-  <div id="cfg-puestos" style="display:none">
+
+  <!-- Back button + section content -->
+  <div id="cfg-section" style="display:none">
+    <button id="cfg-back-btn" onclick="goCfgHome()"
+      style="display:flex;align-items:center;gap:8px;background:none;border:none;padding:14px 16px 6px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:800;color:var(--n);cursor:pointer;width:100%">
+      ‹ <span id="cfg-back-lbl">Volver</span>
+    </button>
+    <div id="cfg-section-content">
+      <div id="cfg-puestos" style="display:none">
     <div class="sh"><span>🌲 Washington</span><button class="shbtn" onclick="openM('addP','wash')">+ Agregar</button></div>
     <div class="card" id="cfg-pw"></div>
     <div class="sh"><span>🌆 Chicago</span><button class="shbtn" onclick="openM('addP','chi')">+ Agregar</button></div>
@@ -1062,7 +1140,9 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
       <button class="bsave" onclick="checkFaltantes()" style="margin-top:8px">🔍 REVISAR AHORA</button>
     </div>
   </div>
-</div>
+    </div><!-- end cfg-section-content -->
+  </div><!-- end cfg-section -->
+</div><!-- end view-config -->
 
 </div><!-- end appContent -->
 
@@ -1620,32 +1700,36 @@ function setTab(id,btn){
   if(id==='exportar'){renderBackupList();const t=todayStr();const from=document.getElementById('exp-from');const to=document.getElementById('exp-to');if(from&&!from.value){const d=new Date();d.setDate(1);from.value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`;}if(to&&!to.value)to.value=t;}
   if(id==='nomina-rep'){const t=todayStr();const from=document.getElementById('nom-rep-from');const to=document.getElementById('nom-rep-to');if(from&&!from.value){const d=new Date();d.setDate(d.getDate()-30);from.value=d.toISOString().split('T')[0];}if(to&&!to.value)to.value=t;}
 }
-function setCT(id,btn){
-  document.querySelectorAll('#view-config .tabs:first-child .tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
+const CFG_LABELS={
+  puestos:'📍 Puestos',empleados:'👷 Empleados',editar:'✏️ Editar Ventas',
+  usuarios:'🔐 Usuarios',mp:'🧅 Materia Prima',metas:'🎯 Metas',
+  reportes:'📊 Reportes',ajustes:'⚙️ Ajustes',historial:'📋 Historial'
+};
+function goCfg(id){
+  document.getElementById('cfg-home').style.display='none';
+  document.getElementById('cfg-section').style.display='block';
+  const lbl=document.getElementById('cfg-back-lbl');
+  if(lbl) lbl.textContent=CFG_LABELS[id]||'Configuración';
   ['puestos','empleados','editar','usuarios','mp','metas','reportes','ajustes','historial'].forEach(t=>{
-    const el=document.getElementById('cfg-'+t);
-    if(el) el.style.display=t===id?'block':'none';
+    const el=document.getElementById('cfg-'+t);if(el)el.style.display=t===id?'block':'none';
   });
-  if(id==='puestos') renderCfgP();
-  if(id==='empleados') renderCfgE();
-  if(id==='editar') populateEditSel();
-  if(id==='usuarios') renderCfgU();
-  if(id==='mp') renderCfgMP();
-  if(id==='metas') renderCfgMetas();
+  if(id==='puestos')renderCfgP();
+  if(id==='empleados')renderCfgE();
+  if(id==='editar')populateEditSel();
+  if(id==='usuarios')renderCfgU();
+  if(id==='mp')renderCfgMP();
+  if(id==='metas')renderCfgMetas();
   if(id==='reportes'){renderReportes();mountReportesInConfig();}
   if(id==='ajustes'){initPush();initPINStatus();checkFaltantes();initFaceIDStatus();}
-  if(id==='historial') renderHistorial();
+  if(id==='historial')renderHistorial();
 }
+function goCfgHome(){
+  document.getElementById('cfg-home').style.display='block';
+  document.getElementById('cfg-section').style.display='none';
+}
+function setCT(id,btn){goCfg(id);}
 function setNC(city,btn){NCity=city;document.querySelectorAll('#view-nomina .cchip').forEach(c=>c.classList.remove('active'));btn.classList.add('active');renderNomina();}
-function renderCfg(){
-  document.querySelectorAll('#view-config .tabs:first-child .tab').forEach((t,i)=>t.classList.toggle('active',i===0));
-  ['puestos','empleados','editar','usuarios','mp','metas','reportes','ajustes','historial'].forEach(t=>{
-    const el=document.getElementById('cfg-'+t);
-    if(el) el.style.display=t==='puestos'?'block':'none';
-  });
-  renderCfgP();populateEditSel();
-}
+function renderCfg(){goCfgHome();populateEditSel();}
 
 function setCEC(city,btn){
   CECity=city;

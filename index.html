@@ -498,8 +498,53 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
       </div>
     </div>
   </div>
-  <div class="card">
-    <div class="ctit">💰 Ventas del Día</div>
+  <!-- CAJA CHICA -->
+  <div class="card" style="border-left:4px solid var(--am)">
+    <div class="ctit">💵 Fondo de Caja (Cambio)</div>
+    <p style="font-size:.72rem;color:var(--t3);margin-bottom:12px">Dinero que llevas para dar cambio a los clientes.</p>
+
+    <div class="crow">
+      <span class="clbl">
+        🌅 Fondo inicial
+        <span style="font-size:.65rem;color:var(--t3);display:block;font-weight:600">Cuánto llevas al salir</span>
+      </span>
+      <input class="cinp" type="number" min="0" id="caja-inicio" oninput="calcCaja()" placeholder="$0.00" style="border-color:var(--am)">
+    </div>
+
+    <div class="crow">
+      <span class="clbl">
+        🌙 Cierre de caja
+        <span style="font-size:.65rem;color:var(--t3);display:block;font-weight:600">Cuánto regresas al final</span>
+      </span>
+      <input class="cinp" type="number" min="0" id="caja-cierre" oninput="calcCaja()" placeholder="$0.00" style="border-color:var(--v)">
+    </div>
+
+    <div class="crow" style="border-bottom:none">
+      <span class="clbl">
+        📝 Notas
+        <span style="font-size:.65rem;color:var(--t3);display:block;font-weight:600">Ej: faltaron $20 en billetes</span>
+      </span>
+      <input type="text" id="caja-notas" placeholder="Opcional..."
+        style="width:140px;border:1.5px solid var(--g3);border-radius:8px;padding:8px 10px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:600;color:var(--t);background:var(--g2);outline:none"
+        onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
+    </div>
+
+    <!-- Resultados -->
+    <div id="caja-resultado" style="display:none;margin-top:8px">
+      <div class="ftot" style="background:var(--ams);border-color:var(--am)">
+        <span style="color:#92400E">💵 Fondo inicial</span>
+        <span style="color:#92400E" id="caja-r-inicio">$0</span>
+      </div>
+      <div class="ftot" style="margin-top:4px;background:var(--vs);border-color:var(--v)">
+        <span style="color:var(--v)">🌙 Regresa</span>
+        <span style="color:var(--v)" id="caja-r-cierre">$0</span>
+      </div>
+      <div class="ftot b" style="margin-top:6px" id="caja-r-dif-wrap">
+        <span id="caja-r-dif-lbl">✅ Cuadra exacto</span>
+        <span id="caja-r-dif">$0</span>
+      </div>
+    </div>
+  </div>
     <p style="font-size:.72rem;color:var(--t3);margin-bottom:12px" id="ventas-dia-lbl">Registrando para la fecha seleccionada arriba</p>
     <div class="crow"><span class="clbl">💵 Efectivo</span><input class="cinp" type="number" min="0" id="ve-dia-ef" oninput="calcV()" placeholder="$0.00"></div>
     <div class="crow"><span class="clbl">💳 Tarjeta</span><input class="cinp" type="number" min="0" id="ve-dia-tj" oninput="calcV()" placeholder="$0.00"></div>
@@ -1307,6 +1352,44 @@ function calcV(){
   document.getElementById('gtot').textContent='$'+fmt(g);
 }
 
+function calcCaja(){
+  const inicio=parseFloat(document.getElementById('caja-inicio')?.value||0);
+  const cierre=parseFloat(document.getElementById('caja-cierre')?.value||0);
+  const hasInicio=document.getElementById('caja-inicio')?.value!=='';
+  const hasCierre=document.getElementById('caja-cierre')?.value!=='';
+  const res=document.getElementById('caja-resultado');
+  if(!hasInicio&&!hasCierre){if(res)res.style.display='none';return;}
+  if(res) res.style.display='block';
+  const ri=document.getElementById('caja-r-inicio');
+  const rc=document.getElementById('caja-r-cierre');
+  const rdif=document.getElementById('caja-r-dif');
+  const rdifLbl=document.getElementById('caja-r-dif-lbl');
+  const rdifWrap=document.getElementById('caja-r-dif-wrap');
+  if(ri) ri.textContent='$'+fmt(inicio);
+  if(rc) rc.textContent=hasCierre?'$'+fmt(cierre):'Pendiente';
+  if(hasInicio&&hasCierre){
+    const dif=cierre-inicio;
+    if(rdif) rdif.textContent=(dif===0?'':'')+'$'+fmt(Math.abs(dif));
+    if(rdifLbl){
+      if(dif===0){
+        rdifLbl.textContent='✅ Cuadra exacto';
+        rdifWrap.style.cssText='background:var(--vs);border-color:var(--v);display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:var(--Rs);margin-top:6px;border:1px solid';
+      } else if(dif>0){
+        rdifLbl.textContent='⚠️ Sobran $'+fmt(dif);
+        rdifWrap.style.cssText='background:var(--ams);border-color:var(--am);display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:var(--Rs);margin-top:6px;border:1px solid';
+      } else {
+        rdifLbl.textContent='❌ Faltan $'+fmt(Math.abs(dif));
+        rdifWrap.style.cssText='background:var(--rs);border-color:#fca5a5;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:var(--Rs);margin-top:6px;border:1px solid';
+      }
+      if(rdif) rdif.style.color=dif===0?'var(--v)':dif>0?'#92400E':'var(--r)';
+      if(rdifLbl) rdifLbl.style.color=dif===0?'var(--v)':dif>0?'#92400E':'var(--r)';
+    }
+  } else {
+    if(rdif) rdif.textContent='—';
+    if(rdifLbl){rdifLbl.textContent='⏳ Pendiente cierre';rdifWrap.style.background='var(--g2)';}
+  }
+}
+
 function loadVF(p,fecha){
   const key=dpKey(p,fecha||currentFecha);
   const d=DP[key]||{};
@@ -1315,6 +1398,11 @@ function loadVF(p,fecha){
   const tj=document.getElementById('ve-dia-tj');if(tj)tj.value=d['ve-tj']||'';
   const ot=document.getElementById('ve-dia-ot');if(ot)ot.value=d['ve-ot']||'';
   ['gas','hie','rep','cas','otr'].forEach(k=>{const el=document.getElementById(`g-${k}`);if(el)el.value=d[`g-${k}`]||'';});
+  // Load caja chica
+  const ci=document.getElementById('caja-inicio');if(ci)ci.value=d['caja-inicio']||'';
+  const cc=document.getElementById('caja-cierre');if(cc)cc.value=d['caja-cierre']||'';
+  const cn=document.getElementById('caja-notas');if(cn)cn.value=d['caja-notas']||'';
+  calcCaja();
   // Otros descripción
   const desc=document.getElementById('g-otr-desc');if(desc)desc.value=d['g-otr-desc']||'';
   // Update date label
@@ -1341,6 +1429,10 @@ function limpiarV(){
   ['ve-dia-ef','ve-dia-tj','ve-dia-ot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['gas','hie','rep','cas','otr'].forEach(k=>{const el=document.getElementById(`g-${k}`);if(el)el.value='';});
   const desc=document.getElementById('g-otr-desc');if(desc)desc.value='';
+  // Clear caja
+  ['caja-inicio','caja-cierre'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const cn=document.getElementById('caja-notas');if(cn)cn.value='';
+  const res=document.getElementById('caja-resultado');if(res)res.style.display='none';
   MP.forEach((_,i)=>{
     const sal=document.getElementById(`mp-sal-${i}`);if(sal)sal.value='';
     const reg=document.getElementById(`mp-reg-${i}`);if(reg)reg.value='';
@@ -1359,6 +1451,10 @@ async function guardarVentas(){
   d['ve-ot']=parseFloat(document.getElementById('ve-dia-ot')?.value||0);
   ['gas','hie','rep','cas','otr'].forEach(k=>{d[`g-${k}`]=parseFloat(document.getElementById(`g-${k}`)?.value||0);});
   d['g-otr-desc']=document.getElementById('g-otr-desc')?.value?.trim()||'';
+  // Caja chica
+  d['caja-inicio']=parseFloat(document.getElementById('caja-inicio')?.value||0)||'';
+  d['caja-cierre']=parseFloat(document.getElementById('caja-cierre')?.value||0)||'';
+  d['caja-notas']=document.getElementById('caja-notas')?.value?.trim()||'';
   // Save materia prima: salida, regreso y consumido
   MP.forEach((item,i)=>{
     const sal=parseFloat(document.getElementById(`mp-sal-${i}`)?.value||0);
@@ -1384,9 +1480,13 @@ async function guardarVentas(){
     return sal>0?`${item.emoji}${item.nombre}: sal ${sal}→reg ${reg} (usó ${con}${des>0?`, daño ${des}`:''})`:null;
   }).filter(Boolean).join(' | ');
   const otrosDesc=d['g-otr-desc']?` | Otros: ${d['g-otr-desc']}`:'';
+  const cajaInicio=d['caja-inicio']!==''?parseFloat(d['caja-inicio']||0):null;
+  const cajaCierre=d['caja-cierre']!==''?parseFloat(d['caja-cierre']||0):null;
+  const cajaDif=cajaInicio!==null&&cajaCierre!==null?cajaCierre-cajaInicio:null;
+  const cajaLog=cajaInicio!==null?` | Caja: $${fmt(cajaInicio)}→$${fmt(cajaCierre??0)}${cajaDif!==null?` (${cajaDif>=0?'+':''}$${fmt(cajaDif)})`:''}`:'';
   await logChange('Ventas',`${CP} — ${fmtFecha(currentFecha)}`,
     antes?`$${fmt(antes.totalVentas||0)} ventas`:null,
-    `$${fmt(d.totalVentas)} ventas / $${fmt(d.totalGastos)} gastos${otrosDesc}${mpResumen?` | MP: ${mpResumen}`:''}`);
+    `$${fmt(d.totalVentas)} ventas / $${fmt(d.totalGastos)} gastos${otrosDesc}${cajaLog}${mpResumen?` | MP: ${mpResumen}`:''}`);
   renderDash();renderReportes();
   showToast('✅ Guardado — '+CP+' · '+fmtFecha(currentFecha));
 }

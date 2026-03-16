@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>🌮 La Cuadra Tacos</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+:root {
+  --verde: #16A34A; --verde2: #15803D; --verde-s: #DCFCE7;
+  --rojo: #DC2626; --rojo-s: #FEE2E2;
+  --amarillo: #D97706; --amarillo-s: #FEF3C7;
+  --azul: #2563EB; --azul-s: #DBEAFE;
+  --gris: #F8FAFC; --gris2: #F1F5F9; --gris3: #E2E8F0;
+  --texto: #0F172A; --texto2: #475569; --texto3: #94A3B8;
+  --blanco: #FFFFFF;
+  --radio: 16px; --radio-s: 10px;
+  --sombra: 0 2px 12px rgba(0,0,0,0.08);
+  --sombra2: 0 4px 24px rgba(0,0,0,0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--gris);
+  color: var(--texto);
+  min-height: 100vh;
+  padding-bottom: 80px;
+  font-size: 15px;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--verde2);
+  color: white;
+  padding: 16px 20px 20px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 16px rgba(21,128,61,0.3);
+}
+.header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.header-brand .logo { font-size: 28px; }
+.header-brand h1 { font-size: 1.1rem; font-weight: 900; line-height: 1.1; }
+.header-brand p { font-size: 0.7rem; opacity: 0.8; }
+.header-date { font-size: 0.75rem; opacity: 0.8; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 20px; }
+
+/* Puesto selector */
+.puesto-selector { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.puesto-selector::-webkit-scrollbar { display: none; }
+.puesto-btn {
+  flex-shrink: 0; background: rgba(255,255,255,0.15); color: white;
+  border: none; padding: 6px 14px; border-radius: 20px; font-family: 'Nunito', sans-serif;
+  font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.puesto-btn.active { background: white; color: var(--verde2); }
+.puesto-btn:hover:not(.active) { background: rgba(255,255,255,0.25); }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: white; border-top: 1px solid var(--gris3);
+  display: flex; z-index: 100;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+}
+.nav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 8px 4px; border: none; background: none; cursor: pointer; transition: all 0.2s;
+  color: var(--texto3); font-family: 'Nunito', sans-serif;
+}
+.nav-btn.active { color: var(--verde2); }
+.nav-btn .nav-icon { font-size: 20px; margin-bottom: 2px; }
+.nav-btn .nav-label { font-size: 0.65rem; font-weight: 700; }
+
+/* ── VIEWS ── */
+.view { display: none; padding: 16px; animation: fadeIn 0.2s ease; }
+.view.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── CARDS ── */
+.card {
+  background: white; border-radius: var(--radio); padding: 16px;
+  box-shadow: var(--sombra); margin-bottom: 12px;
+}
+.card-title {
+  font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--texto2); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+}
+
+/* KPIs grid */
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.kpi-card {
+  background: white; border-radius: var(--radio-s); padding: 14px 12px;
+  box-shadow: var(--sombra); border-left: 4px solid;
+}
+.kpi-card.verde { border-color: var(--verde); }
+.kpi-card.rojo { border-color: var(--rojo); }
+.kpi-card.amarillo { border-color: var(--amarillo); }
+.kpi-card.azul { border-color: var(--azul); }
+.kpi-icon { font-size: 20px; margin-bottom: 6px; }
+.kpi-val { font-size: 1.5rem; font-weight: 900; color: var(--texto); line-height: 1; }
+.kpi-lbl { font-size: 0.7rem; color: var(--texto2); margin-top: 3px; font-weight: 600; }
+
+/* Ventas form */
+.dias-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 8px; }
+.dia-header { text-align: center; font-size: 0.62rem; font-weight: 800; color: var(--texto3); padding: 4px 0; text-transform: uppercase; }
+.dia-input {
+  text-align: center; border: 1.5px solid var(--gris3); border-radius: 8px; padding: 8px 2px;
+  font-family: 'Nunito', sans-serif; font-size: 0.75rem; font-weight: 700; color: var(--texto);
+  background: var(--gris2); outline: none; width: 100%; transition: border-color 0.15s;
+}
+.dia-input:focus { border-color: var(--verde); background: white; }
+.dia-input.lunes { background: var(--gris3); color: var(--texto3); }
+
+/* Row totals */
+.fila-total { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--verde-s); border-radius: var(--radio-s); margin-top: 8px; }
+.fila-total span { font-size: 0.8rem; font-weight: 800; color: var(--verde2); }
+
+/* Concepto row */
+.concepto-row {
+  display: flex; align-items: center; gap: 8px; padding: 10px 0;
+  border-bottom: 1px solid var(--gris2);
+}
+.concepto-row:last-child { border-bottom: none; }
+.concepto-label { flex: 1; font-size: 0.85rem; font-weight: 600; color: var(--texto); }
+.concepto-input {
+  width: 90px; text-align: right; border: 1.5px solid var(--gris3); border-radius: 8px;
+  padding: 8px 10px; font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 700;
+  background: var(--gris2); outline: none; color: var(--texto); transition: all 0.15s;
+}
+.concepto-input:focus { border-color: var(--verde); background: white; }
+
+/* Asistencia */
+.asist-grid { display: grid; grid-template-columns: 1fr repeat(6, 36px); gap: 4px; align-items: center; }
+.asist-name { font-size: 0.8rem; font-weight: 700; color: var(--texto); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.asist-btn {
+  width: 36px; height: 36px; border-radius: 8px; border: none; font-size: 0.75rem; font-weight: 800;
+  cursor: pointer; transition: all 0.15s; background: var(--gris2); color: var(--texto2);
+}
+.asist-btn.P { background: var(--verde-s); color: var(--verde2); }
+.asist-btn.A { background: var(--rojo-s); color: var(--rojo); }
+.asist-btn.JV { background: var(--azul-s); color: var(--azul); }
+.asist-btn.D { background: var(--gris3); color: var(--texto3); }
+.asist-header { font-size: 0.62rem; text-align: center; font-weight: 800; color: var(--texto3); text-transform: uppercase; }
+
+/* Nómina */
+.nomina-row {
+  display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--gris2);
+}
+.nomina-row:last-child { border-bottom: none; }
+.nomina-avatar {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--verde); color: white;
+  display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;
+  flex-shrink: 0;
+}
+.nomina-info { flex: 1; min-width: 0; }
+.nomina-name { font-size: 0.88rem; font-weight: 800; color: var(--texto); }
+.nomina-pos { font-size: 0.7rem; color: var(--texto3); font-weight: 600; }
+.nomina-sueldo {
+  width: 80px; text-align: right; border: 1.5px solid var(--gris3); border-radius: 8px;
+  padding: 8px 8px; font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 800;
+  background: var(--gris2); outline: none; color: var(--texto); transition: all 0.15s;
+}
+.nomina-sueldo:focus { border-color: var(--verde); background: white; }
+.nomina-neto { font-size: 0.88rem; font-weight: 800; color: var(--verde2); min-width: 60px; text-align: right; }
+
+/* Gastos tabla */
+.gasto-row {
+  display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--gris2);
+}
+.gasto-row:last-child { border-bottom: none; }
+.gasto-icon { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
+.gasto-label { flex: 1; font-size: 0.85rem; font-weight: 600; color: var(--texto); }
+.gasto-input {
+  width: 90px; text-align: right; border: 1.5px solid var(--gris3); border-radius: 8px;
+  padding: 8px 10px; font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 700;
+  background: var(--gris2); outline: none; color: var(--texto);
+}
+.gasto-input:focus { border-color: var(--amarillo); background: white; }
+
+/* Resumen puesto */
+.resumen-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.resumen-stat { text-align: center; background: var(--gris2); border-radius: var(--radio-s); padding: 12px 8px; }
+.resumen-stat .val { font-size: 1.1rem; font-weight: 900; color: var(--texto); }
+.resumen-stat .lbl { font-size: 0.65rem; color: var(--texto3); font-weight: 700; margin-top: 2px; text-transform: uppercase; }
+
+/* Dashboard puestos list */
+.puesto-row {
+  display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--gris2);
+  cursor: pointer;
+}
+.puesto-row:last-child { border-bottom: none; }
+.puesto-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.puesto-dot.wash { background: var(--verde); }
+.puesto-dot.chi { background: var(--azul); }
+.puesto-row-name { flex: 1; font-size: 0.88rem; font-weight: 700; }
+.puesto-row-ventas { font-size: 0.88rem; font-weight: 800; color: var(--verde2); }
+.puesto-row-ciudad { font-size: 0.68rem; color: var(--texto3); font-weight: 600; }
+
+/* Badge */
+.badge {
+  display: inline-flex; align-items: center; padding: 3px 8px;
+  border-radius: 20px; font-size: 0.68rem; font-weight: 800;
+}
+.badge.verde { background: var(--verde-s); color: var(--verde2); }
+.badge.rojo { background: var(--rojo-s); color: var(--rojo); }
+.badge.amarillo { background: var(--amarillo-s); color: var(--amarillo); }
+.badge.azul { background: var(--azul-s); color: var(--azul); }
+
+/* Botón guardar */
+.btn-save {
+  width: 100%; background: var(--verde2); color: white; border: none;
+  padding: 16px; border-radius: var(--radio); font-family: 'Nunito', sans-serif;
+  font-size: 1rem; font-weight: 800; cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 16px rgba(21,128,61,0.3); margin-top: 8px;
+}
+.btn-save:active { transform: scale(0.98); }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+  background: var(--texto); color: white; padding: 12px 20px; border-radius: 30px;
+  font-size: 0.85rem; font-weight: 700; z-index: 999; display: none;
+  animation: toastIn 0.3s ease; box-shadow: var(--sombra2); white-space: nowrap;
+}
+@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+/* Section header */
+.section-h { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--texto3); margin: 16px 0 8px; padding: 0 4px; }
+
+/* Tabs */
+.tabs { display: flex; background: var(--gris2); border-radius: var(--radio-s); padding: 3px; margin-bottom: 16px; }
+.tab {
+  flex: 1; text-align: center; padding: 8px; border-radius: 8px; cursor: pointer;
+  font-size: 0.8rem; font-weight: 800; color: var(--texto3); transition: all 0.2s; border: none; background: none;
+  font-family: 'Nunito', sans-serif;
+}
+.tab.active { background: white; color: var(--texto); box-shadow: var(--sombra); }
+
+/* Flujo chart bars */
+.bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.bar-label { font-size: 0.72rem; font-weight: 700; color: var(--texto2); width: 30px; text-align: right; flex-shrink: 0; }
+.bar-track { flex: 1; height: 20px; background: var(--gris2); border-radius: 10px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 10px; transition: width 0.5s ease; display: flex; align-items: center; padding-left: 8px; }
+.bar-fill span { font-size: 0.65rem; font-weight: 800; color: white; white-space: nowrap; }
+
+/* Chips ciudad */
+.ciudad-chips { display: flex; gap: 6px; margin-bottom: 12px; }
+.ciudad-chip {
+  flex: 1; text-align: center; padding: 8px; border-radius: var(--radio-s); border: none;
+  font-family: 'Nunito', sans-serif; font-size: 0.8rem; font-weight: 800; cursor: pointer;
+  transition: all 0.2s;
+}
+.ciudad-chip.wash { background: var(--verde-s); color: var(--verde2); }
+.ciudad-chip.chi { background: var(--azul-s); color: var(--azul); }
+.ciudad-chip.wash.active { background: var(--verde2); color: white; }
+.ciudad-chip.chi.active { background: var(--azul); color: white; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--gris3); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="header-brand">
+      <span class="logo">🌮</span>
+      <div>
+        <h1>La Cuadra Tacos</h1>
+        <p>Washington · Chicago · 14 Puestos</p>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+      <div class="header-date" id="headerDate"></div>
+      <div id="syncStatus" style="font-size:0.65rem;opacity:0.85;background:rgba(255,255,255,0.15);padding:3px 8px;border-radius:20px;">☁️ Conectando...</div>
+    </div>
+  </div>
+  <div class="puesto-selector" id="puestoSelector"></div>
+</div>
+
+<!-- VIEWS -->
+
+<!-- 📊 DASHBOARD -->
+<div class="view active" id="view-dashboard">
+  <div class="section-h">Resumen General</div>
+  <button onclick="syncFromSheets()" style="width:100%;background:white;border:1.5px solid var(--gris3);color:var(--texto2);padding:10px;border-radius:10px;font-family:Nunito,sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;">🔄 Sincronizar con la nube</button>
+  <div class="kpi-grid">
+    <div class="kpi-card verde">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-val" id="kpi-ventas">$0</div>
+      <div class="kpi-lbl">Ventas Semana</div>
+    </div>
+    <div class="kpi-card rojo">
+      <div class="kpi-icon">📤</div>
+      <div class="kpi-val" id="kpi-gastos">$0</div>
+      <div class="kpi-lbl">Gastos Semana</div>
+    </div>
+    <div class="kpi-card amarillo">
+      <div class="kpi-icon">👷</div>
+      <div class="kpi-val" id="kpi-nomina">$0</div>
+      <div class="kpi-lbl">Nómina Semana</div>
+    </div>
+    <div class="kpi-card azul">
+      <div class="kpi-icon">📈</div>
+      <div class="kpi-val" id="kpi-utilidad">$0</div>
+      <div class="kpi-lbl">Utilidad Neta</div>
+    </div>
+  </div>
+
+  <div class="section-h">Puestos — Washington</div>
+  <div class="card" id="list-wash"></div>
+
+  <div class="section-h">Puestos — Chicago</div>
+  <div class="card" id="list-chi"></div>
+</div>
+
+<!-- 💰 VENTAS -->
+<div class="view" id="view-ventas">
+  <div class="section-h" id="ventas-titulo">Ventas — North Gate · Sem 1</div>
+
+  <div class="card">
+    <div class="card-title">💰 Ventas Diarias</div>
+    <div class="dias-grid">
+      <div class="dia-header">Lun</div><div class="dia-header">Mar</div><div class="dia-header">Mié</div>
+      <div class="dia-header">Jue</div><div class="dia-header">Vie</div><div class="dia-header">Sáb</div><div class="dia-header">Dom</div>
+      <input class="dia-input lunes" value="0" readonly id="ve-lun-ef">
+      <input class="dia-input" type="number" min="0" id="ve-mar-ef" oninput="calcVentas()">
+      <input class="dia-input" type="number" min="0" id="ve-mie-ef" oninput="calcVentas()">
+      <input class="dia-input" type="number" min="0" id="ve-jue-ef" oninput="calcVentas()">
+      <input class="dia-input" type="number" min="0" id="ve-vie-ef" oninput="calcVentas()">
+      <input class="dia-input" type="number" min="0" id="ve-sab-ef" oninput="calcVentas()">
+      <input class="dia-input" type="number" min="0" id="ve-dom-ef" oninput="calcVentas()">
+    </div>
+    <div class="fila-total">
+      <span>Efectivo Total</span><span id="ve-tot-ef">$0</span>
+    </div>
+
+    <div style="margin-top:12px">
+      <div class="dias-grid">
+        <div></div>
+        <input class="dia-input" type="number" min="0" id="ve-mar-tj" oninput="calcVentas()">
+        <input class="dia-input" type="number" min="0" id="ve-mie-tj" oninput="calcVentas()">
+        <input class="dia-input" type="number" min="0" id="ve-jue-tj" oninput="calcVentas()">
+        <input class="dia-input" type="number" min="0" id="ve-vie-tj" oninput="calcVentas()">
+        <input class="dia-input" type="number" min="0" id="ve-sab-tj" oninput="calcVentas()">
+        <input class="dia-input" type="number" min="0" id="ve-dom-tj" oninput="calcVentas()">
+      </div>
+      <div class="fila-total">
+        <span>Tarjeta Total</span><span id="ve-tot-tj">$0</span>
+      </div>
+    </div>
+
+    <div class="fila-total" style="background:var(--verde-s); margin-top:12px;">
+      <span style="font-size:0.9rem">🏆 VENTAS BRUTAS</span>
+      <span id="ve-tot-bruto" style="font-size:1rem">$0</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📤 Gastos del Puesto</div>
+    <div class="concepto-row">
+      <span class="concepto-label">⛽ Gasolina</span>
+      <input class="concepto-input" type="number" min="0" id="g-gas" oninput="calcVentas()">
+    </div>
+    <div class="concepto-row">
+      <span class="concepto-label">🧊 Hielo</span>
+      <input class="concepto-input" type="number" min="0" id="g-hie" oninput="calcVentas()">
+    </div>
+    <div class="concepto-row">
+      <span class="concepto-label">🔧 Reparación</span>
+      <input class="concepto-input" type="number" min="0" id="g-rep" oninput="calcVentas()">
+    </div>
+    <div class="concepto-row">
+      <span class="concepto-label">🛣️ Casetas</span>
+      <input class="concepto-input" type="number" min="0" id="g-cas" oninput="calcVentas()">
+    </div>
+    <div class="concepto-row">
+      <span class="concepto-label">📦 Otros</span>
+      <input class="concepto-input" type="number" min="0" id="g-otr" oninput="calcVentas()">
+    </div>
+    <div class="fila-total" style="background:var(--rojo-s)">
+      <span style="color:var(--rojo)">Total Gastos Puesto</span>
+      <span id="g-tot" style="color:var(--rojo)">$0</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🧅 Materia Prima (Piezas)</div>
+    <div class="concepto-row"><span class="concepto-label">🫓 Tortillas</span><input class="concepto-input" type="number" min="0" id="mp-tor" placeholder="0"></div>
+    <div class="concepto-row"><span class="concepto-label">🌯 Burritos</span><input class="concepto-input" type="number" min="0" id="mp-bur" placeholder="0"></div>
+    <div class="concepto-row"><span class="concepto-label">🥤 Vasos</span><input class="concepto-input" type="number" min="0" id="mp-vas" placeholder="0"></div>
+    <div class="concepto-row"><span class="concepto-label">🥤 Sodas</span><input class="concepto-input" type="number" min="0" id="mp-sod" placeholder="0"></div>
+    <div class="concepto-row"><span class="concepto-label">🍞 Teleras</span><input class="concepto-input" type="number" min="0" id="mp-tel" placeholder="0"></div>
+    <div class="concepto-row"><span class="concepto-label">🫓 Mulitas</span><input class="concepto-input" type="number" min="0" id="mp-mul" placeholder="0"></div>
+  </div>
+
+  <button class="btn-save" onclick="guardarVentas()">💾 Guardar Registro</button>
+</div>
+
+<!-- 👷 ASISTENCIA -->
+<div class="view" id="view-asist">
+  <div class="section-h" id="asist-titulo">Asistencia — North Gate</div>
+  <div class="card" style="padding:12px">
+    <div class="card-title">Semana · Lun=Descanso</div>
+    <div style="margin-bottom:8px">
+      <div class="asist-grid" style="margin-bottom:4px">
+        <div></div>
+        <div class="asist-header">Mar</div><div class="asist-header">Mié</div>
+        <div class="asist-header">Jue</div><div class="asist-header">Vie</div>
+        <div class="asist-header">Sáb</div><div class="asist-header">Dom</div>
+      </div>
+      <div id="asist-rows"></div>
+    </div>
+    <div class="badge verde" id="asist-resumen">Cargando...</div>
+  </div>
+  <button class="btn-save" onclick="guardarAsist()">💾 Guardar Asistencia</button>
+</div>
+
+<!-- 💵 NÓMINA -->
+<div class="view" id="view-nomina">
+  <div class="ciudad-chips">
+    <button class="ciudad-chip wash active" onclick="setNominaCity('wash', this)">🌲 Washington</button>
+    <button class="ciudad-chip chi" onclick="setNominaCity('chi', this)">🌆 Chicago</button>
+  </div>
+  <div id="nomina-content"></div>
+  <button class="btn-save" onclick="guardarNomina()">💾 Guardar Nómina</button>
+</div>
+
+<!-- 📊 REPORTES -->
+<div class="view" id="view-reportes">
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('mensual', this)">📅 Mensual</button>
+    <button class="tab" onclick="setTab('flujo', this)">💸 Flujo</button>
+    <button class="tab" onclick="setTab('gasgen', this)">💰 Gastos</button>
+  </div>
+
+  <!-- Mensual -->
+  <div id="tab-mensual">
+    <div class="section-h">Resumen Mensual — Todos los Puestos</div>
+    <div class="card">
+      <div class="card-title">🏆 Totales Washington</div>
+      <div class="resumen-stats">
+        <div class="resumen-stat"><div class="val" id="rm-wash-v">$0</div><div class="lbl">Ventas</div></div>
+        <div class="resumen-stat"><div class="val" id="rm-wash-g">$0</div><div class="lbl">Gastos</div></div>
+        <div class="resumen-stat"><div class="val" id="rm-wash-u">$0</div><div class="lbl">Utilidad</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏆 Totales Chicago</div>
+      <div class="resumen-stats">
+        <div class="resumen-stat"><div class="val" id="rm-chi-v">$0</div><div class="lbl">Ventas</div></div>
+        <div class="resumen-stat"><div class="val" id="rm-chi-g">$0</div><div class="lbl">Gastos</div></div>
+        <div class="resumen-stat"><div class="val" id="rm-chi-u">$0</div><div class="lbl">Utilidad</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Por Puesto</div>
+      <div id="reporte-puestos"></div>
+    </div>
+  </div>
+
+  <!-- Flujo -->
+  <div id="tab-flujo" style="display:none">
+    <div class="section-h">Flujo de Efectivo Mensual</div>
+    <div class="card">
+      <div class="card-title">📥 Entradas</div>
+      <div class="gasto-row"><span class="gasto-icon">💵</span><span class="gasto-label">Ventas Efectivo</span><input class="gasto-input" type="number" id="fl-ef" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">💳</span><span class="gasto-label">Ventas Tarjeta</span><input class="gasto-input" type="number" id="fl-tj" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">🏦</span><span class="gasto-label">Préstamos / Capital</span><input class="gasto-input" type="number" id="fl-pre" placeholder="0"></div>
+      <div class="fila-total"><span>Total Entradas</span><span id="fl-tot-ent">$0</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📤 Salidas</div>
+      <div class="gasto-row"><span class="gasto-icon">🛒</span><span class="gasto-label">Ingredientes</span><input class="gasto-input" type="number" id="fl-ing" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">⚡</span><span class="gasto-label">Gas / Electricidad</span><input class="gasto-input" type="number" id="fl-gas" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">🏠</span><span class="gasto-label">Rentas Puestos</span><input class="gasto-input" type="number" id="fl-ren" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">👷</span><span class="gasto-label">Nómina Total</span><input class="gasto-input" type="number" id="fl-nom" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">📦</span><span class="gasto-label">Empaques</span><input class="gasto-input" type="number" id="fl-emp" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">🚗</span><span class="gasto-label">Transporte</span><input class="gasto-input" type="number" id="fl-tra" placeholder="0"></div>
+      <div class="fila-total" style="background:var(--rojo-s)"><span style="color:var(--rojo)">Total Salidas</span><span id="fl-tot-sal" style="color:var(--rojo)">$0</span></div>
+      <div class="fila-total" style="margin-top:8px"><span style="font-size:0.95rem">💰 Saldo Neto</span><span id="fl-neto" style="font-size:1rem">$0</span></div>
+    </div>
+    <button class="btn-save" onclick="guardarFlujo()">💾 Guardar Flujo</button>
+  </div>
+
+  <!-- Gastos Generales -->
+  <div id="tab-gasgen" style="display:none">
+    <div class="section-h">Gastos Generales del Negocio</div>
+    <div class="card">
+      <div class="card-title">🏢 Administrativos</div>
+      <div class="gasto-row"><span class="gasto-icon">📋</span><span class="gasto-label">Contabilidad / CPA</span><input class="gasto-input" type="number" id="gg-cpa" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">📄</span><span class="gasto-label">Permisos y Licencias</span><input class="gasto-input" type="number" id="gg-per" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">⚖️</span><span class="gasto-label">Asesoría Legal</span><input class="gasto-input" type="number" id="gg-leg" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">📱</span><span class="gasto-label">Teléfono / Internet</span><input class="gasto-input" type="number" id="gg-tel" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">💳</span><span class="gasto-label">Comisiones Bancarias</span><input class="gasto-input" type="number" id="gg-ban" placeholder="0"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔧 Mantenimiento</div>
+      <div class="gasto-row"><span class="gasto-icon">🚗</span><span class="gasto-label">Vehículos</span><input class="gasto-input" type="number" id="gg-veh" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">🛠️</span><span class="gasto-label">Equipo / Trailers</span><input class="gasto-input" type="number" id="gg-equ" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">🔌</span><span class="gasto-label">Electricidad / Gas</span><input class="gasto-input" type="number" id="gg-ele" placeholder="0"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📦 Operativos</div>
+      <div class="gasto-row"><span class="gasto-icon">🚛</span><span class="gasto-label">Fletes / Transporte</span><input class="gasto-input" type="number" id="gg-fle" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">📣</span><span class="gasto-label">Publicidad / Marketing</span><input class="gasto-input" type="number" id="gg-pub" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">🍽️</span><span class="gasto-label">Restaurante Ballard</span><input class="gasto-input" type="number" id="gg-res" placeholder="0"></div>
+      <div class="gasto-row"><span class="gasto-icon">❓</span><span class="gasto-label">Otros</span><input class="gasto-input" type="number" id="gg-otr" placeholder="0"></div>
+    </div>
+    <button class="btn-save" onclick="guardarGastosGen()">💾 Guardar Gastos</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" onclick="showView('dashboard', this)">
+    <span class="nav-icon">🏠</span><span class="nav-label">Inicio</span>
+  </button>
+  <button class="nav-btn" onclick="showView('ventas', this)">
+    <span class="nav-icon">💰</span><span class="nav-label">Ventas</span>
+  </button>
+  <button class="nav-btn" onclick="showView('asist', this)">
+    <span class="nav-icon">✅</span><span class="nav-label">Asistencia</span>
+  </button>
+  <button class="nav-btn" onclick="showView('nomina', this)">
+    <span class="nav-icon">👷</span><span class="nav-label">Nómina</span>
+  </button>
+  <button class="nav-btn" onclick="showView('reportes', this)">
+    <span class="nav-icon">📊</span><span class="nav-label">Reportes</span>
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──
+const PUESTOS_WASH = ['North Gate','Sahara','Renton','Tacoma','Rainier Beach','Pendiente'];
+const PUESTOS_CHI = ['Chi-1a','Chi-2b','Chi-3c','Chi-4d','Chi-5e','Chi-6f','Chi-7g','Chi-8h'];
+const PUESTOS = [...PUESTOS_WASH, ...PUESTOS_CHI];
+
+const EMPLEADOS_WASH = [
+  {n:'Dagoberto',p:'Pastorero'},{n:'José María',p:'Pastorero'},{n:'Isaías',p:'Pastorero'},
+  {n:'Eleazar',p:'Pastorero'},{n:'Cirilo',p:'Taquero'},{n:'Heidelberg',p:'Taquero'},
+  {n:'José',p:'Taquero'},{n:'Julián',p:'Taquero'},{n:'Hilda',p:'Cajera'},
+  {n:'Mayra',p:'Cajera'},{n:'Amada',p:'Cajera'},{n:'Nayeli',p:'Cajera'},
+  {n:'Paula',p:'Cajera'},{n:'Alejandra',p:'Cajera'}
+];
+
+const EMPLEADOS_CHI = [
+  {n:'Erik',p:'Pastorero'},{n:'Luis',p:'Pastorero'},{n:'Abelardo',p:'Taquero'},
+  {n:'Rigo',p:'Taquero'},{n:'Sebas',p:'Cajero'},{n:'Isaías Chiapas',p:'Pastorero'},
+  {n:'Chepe',p:'Pastorero'},{n:'Mario',p:'Cajero'},{n:'Ruby',p:'Cajera'},
+  {n:'Jazzmin',p:'Cajera'},{n:'Miguel',p:'Pastorero'},{n:'Chuy',p:'Taquero'},
+  {n:'Lennin',p:'Taquero'},{n:'Eus',p:'Cajera'},{n:'Noel',p:'Pastorero'},
+  {n:'Edgar',p:'Taquero'},{n:'Leonel',p:'Pastorero'},{n:'Rosario',p:'Encargada'}
+];
+
+const GS_URL = 'https://script.google.com/macros/s/AKfycby9ub41AcbRqhRo1KMnfvfiTcnNldNs9CCiFewET4EqD7zZqWZ5sxBqlcxCegQm9FUF2Q/exec';
+
+let currentPuesto = 'North Gate';
+let currentNominaCity = 'wash';
+let currentTab = 'mensual';
+
+// ── LOCAL CACHE (rápido, sin esperar red) ──
+function loadLocal(key, def) {
+  try { const v = localStorage.getItem('lct_'+key); return v ? JSON.parse(v) : def; } catch { return def; }
+}
+function saveLocal(key, val) {
+  try { localStorage.setItem('lct_'+key, JSON.stringify(val)); } catch {}
+}
+
+// ── GOOGLE SHEETS SYNC ──
+async function gsGet(tabla) {
+  try {
+    const res = await fetch(`${GS_URL}?tabla=${tabla}`);
+    const json = await res.json();
+    const result = {};
+    Object.entries(json.data || {}).forEach(([k, v]) => {
+      try { result[k] = JSON.parse(v); } catch { result[k] = v; }
+    });
+    return result;
+  } catch { return null; }
+}
+
+async function gsSet(tabla, clave, valor) {
+  try {
+    await fetch(GS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ tabla, clave, valor: JSON.stringify(valor) })
+    });
+    return true;
+  } catch { return false; }
+}
+
+// ── SYNC: carga desde Sheets y actualiza cache local ──
+async function syncFromSheets() {
+  showSyncStatus('🔄 Sincronizando...');
+  const tablas = ['puestos','nomina','asist','flujo','gastosgen'];
+  let ok = true;
+  for (const t of tablas) {
+    const data = await gsGet(t);
+    if (data !== null) {
+      saveLocal(t, data);
+      if (t === 'puestos') dataPuestos = data;
+      if (t === 'nomina') dataNomina = data.wash ? data : {wash: data.wash||{}, chi: data.chi||{}};
+      if (t === 'asist') dataAsist = data;
+      if (t === 'flujo') dataFlujo = data;
+      if (t === 'gastosgen') dataGastosGen = data;
+    } else { ok = false; }
+  }
+  showSyncStatus(ok ? '☁️ Sincronizado' : '⚠️ Sin conexión');
+  renderDashboard(); renderReportes();
+}
+
+async function saveData(key, val) {
+  saveLocal(key, val);
+  const ok = await gsSet(key, key, val);
+  showSyncStatus(ok ? '✅ Guardado en la nube' : '⚠️ Solo guardado local');
+}
+
+function showSyncStatus(msg) {
+  const el = document.getElementById('syncStatus');
+  if (el) { el.textContent = msg; }
+}
+
+let dataPuestos = loadLocal('puestos', {});
+let dataNomina = loadLocal('nomina', {wash:{}, chi:{}});
+let dataAsist = loadLocal('asist', {});
+let dataFlujo = loadLocal('flujo', {});
+let dataGastosGen = loadLocal('gastosgen', {});
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  // Date
+  const hoy = new Date();
+  document.getElementById('headerDate').textContent = hoy.toLocaleDateString('es',{weekday:'short',day:'numeric',month:'short'});
+
+  // Puesto selector
+  const sel = document.getElementById('puestoSelector');
+  PUESTOS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'puesto-btn' + (p === currentPuesto ? ' active' : '');
+    btn.textContent = p;
+    btn.onclick = () => { setPuesto(p); document.querySelectorAll('.puesto-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); };
+    sel.appendChild(btn);
+  });
+
+  renderDashboard();
+  renderAsist();
+  renderNomina();
+  renderReportes();
+  syncFromSheets();
+
+  // Flujo listeners
+  ['fl-ef','fl-tj','fl-pre'].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('input', calcFlujo); });
+  ['fl-ing','fl-gas','fl-ren','fl-nom','fl-emp','fl-tra'].forEach(id => { const el = document.getElementById(id); if(el) el.addEventListener('input', calcFlujo); });
+});
+
+function setPuesto(p) {
+  currentPuesto = p;
+  document.getElementById('ventas-titulo').textContent = `Ventas — ${p}`;
+  document.getElementById('asist-titulo').textContent = `Asistencia — ${p}`;
+  loadVentasForm(p);
+  renderAsist();
+}
+
+// ── NAVIGATION ──
+function showView(id, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+function setTab(id, btn) {
+  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-mensual').style.display = 'none';
+  document.getElementById('tab-flujo').style.display = 'none';
+  document.getElementById('tab-gasgen').style.display = 'none';
+  document.getElementById('tab-' + id).style.display = 'block';
+  currentTab = id;
+}
+
+function setNominaCity(city, btn) {
+  currentNominaCity = city;
+  document.querySelectorAll('.ciudad-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderNomina();
+}
+
+// ── VENTAS ──
+function calcVentas() {
+  const dias = ['mar','mie','jue','vie','sab','dom'];
+  let totEf = 0, totTj = 0;
+  dias.forEach(d => {
+    totEf += parseFloat(document.getElementById(`ve-${d}-ef`)?.value || 0);
+    totTj += parseFloat(document.getElementById(`ve-${d}-tj`)?.value || 0);
+  });
+  document.getElementById('ve-tot-ef').textContent = '$' + totEf.toLocaleString('es');
+  document.getElementById('ve-tot-tj').textContent = '$' + totTj.toLocaleString('es');
+  document.getElementById('ve-tot-bruto').textContent = '$' + (totEf + totTj).toLocaleString('es');
+
+  let totG = ['gas','hie','rep','cas','otr'].reduce((a,k) => a + parseFloat(document.getElementById(`g-${k}`)?.value || 0), 0);
+  document.getElementById('g-tot').textContent = '$' + totG.toLocaleString('es');
+}
+
+function loadVentasForm(p) {
+  const d = dataPuestos[p] || {};
+  ['mar','mie','jue','vie','sab','dom'].forEach(dia => {
+    const ef = document.getElementById(`ve-${dia}-ef`);
+    const tj = document.getElementById(`ve-${dia}-tj`);
+    if (ef) ef.value = d[`ve-${dia}-ef`] || '';
+    if (tj) tj.value = d[`ve-${dia}-tj`] || '';
+  });
+  ['gas','hie','rep','cas','otr'].forEach(k => {
+    const el = document.getElementById(`g-${k}`);
+    if (el) el.value = d[`g-${k}`] || '';
+  });
+  ['tor','bur','vas','sod','tel','mul'].forEach(k => {
+    const el = document.getElementById(`mp-${k}`);
+    if (el) el.value = d[`mp-${k}`] || '';
+  });
+  calcVentas();
+}
+
+async function guardarVentas() {
+  const d = {};
+  ['mar','mie','jue','vie','sab','dom'].forEach(dia => {
+    d[`ve-${dia}-ef`] = document.getElementById(`ve-${dia}-ef`)?.value || 0;
+    d[`ve-${dia}-tj`] = document.getElementById(`ve-${dia}-tj`)?.value || 0;
+  });
+  ['gas','hie','rep','cas','otr'].forEach(k => { d[`g-${k}`] = document.getElementById(`g-${k}`)?.value || 0; });
+  ['tor','bur','vas','sod','tel','mul'].forEach(k => { d[`mp-${k}`] = document.getElementById(`mp-${k}`)?.value || 0; });
+
+  // totals
+  const dias = ['mar','mie','jue','vie','sab','dom'];
+  d.totalVentas = dias.reduce((a,dia) => a + parseFloat(d[`ve-${dia}-ef`]) + parseFloat(d[`ve-${dia}-tj`]), 0);
+  d.totalGastos = ['gas','hie','rep','cas','otr'].reduce((a,k) => a + parseFloat(d[`g-${k}`] || 0), 0);
+
+  dataPuestos[currentPuesto] = d;
+  await saveData('puestos', dataPuestos);
+  renderDashboard();
+  renderReportes();
+  showToast('✅ Guardado — ' + currentPuesto);
+}
+
+// ── ASISTENCIA ──
+let asistState = {};
+
+function renderAsist() {
+  const saved = dataAsist[currentPuesto] || {};
+  asistState = JSON.parse(JSON.stringify(saved));
+  const empList = PUESTOS_WASH.includes(currentPuesto) ? EMPLEADOS_WASH.slice(0,4) : EMPLEADOS_CHI.slice(0,4);
+  const dias = ['Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const diaKeys = ['mar','mie','jue','vie','sab','dom'];
+  const container = document.getElementById('asist-rows');
+  container.innerHTML = '';
+
+  empList.forEach((emp, i) => {
+    const row = document.createElement('div');
+    row.className = 'asist-grid';
+    row.style.marginBottom = '6px';
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'asist-name';
+    nameDiv.textContent = emp.n;
+    row.appendChild(nameDiv);
+    diaKeys.forEach((dk, di) => {
+      const key = `${i}-${dk}`;
+      const state = asistState[key] || 'P';
+      const btn = document.createElement('button');
+      btn.className = `asist-btn ${state}`;
+      btn.textContent = state;
+      btn.onclick = () => {
+        const cycle = {P:'A', A:'JV', JV:'D', D:'P'};
+        const next = cycle[btn.textContent] || 'P';
+        btn.textContent = next;
+        btn.className = `asist-btn ${next}`;
+        asistState[key] = next;
+        updateAsistResumen(empList.length);
+      };
+      row.appendChild(btn);
+    });
+    container.appendChild(row);
+  });
+  updateAsistResumen(empList.length);
+}
+
+function updateAsistResumen(total) {
+  const diaKeys = ['mar','mie','jue','vie','sab','dom'];
+  let presentes = 0, ausentes = 0;
+  Object.values(asistState).forEach(v => {
+    if (v === 'P') presentes++;
+    else if (v === 'A') ausentes++;
+  });
+  const pct = Math.round(presentes / (total * 6) * 100) || 100;
+  document.getElementById('asist-resumen').textContent = `✅ ${presentes} presencias  ❌ ${ausentes} ausencias  📊 ${pct}% asistencia`;
+}
+
+async function guardarAsist() {
+  dataAsist[currentPuesto] = JSON.parse(JSON.stringify(asistState));
+  await saveData('asist', dataAsist);
+  showToast('✅ Asistencia guardada — ' + currentPuesto);
+}
+
+// ── NÓMINA ──
+function renderNomina() {
+  const emps = currentNominaCity === 'wash' ? EMPLEADOS_WASH : EMPLEADOS_CHI;
+  const saved = dataNomina[currentNominaCity] || {};
+  const container = document.getElementById('nomina-content');
+  container.innerHTML = '';
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `<div class="card-title">👷 ${currentNominaCity === 'wash' ? 'Washington' : 'Chicago'} — ${emps.length} empleados</div>`;
+
+  let totalNomina = 0;
+  emps.forEach((emp, i) => {
+    const sueldo = saved[i]?.sueldo || 0;
+    totalNomina += parseFloat(sueldo);
+    const row = document.createElement('div');
+    row.className = 'nomina-row';
+    const initials = emp.n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    row.innerHTML = `
+      <div class="nomina-avatar">${initials}</div>
+      <div class="nomina-info">
+        <div class="nomina-name">${emp.n}</div>
+        <div class="nomina-pos">${emp.p}</div>
+      </div>
+      <input class="nomina-sueldo" type="number" min="0" value="${sueldo}" placeholder="$0"
+        data-idx="${i}" oninput="updateNominaTotal(this)">
+    `;
+    card.appendChild(row);
+  });
+
+  const totalRow = document.createElement('div');
+  totalRow.className = 'fila-total';
+  totalRow.style.marginTop = '12px';
+  totalRow.innerHTML = `<span style="font-size:0.9rem">💰 Total Nómina Semanal</span><span id="nomina-total" style="font-size:1rem">$${totalNomina.toLocaleString('es')}</span>`;
+  card.appendChild(totalRow);
+  container.appendChild(card);
+}
+
+function updateNominaTotal(input) {
+  const emps = currentNominaCity === 'wash' ? EMPLEADOS_WASH : EMPLEADOS_CHI;
+  let total = 0;
+  document.querySelectorAll('.nomina-sueldo').forEach(inp => { total += parseFloat(inp.value || 0); });
+  const el = document.getElementById('nomina-total');
+  if (el) el.textContent = '$' + total.toLocaleString('es');
+}
+
+async function guardarNomina() {
+  const saved = {};
+  document.querySelectorAll('.nomina-sueldo').forEach((inp, i) => { saved[i] = { sueldo: parseFloat(inp.value || 0) }; });
+  dataNomina[currentNominaCity] = saved;
+  await saveData('nomina', dataNomina);
+  showToast('✅ Nómina guardada');
+}
+
+// ── FLUJO ──
+function calcFlujo() {
+  const ent = ['fl-ef','fl-tj','fl-pre'].reduce((a,id) => a + parseFloat(document.getElementById(id)?.value||0), 0);
+  const sal = ['fl-ing','fl-gas','fl-ren','fl-nom','fl-emp','fl-tra'].reduce((a,id) => a + parseFloat(document.getElementById(id)?.value||0), 0);
+  document.getElementById('fl-tot-ent').textContent = '$' + ent.toLocaleString('es');
+  document.getElementById('fl-tot-sal').textContent = '$' + sal.toLocaleString('es');
+  const neto = ent - sal;
+  const netoEl = document.getElementById('fl-neto');
+  netoEl.textContent = '$' + neto.toLocaleString('es');
+  netoEl.style.color = neto >= 0 ? 'var(--verde2)' : 'var(--rojo)';
+}
+
+async function guardarFlujo() {
+  const d = {};
+  ['ef','tj','pre','ing','gas','ren','nom','emp','tra'].forEach(k => { d[k] = parseFloat(document.getElementById(`fl-${k}`)?.value||0); });
+  dataFlujo = d; await saveData('flujo', dataFlujo);
+}
+
+async function guardarGastosGen() {
+  const d = {};
+  ['cpa','per','leg','tel','ban','veh','equ','ele','fle','pub','res','otr'].forEach(k => { d[k] = parseFloat(document.getElementById(`gg-${k}`)?.value||0); });
+  dataGastosGen = d; await saveData('gastosgen', dataGastosGen);
+}
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  let totalV = 0, totalG = 0, totalN = 0;
+
+  // Nómina
+  ['wash','chi'].forEach(city => {
+    const emps = city === 'wash' ? EMPLEADOS_WASH : EMPLEADOS_CHI;
+    const saved = dataNomina[city] || {};
+    emps.forEach((_, i) => { totalN += parseFloat(saved[i]?.sueldo || 0); });
+  });
+
+  // Ventas/Gastos
+  PUESTOS.forEach(p => {
+    const d = dataPuestos[p] || {};
+    totalV += parseFloat(d.totalVentas || 0);
+    totalG += parseFloat(d.totalGastos || 0);
+  });
+
+  const utilidad = totalV - totalG - totalN;
+  document.getElementById('kpi-ventas').textContent = '$' + totalV.toLocaleString('es');
+  document.getElementById('kpi-gastos').textContent = '$' + totalG.toLocaleString('es');
+  document.getElementById('kpi-nomina').textContent = '$' + totalN.toLocaleString('es');
+  document.getElementById('kpi-utilidad').textContent = '$' + utilidad.toLocaleString('es');
+  document.getElementById('kpi-utilidad').closest('.kpi-card').style.borderColor = utilidad >= 0 ? 'var(--azul)' : 'var(--rojo)';
+
+  // Listas
+  renderPuestosList('list-wash', PUESTOS_WASH, 'Washington');
+  renderPuestosList('list-chi', PUESTOS_CHI, 'Chicago');
+}
+
+function renderPuestosList(containerId, puestos, ciudad) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  puestos.forEach(p => {
+    const d = dataPuestos[p] || {};
+    const v = parseFloat(d.totalVentas || 0);
+    const row = document.createElement('div');
+    row.className = 'puesto-row';
+    row.innerHTML = `
+      <div class="puesto-dot ${ciudad === 'Washington' ? 'wash' : 'chi'}"></div>
+      <div style="flex:1">
+        <div class="puesto-row-name">${p}</div>
+        <div class="puesto-row-ciudad">${ciudad}</div>
+      </div>
+      <div class="puesto-row-ventas">$${v.toLocaleString('es')}</div>
+    `;
+    row.onclick = () => {
+      setPuesto(p);
+      // Update selector
+      document.querySelectorAll('.puesto-btn').forEach(b => b.classList.toggle('active', b.textContent === p));
+      showView('ventas', document.querySelectorAll('.nav-btn')[1]);
+    };
+    container.appendChild(row);
+  });
+}
+
+// ── REPORTES ──
+function renderReportes() {
+  let washV = 0, washG = 0, chiV = 0, chiG = 0;
+  PUESTOS_WASH.forEach(p => { const d = dataPuestos[p]||{}; washV += parseFloat(d.totalVentas||0); washG += parseFloat(d.totalGastos||0); });
+  PUESTOS_CHI.forEach(p => { const d = dataPuestos[p]||{}; chiV += parseFloat(d.totalVentas||0); chiG += parseFloat(d.totalGastos||0); });
+
+  document.getElementById('rm-wash-v').textContent = '$' + washV.toLocaleString('es');
+  document.getElementById('rm-wash-g').textContent = '$' + washG.toLocaleString('es');
+  document.getElementById('rm-wash-u').textContent = '$' + (washV - washG).toLocaleString('es');
+  document.getElementById('rm-chi-v').textContent = '$' + chiV.toLocaleString('es');
+  document.getElementById('rm-chi-g').textContent = '$' + chiG.toLocaleString('es');
+  document.getElementById('rm-chi-u').textContent = '$' + (chiV - chiG).toLocaleString('es');
+
+  const container = document.getElementById('reporte-puestos');
+  container.innerHTML = '';
+  const maxV = Math.max(...PUESTOS.map(p => parseFloat(dataPuestos[p]?.totalVentas || 0)), 1);
+  PUESTOS.forEach(p => {
+    const d = dataPuestos[p] || {};
+    const v = parseFloat(d.totalVentas || 0);
+    const pct = Math.round(v / maxV * 100);
+    const isWash = PUESTOS_WASH.includes(p);
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="bar-label" style="width:80px;text-align:left;font-size:0.7rem">${p}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${pct}%;background:${isWash?'var(--verde)':'var(--azul)'}">
+          ${v > 0 ? '<span>$'+v.toLocaleString('es')+'</span>' : ''}
+        </div>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2500);
+}
+
+// Load ventas on init
+window.onload = () => loadVentasForm(currentPuesto);
+</script>
+</body>
+</html>

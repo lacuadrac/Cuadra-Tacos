@@ -2057,26 +2057,62 @@ function getDiasDeAsistencia(city, empIdx, fechaSemana){
   return dias;
 }
 
+function debugAsistencia(){
+  DA=LL('DA',DA);
+  const keys=Object.keys(DA).filter(k=>k.includes('asist-city'));
+  if(!keys.length){alert('DA no tiene registros de asistencia.\n\nKeys en DA:\n'+Object.keys(DA).slice(0,10).join('\n'));return;}
+  let msg='Registros de asistencia encontrados:\n\n';
+  keys.forEach(k=>{
+    const rec=DA[k];
+    const empKeys=Object.keys(rec).filter(x=>x.match(/^\d+-/));
+    msg+=`📌 ${k}\n`;
+    msg+=`   Keys empleados: ${empKeys.slice(0,6).join(', ')||'NINGUNA'}\n`;
+    if(empKeys.length){
+      empKeys.slice(0,4).forEach(ek=>{msg+=`   ${ek} = ${rec[ek]}\n`;});
+    }
+    msg+='\n';
+  });
+  alert(msg);
+}
+
+function getAsistDias(city, empIdx){
+  DA=LL('DA',DA);
+  const dayMap=['mar','mie','jue','vie','sab','dom'];
+  const records=Object.keys(DA)
+    .filter(k=>k.startsWith('asist-city__'+city+'__'))
+    .sort((a,b)=>b.localeCompare(a));
+  if(!records.length) return null;
+  const rec=DA[records[0]];
+  const dias={};let hasData=false;
+  dayMap.forEach((dk,di)=>{
+    const v=rec[empIdx+'-'+dk];
+    if(v&&typeof v==='string'&&['P','MD','A'].includes(v)){
+      dias['d'+di]=v;hasData=true;
+    }
+  });
+  return hasData?dias:null;
+}
+
 function renderNomina(){
   const emps=NCity==='wash'?EW:EC;
   const key=nomKey(NCity,currentFechaNomina);
   const saved=DN[key]||{};
-  const hasAsistData=checkHasAsistForWeek(NCity,currentFechaNomina);
+  DA=LL('DA',DA);
+  const hasAsistData=Object.keys(DA).some(k=>k.startsWith('asist-city__'+NCity+'__'));
   const c=document.getElementById('nomcontent');if(!c)return;c.innerHTML='';
   const card=document.createElement('div');card.className='card';
-
-  // Header with sync button
   const headerDiv=document.createElement('div');
   headerDiv.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:8px';
   headerDiv.innerHTML=`
     <div class="ctit" style="margin-bottom:0">👷 ${NCity==='wash'?'Washington':'Chicago'} — ${emps.length} empleados</div>
-    <button onclick="sincronizarAsistencia()" 
-      style="background:${hasAsistData?'var(--vs)':'var(--g2)'};color:${hasAsistData?'var(--v)':'var(--t3)'};border:1.5px solid ${hasAsistData?'var(--v)':'var(--g3)'};border-radius:8px;padding:5px 10px;font-family:'Nunito',sans-serif;font-size:.7rem;font-weight:800;cursor:pointer"
-      title="Cargar días desde Asistencia">
-      ${hasAsistData?'✅ Sincronizar Asistencia':'📋 Sin asistencia registrada'}
-    </button>`;
+    <div style="display:flex;gap:6px">
+      <button onclick="debugAsistencia()" style="background:var(--g2);color:var(--t3);border:1.5px solid var(--g3);border-radius:8px;padding:5px 8px;font-family:'Nunito',sans-serif;font-size:.65rem;font-weight:800;cursor:pointer">🔍 Debug</button>
+      <button onclick="sincronizarAsistencia()"
+        style="background:${hasAsistData?'var(--vs)':'var(--g2)'};color:${hasAsistData?'var(--v)':'var(--t3)'};border:1.5px solid ${hasAsistData?'var(--v)':'var(--g3)'};border-radius:8px;padding:5px 10px;font-family:'Nunito',sans-serif;font-size:.7rem;font-weight:800;cursor:pointer">
+        ${hasAsistData?'✅ Sincronizar Asistencia':'📋 Sin asistencia registrada'}
+      </button>
+    </div>`;
   card.appendChild(headerDiv);
-
   let total=0;
   emps.forEach((emp,i)=>{
     const empData=saved[i]||{};
@@ -2084,21 +2120,27 @@ function renderNomina(){
     const tipoBase=emp.t||'dia';
     const sueldo=empData.sueldo!==undefined?empData.sueldo:sueldoBase;
     const tipo=empData.tipo||tipoBase;
-    // Use saved dias, or load from asistencia if available and not yet saved
-    let dias=empData.dias||{};
+    // Priority: 1) nomina guardada  2) asistencia  3) default P
+    let dias={};
+    if(empData.dias&&Object.keys(empData.dias).length){
+      dias=empData.dias;
+    } else {
+      const ad=getAsistDias(NCity,i);
+      if(ad) dias=ad;
+    }
     const diasTrab=Object.values(dias).reduce((a,v)=>a+(v==='P'?1:v==='MD'?0.5:0),0)||(tipo==='semana'?6:0);
     const pago=calcPago(sueldo,tipo,diasTrab);
     total+=pago;
     const ini=emp.n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
     const row=document.createElement('div');row.className='nrow';
     const daysHTML=DIAS_NOM.map((d,di)=>{
-      const k=`d${di}`;const st=dias[k]||'P';
-      const cls=st==='P'?'on':st==='MD'?'half':st==='D'?'des':'off';
+      const k='d'+di;const st=dias[k]||'P';
+      const cls=st==='P'?'on':st==='MD'?'half':'off';
       const icon=st==='P'?'✓':st==='MD'?'½':'✗';
-      return `<div class="nday"><div class="nday-lbl">${d}</div><button class="nday-btn ${cls}" data-emp="${i}" data-day="${k}" onclick="toggleNDay(this)">${icon}</button></div>`;
+      return '<div class="nday"><div class="nday-lbl">'+d+'</div><button class="nday-btn '+cls+'" data-emp="'+i+'" data-day="'+k+'" onclick="toggleNDay(this)">'+icon+'</button></div>';
     }).join('');
     const lblTipo=tipo==='dia'?'$/día':'$/semana';
-    const sueldoLabel=sueldo>0?`$${fmt(sueldo)} ${lblTipo}`:'Sin sueldo — configura en ⚙️ Empleados';
+    const sueldoLabel=sueldo>0?'$'+fmt(sueldo)+' '+lblTipo:'Sin sueldo — configura en ⚙️ Empleados';
     const sueldoColor=sueldo>0?'var(--t2)':'var(--r)';
     row.innerHTML=`
       <div class="nav2">${ini}</div>
@@ -2113,84 +2155,17 @@ function renderNomina(){
         </div>
       </div>
       <div class="nright">
-        <div class="npago-lbl" id="ndias-${i}">${diasTrab} días</div>
+        <div class="npago-lbl" id="ndias-${i}">${diasTrab%1===0?diasTrab:diasTrab} días</div>
         <div class="npago" id="npago-${i}">$${fmt(pago)}</div>
       </div>`;
     card.appendChild(row);
   });
   const tr=document.createElement('div');tr.className='ftot b';tr.style.marginTop='12px';
-  tr.innerHTML=`<span>💰 Total a Pagar esta Semana</span><span id="ntotal">$${fmt(total)}</span>`;
+  tr.innerHTML='<span>💰 Total a Pagar esta Semana</span><span id="ntotal">$'+fmt(total)+'</span>';
   card.appendChild(tr);c.appendChild(card);
   updateNomSemanaLabel();
 }
 
-// Check if asistencia records exist for the week
-function checkHasAsistForWeek(city, fechaSemana){
-  const d=new Date(fechaSemana+'T12:00:00');
-  const day=d.getDay();
-  const mon=new Date(d);mon.setDate(d.getDate()-((day+6)%7));
-  for(let offset=1;offset<=6;offset++){
-    const fecha=new Date(mon);fecha.setDate(mon.getDate()+offset);
-    const fechaStr=fecha.toISOString().split('T')[0];
-    const key=`asist-city__${city}__${fechaStr}`;
-    if(DA[key]) return true;
-  }
-  return false;
-}
-
-// Sync asistencia → nómina for current week
-function sincronizarAsistencia(){
-  const emps=NCity==='wash'?EW:EC;
-  const dayKeys=['mar','mie','jue','vie','sab','dom'];
-
-  // Asistencia stores one record per city+date with ALL 6 days (mar-dom)
-  // keys inside: "${empIdx}-mar", "${empIdx}-mie", etc.
-  // Find the record that has data for this city (most recent, or matching week)
-  const d=new Date(currentFechaNomina+'T12:00:00');
-  const day=d.getDay();
-  const mon=new Date(d);mon.setDate(d.getDate()-((day+6)%7));
-
-  // Build set of dates in this week (Tue-Sun)
-  const weekDates=new Set();
-  dayKeys.forEach((_,di)=>{
-    const fd=new Date(mon);fd.setDate(mon.getDate()+di+1);
-    weekDates.add(fd.toISOString().split('T')[0]);
-  });
-
-  // Find a DA record for this city that was saved during this week
-  // OR fall back to the most recent record for this city
-  let asistRecord=null;
-  let bestDate='';
-  Object.keys(DA).forEach(k=>{
-    if(!k.startsWith(`asist-city__${NCity}__`)) return;
-    const recDate=k.split('__')[2];
-    if(weekDates.has(recDate)){asistRecord=DA[k];} // exact week match
-    else if(!asistRecord&&recDate>bestDate){bestDate=recDate;asistRecord=DA[k];} // fallback most recent
-  });
-
-  if(!asistRecord){
-    showToast('⚠️ Sin registros de asistencia para esta ciudad');
-    return;
-  }
-
-  let syncCount=0;
-  emps.forEach((emp,i)=>{
-    dayKeys.forEach((dk,di)=>{
-      const state=asistRecord[`${i}-${dk}`];
-      if(state===undefined||state===null) return;
-      const btn=document.querySelector(`.nday-btn[data-emp="${i}"][data-day="d${di}"]`);
-      if(btn){
-        const cls=state==='P'?'on':state==='MD'?'half':'off';
-        const icon=state==='P'?'✓':state==='MD'?'½':'✗';
-        btn.className=`nday-btn ${cls}`;btn.textContent=icon;
-        syncCount++;
-      }
-    });
-  });
-
-  updNT();
-  showToast(syncCount>0?`✅ Asistencia sincronizada — ${syncCount} estados cargados`:`⚠️ No se encontraron datos de empleados`);
-}
 
 function toggleNDay(btn){
   const cycle={P:'MD',MD:'A',A:'P'};

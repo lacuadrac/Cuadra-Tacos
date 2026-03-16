@@ -706,23 +706,25 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
 <!-- ASISTENCIA -->
 <!-- ASISTENCIA -->
 <div class="view" id="view-asist">
-  <div class="sh" id="atit">Asistencia</div>
+
+  <!-- Selector de semana ARRIBA -->
+  <div class="card" style="background:linear-gradient(135deg,var(--cb),var(--cb2));border:none">
+    <div style="font-size:.68rem;font-weight:900;letter-spacing:1px;color:#a16207;text-transform:uppercase;margin-bottom:8px">📅 Semana de Asistencia</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onclick="cambiarSemanaAsist(-1)" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:36px;height:36px;color:white;font-size:1.2rem;cursor:pointer;flex-shrink:0">‹</button>
+      <div style="flex:1;text-align:center">
+        <div id="asistSemanaLabel" style="font-size:.95rem;font-weight:900;color:white">—</div>
+        <div id="asistSemanaRango" style="font-size:.7rem;color:#fed7aa;font-weight:700;margin-top:2px">—</div>
+      </div>
+      <button onclick="cambiarSemanaAsist(1)" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:36px;height:36px;color:white;font-size:1.2rem;cursor:pointer;flex-shrink:0">›</button>
+    </div>
+    <div id="asistFechaStatus" style="font-size:.65rem;color:#a16207;font-weight:700;text-align:center;margin-top:6px"></div>
+  </div>
 
   <!-- Selector de ciudad -->
   <div class="cchips">
     <button class="cchip w active" id="asist-btn-wash" onclick="setAsistCity('wash',this)">🌲 Washington</button>
     <button class="cchip c" id="asist-btn-chi" onclick="setAsistCity('chi',this)">🌆 Chicago</button>
-  </div>
-
-  <!-- Fecha -->
-  <div class="card" style="background:linear-gradient(135deg,var(--cb),var(--cb2));border:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-      <div>
-        <div style="font-size:.68rem;font-weight:900;letter-spacing:1px;color:#a16207;text-transform:uppercase;margin-bottom:4px">📅 Fecha del Registro</div>
-        <input type="date" id="fechaAsist" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(234,88,12,.4);border-radius:10px;padding:8px 12px;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;color:white;outline:none;color-scheme:dark" onchange="onAsistFechaChange()">
-      </div>
-      <div id="asistFechaStatus" style="font-size:.65rem;color:#a16207;font-weight:700;text-align:right"></div>
-    </div>
   </div>
 
   <div class="card">
@@ -752,18 +754,19 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
 
 <!-- NOMINA -->
 <div class="view" id="view-nomina">
-  <!-- Semana selector -->
-  <div class="card" style="background:linear-gradient(135deg,var(--cb),var(--cb2));border:none;margin-bottom:12px">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-      <div>
-        <div style="font-size:.68rem;font-weight:900;letter-spacing:1px;color:#a16207;text-transform:uppercase;margin-bottom:4px">📅 Semana de Pago</div>
-        <input type="date" id="fechaNomina" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(234,88,12,.4);border-radius:10px;padding:8px 12px;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;color:white;outline:none;color-scheme:dark" onchange="onFechaNominaChange()">
+  <!-- Selector de semana ARRIBA -->
+  <div class="card" style="background:linear-gradient(135deg,var(--cb),var(--cb2));border:none">
+    <div style="font-size:.68rem;font-weight:900;letter-spacing:1px;color:#a16207;text-transform:uppercase;margin-bottom:8px">📅 Semana de Nómina</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onclick="cambiarSemanaNomina(-1)" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:36px;height:36px;color:white;font-size:1.2rem;cursor:pointer;flex-shrink:0">‹</button>
+      <div style="flex:1;text-align:center">
+        <div id="nomSemanaLabel" style="font-size:.95rem;font-weight:900;color:white">—</div>
+        <div id="nomSemanaRango" style="font-size:.7rem;color:#fed7aa;font-weight:700;margin-top:2px">—</div>
       </div>
-      <div style="text-align:right">
-        <div id="nomSemanaLabel" style="font-size:.75rem;color:#fed7aa;font-weight:700"></div>
-        <div id="nomSemanaStatus" style="font-size:.65rem;color:#a16207;margin-top:2px"></div>
-      </div>
+      <button onclick="cambiarSemanaNomina(1)" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:36px;height:36px;color:white;font-size:1.2rem;cursor:pointer;flex-shrink:0">›</button>
     </div>
+    <div id="nomSemanaStatus" style="font-size:.65rem;color:#a16207;font-weight:700;text-align:center;margin-top:6px"></div>
+    <input type="hidden" id="fechaNomina">
   </div>
   <div class="cchips">
     <button class="cchip w active" onclick="setNC('wash',this)">🌲 Washington</button>
@@ -1590,8 +1593,8 @@ function showApp(){
   if(psel) psel.style.display='none';
   renderDash();
   
-  if(can('asist')){currentAsistFecha=todayStr();const fa=document.getElementById('fechaAsist');if(fa)fa.value=currentAsistFecha;renderAsist();}
-  if(isA||can('nomina'))renderNomina();
+  if(can('asist')){currentAsistFecha=todayStr();updateAsistSemanaUI();renderAsist();}
+  if(isA||can('nomina')){updateNomSemanaLabel();renderNomina();}
   if(isA||can('reportes'))renderReportes();
   populateEditSel();updateTip();
   renderMPRows();
@@ -1922,15 +1925,7 @@ function setAsistCity(city, btn){
   renderAsist();
 }
 
-function onAsistFechaChange(){
-  const fecha=document.getElementById('fechaAsist').value;
-  if(!fecha) return;
-  currentAsistFecha=fecha;
-  const key=`asist-city__${asistCity}__${fecha}`;
-  const status=document.getElementById('asistFechaStatus');
-  if(status) status.textContent=DA[key]?.fechaGuardado?`Guardado: ${DA[key].fechaGuardado}`:'Sin registro para esta fecha';
-  renderAsist();
-}
+
 
 function renderAsist(){
   const emps=asistCity==='wash'?EW:EC;
@@ -1952,11 +1947,7 @@ function renderAsist(){
     c.appendChild(row);
   });
   updAR(emps.length);
-  // Update fecha input and status
-  const fi=document.getElementById('fechaAsist');if(fi&&!fi.value)fi.value=currentAsistFecha;
-  const status=document.getElementById('asistFechaStatus');
-  const key2=`asist-city__${asistCity}__${currentAsistFecha}`;
-  if(status) status.textContent=DA[key2]?.fechaGuardado?`Guardado: ${DA[key2].fechaGuardado}`:'Sin registro para esta fecha';
+  updateAsistSemanaUI();
 }
 
 function updAR(total){
@@ -1985,8 +1976,55 @@ async function guardarAsist(){
   showToast(`✅ Asistencia guardada — ${ciudad} · ${fmtFecha(currentAsistFecha)}`);
 }
 
-// ── NOMINA ──
-function nomKey(city,fecha){return `${city}__${fecha||currentFechaNomina}`;}
+// ── SEMANA HELPERS ──
+function getLunes(fecha){
+  const d=new Date(fecha+'T12:00:00');
+  const day=d.getDay();
+  const lunes=new Date(d);
+  lunes.setDate(d.getDate()-((day+6)%7));
+  return lunes;
+}
+function fmtSemana(lunesDate){
+  const dom=new Date(lunesDate);dom.setDate(lunesDate.getDate()+6);
+  const opts={day:'numeric',month:'short'};
+  return lunesDate.toLocaleDateString('es-MX',opts)+' — '+dom.toLocaleDateString('es-MX',opts);
+}
+function fmtSemanaLabel(lunesDate){
+  const dom=new Date(lunesDate);dom.setDate(lunesDate.getDate()+6);
+  const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  return `Lun ${lunesDate.getDate()} ${meses[lunesDate.getMonth()]} — Dom ${dom.getDate()} ${meses[dom.getMonth()]}`;
+}
+function dateToStr(d){return d.toISOString().split('T')[0];}
+
+// ASISTENCIA semana
+function updateAsistSemanaUI(){
+  const lunes=getLunes(currentAsistFecha);
+  const label=document.getElementById('asistSemanaLabel');
+  const rango=document.getElementById('asistSemanaRango');
+  if(label) label.textContent=fmtSemanaLabel(lunes);
+  if(rango){const dom=new Date(lunes);dom.setDate(lunes.getDate()+6);rango.textContent='Lun '+dateToStr(lunes)+' · Dom '+dateToStr(dom);}
+  const status=document.getElementById('asistFechaStatus');
+  const key=`asist-city__${asistCity}__${currentAsistFecha}`;
+  if(status) status.textContent=DA[key]?.fechaGuardado?`Guardado: ${DA[key].fechaGuardado}`:'Sin registro para esta semana';
+}
+function cambiarSemanaAsist(dir){
+  const d=new Date(currentAsistFecha+'T12:00:00');
+  d.setDate(d.getDate()+dir*7);
+  currentAsistFecha=dateToStr(d);
+  updateAsistSemanaUI();
+  renderAsist();
+}
+
+// NOMINA semana
+
+function cambiarSemanaNomina(dir){
+  const d=new Date(currentFechaNomina+'T12:00:00');
+  d.setDate(d.getDate()+dir*7);
+  currentFechaNomina=dateToStr(d);
+  updateNomSemanaLabel();
+  renderNomina();
+}
+(city,fecha){return `${city}__${fecha||currentFechaNomina}`;}
 
 function updateNomSemanaLabel(){
   const lbl=document.getElementById('nomSemanaLabel');

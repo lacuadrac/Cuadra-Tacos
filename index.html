@@ -1773,12 +1773,28 @@ async function logChange(seccion,detalle,valorAntes,valorDespues){
 }
 
 // AUTH
-function doLogin(){
-  refreshUS(); // always fresh
+async function doLogin(){
+  refreshUS();
   const nombre=document.getElementById('liUser').value.trim();
   const pass=document.getElementById('liPass').value;
   const err=document.getElementById('loginErr');
-  const found=US.find(u=>u.user.toLowerCase()===nombre.toLowerCase()&&u.pass===pass);
+
+  let found=US.find(u=>u.user.toLowerCase()===nombre.toLowerCase()&&u.pass===pass);
+
+  // Si no encuentra localmente, sincroniza desde Sheets e intenta de nuevo
+  if(!found){
+    try{
+      const [ewData,ecData,adminData]=await Promise.all([
+        gsG('EW'),gsG('EC'),gsG('ADMIN')
+      ]);
+      if(ewData&&ewData['EW']!==undefined){EW=ewData['EW'];SL('EW',EW);}
+      if(ecData&&ecData['EC']!==undefined){EC=ecData['EC'];SL('EC',EC);}
+      if(adminData&&adminData['ADMIN']!==undefined){ADMIN=adminData['ADMIN'];SL('ADMIN',ADMIN);}
+      refreshUS();
+      found=US.find(u=>u.user.toLowerCase()===nombre.toLowerCase()&&u.pass===pass);
+    }catch(e){}
+  }
+
   if(!found){
     err.style.display='block';
     document.getElementById('liPass').value='';
@@ -1914,21 +1930,34 @@ function showApp(){
 
 // INIT
 document.addEventListener('DOMContentLoaded',()=>{
-  initDarkMode(); // Apply dark mode immediately before splash fades
-  initFaceIDStatus(); // Show Face ID button on login if registered
+  initDarkMode();
+  initFaceIDStatus();
   setTimeout(()=>{
     const s=document.getElementById('splash');s.style.opacity='0';
-    setTimeout(()=>{
+    setTimeout(async ()=>{
       s.style.display='none';
+
+      // ── Sincronizar empleados y admin desde Sheets antes del login ──
+      try{
+        const [ewData,ecData,adminData]=await Promise.all([
+          gsG('EW'), gsG('EC'), gsG('ADMIN')
+        ]);
+        if(ewData&&ewData['EW']!==undefined){EW=ewData['EW'];SL('EW',EW);}
+        if(ecData&&ecData['EC']!==undefined){EC=ecData['EC'];SL('EC',EC);}
+        if(adminData&&adminData['ADMIN']!==undefined){ADMIN=adminData['ADMIN'];SL('ADMIN',ADMIN);}
+        refreshUS();
+      }catch(e){
+        // Sin conexión — usa datos locales
+        refreshUS();
+      }
+
       const saved=LL('session',null);
       if(saved&&saved.user){
-        refreshUS();
         const valid=US.find(u=>u.user.toLowerCase()===saved.user.toLowerCase()&&u.pass===saved.pass);
         if(valid){
           CU=valid;
-          // Check PIN login first
           const hasCiudad=CU.perms?.['ciudad-wash']||CU.perms?.['ciudad-chi'];
-          if(checkPINLogin()){return;} // PIN screen handles showApp
+          if(checkPINLogin()){return;}
           if(CU.rol==='encargado'&&!CU.puesto&&!hasCiudad) showPuestoSelector();
           else showApp();
         } else document.getElementById('loginScreen').classList.add('show');

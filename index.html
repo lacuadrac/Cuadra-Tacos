@@ -398,7 +398,7 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
   <div class="lc">
     <div class="lerr" id="loginErr">❌ Nombre o contraseña incorrectos</div>
     <label class="ll2">Tu Nombre</label>
-    <input class="li" id="liUser" placeholder="Ej: José María, Cirilo..." autocapitalize="words" autocomplete="name">
+    <input class="li" id="liUser" placeholder="Ej: dagoberto, jose..." autocapitalize="none" autocomplete="username">
     <label class="ll2">Contraseña</label>
     <input class="li" id="liPass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="btn-login" onclick="doLogin()">🔐 ENTRAR</button>
@@ -1240,12 +1240,14 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
 
 <div class="moverlay" id="m-addU">
   <div class="modal"><div class="mhandle"></div>
-    <div class="mtitle" id="mu-title">👷 Nuevo Usuario</div>
+    <div class="mtitle" id="mu-title">👷 Nuevo Empleado</div>
     <input type="hidden" id="mu-idx" value="-1">
     <label class="mlbl">Nombre del Empleado</label>
-    <input class="minput" id="mu-user" placeholder="Ej: José María, Cirilo..." autocapitalize="words">
+    <input class="minput" id="mu-user" placeholder="Ej: dagoberto, jose..." autocapitalize="none" autocomplete="off">
+    <label class="mlbl">Nombre de usuario <span style="font-size:.7rem;color:var(--t3);font-weight:400">(para iniciar sesión)</span></label>
+    <input class="minput" id="mu-username" placeholder="Ej: dagoberto" autocapitalize="none" autocomplete="off" style="font-family:monospace">
     <label class="mlbl">Contraseña</label>
-    <label class="mlbl" style="display:inline" id="mu-pass-hint"><span style="font-size:.7rem;color:var(--t3);font-weight:400;text-transform:none">(dejar vacío = no cambiar)</span></label>
+    <label class="mlbl" style="display:none" id="mu-pass-hint"><span style="font-size:.7rem;color:var(--t3);font-weight:400;text-transform:none">(dejar vacío = no cambiar)</span></label>
     <input class="minput" type="password" id="mu-pass" placeholder="••••••••">
     <label class="mlbl">Rol</label>
     <select class="msel" id="mu-rol" onchange="togglePuestoField()">
@@ -1436,7 +1438,29 @@ const SL=(k,v)=>{try{localStorage.setItem('lct_'+k,JSON.stringify(v))}catch{}};
 
 let PW=LL('PW',[...DW]),PC=LL('PC',[...DC]);
 let EW=LL('EW',[...DEW]),EC=LL('EC',[...DEC]);
-let US=LL('US',[...DU]);
+// US is now derived dynamically from EW+EC — admin is stored separately
+let ADMIN=LL('ADMIN',{user:'admin',pass:'cuadra2024',rol:'admin',puesto:''});
+// Migration: if old US exists with admin, pull it
+(()=>{const oldUS=LL('US',null);if(oldUS){const a=oldUS.find(u=>u.rol==='admin');if(a){ADMIN=a;SL('ADMIN',ADMIN);}
+// Migrate old user data into EW/EC
+oldUS.filter(u=>u.rol!=='admin').forEach(ou=>{
+  const empW=EW.find(e=>e.n.toLowerCase()===ou.user.toLowerCase());
+  const empC=EC.find(e=>e.n.toLowerCase()===ou.user.toLowerCase());
+  if(empW&&!empW.pass){empW.pass=ou.pass;empW.rol='encargado';empW.perms=ou.perms||{};empW.ciudad='wash';}
+  if(empC&&!empC.pass){empC.pass=ou.pass;empC.rol='encargado';empC.perms=ou.perms||{};empC.ciudad='chi';}
+});}})();
+
+// Build US dynamically from EW+EC+ADMIN
+function getUS(){
+  const emps=[
+    ...EW.map(e=>({...e,user:e.user||e.n,ciudad:'wash'})),
+    ...EC.map(e=>({...e,user:e.user||e.n,ciudad:'chi'}))
+  ].filter(e=>e.pass&&e.rol);
+  return [ADMIN,...emps];
+}
+// Keep US as a live reference for compatibility
+let US=getUS();
+function refreshUS(){US=getUS();}
 let MP=LL('MP',[...DMP]); // Materia prima catalog
 let DP=LL('DP',{}),DN=LL('DN',{wash:{},chi:{}}),DA=LL('DA',{}),DF=LL('DF',{}),DG=LL('DG',{});
 let HIST=LL('HIST',[]); // Change history log
@@ -1522,6 +1546,7 @@ async function logChange(seccion,detalle,valorAntes,valorDespues){
 
 // AUTH
 function doLogin(){
+  refreshUS(); // always fresh
   const nombre=document.getElementById('liUser').value.trim();
   const pass=document.getElementById('liPass').value;
   const err=document.getElementById('loginErr');
@@ -1533,10 +1558,9 @@ function doLogin(){
     return;
   }
   CU=found;SL('session',found);err.style.display='none';
-  // Check if user needs to pick a puesto
   const hasCiudad=CU.perms?.['ciudad-wash']||CU.perms?.['ciudad-chi'];
   if(CU.rol==='encargado'&&!CU.puesto&&!hasCiudad){
-    showPuestoSelector(); // no city access and no puesto — must pick one
+    showPuestoSelector();
   } else {
     showApp();
   }
@@ -1561,8 +1585,12 @@ function confirmarPuesto(){
   if(!p){showToast('⚠️ Selecciona tu puesto');return;}
   // Save puesto to user
   CU.puesto=p;
-  const idx=US.findIndex(u=>u.user===CU.user);
-  if(idx!==-1){US[idx].puesto=p;SD('US',US);}
+  // Save puesto back into EW/EC
+  const empW=EW.find(e=>e.n===CU.user);
+  const empC=EC.find(e=>e.n===CU.user);
+  if(empW){empW.puesto=p;SD('EW',EW);}
+  else if(empC){empC.puesto=p;SD('EC',EC);}
+  refreshUS();
   SL('session',CU);
   document.getElementById('puestoScreen').style.display='none';
   showApp();
@@ -1649,6 +1677,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       s.style.display='none';
       const saved=LL('session',null);
       if(saved&&saved.user){
+        refreshUS();
         const valid=US.find(u=>u.user.toLowerCase()===saved.user.toLowerCase()&&u.pass===saved.pass);
         if(valid){
           CU=valid;
@@ -2882,9 +2911,8 @@ function renderCfgE(){
   emps.forEach((emp,i)=>{
     const ini=emp.n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
     const sueldo=emp.s||0;
-    // Check if this employee has a user account
-    const userExists=US.find(u=>u.user.toLowerCase()===emp.n.toLowerCase());
-    const tieneAcceso=userExists&&userExists.rol!=='admin';
+    const tieneAcceso=emp.pass&&emp.rol;
+    const username=emp.user||emp.n.split(' ')[0].toLowerCase();
     const row=document.createElement('div');row.className='eitem';row.style.cssText='align-items:center;cursor:pointer;flex-wrap:wrap;gap:8px';
     row.dataset.idx=i;
     row.innerHTML=`
@@ -2894,15 +2922,21 @@ function renderCfgE(){
       <div class="einfo" style="flex:1;min-width:100px">
         <div class="ename">${emp.n}</div>
         <div class="epos">${emp.p||'—'}</div>
+        ${tieneAcceso?`<div style="font-size:.62rem;color:var(--az);font-weight:700;margin-top:2px">👤 @${username}</div>`:''}
       </div>
-      <!-- Acceso toggle -->
-      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0" onclick="event.stopPropagation()">
+      <!-- Acceso toggle + edit -->
+      <div style="display:flex;align-items:center;gap:4px;flex-shrink:0" onclick="event.stopPropagation()">
         <div style="text-align:center">
           <div style="font-size:.58rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:3px">Acceso portal</div>
-          <button onclick="toggleAccesoEmpleado(${i},'${CECity}')"
-            style="padding:6px 12px;border-radius:20px;border:none;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;transition:all .2s;background:${tieneAcceso?'var(--vs)':'var(--g2)'};color:${tieneAcceso?'var(--v)':'var(--t3)'}">
-            ${tieneAcceso?'🔓 Activo':'🔒 Inactivo'}
-          </button>
+          <div style="display:flex;gap:4px;align-items:center">
+            <button onclick="toggleAccesoEmpleado(${i},'${CECity}')"
+              style="padding:6px 10px;border-radius:20px;border:none;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer;transition:all .2s;background:${tieneAcceso?'var(--vs)':'var(--g2)'};color:${tieneAcceso?'var(--v)':'var(--t3)'}">
+              ${tieneAcceso?'🔓 Activo':'🔒 Inactivo'}
+            </button>
+            <button onclick="editAccesoEmpleado(${i},'${CECity}')" 
+              style="padding:5px 8px;border-radius:8px;border:1.5px solid var(--g3);background:white;font-size:.7rem;cursor:pointer;flex-shrink:0" 
+              title="${tieneAcceso?'Editar acceso, permisos y contraseña':'Configurar acceso y permisos'}">✏️</button>
+          </div>
         </div>
       </div>
       <!-- Sueldo -->
@@ -3032,48 +3066,61 @@ function setCfgTipo(empIdx, tipo, btn){
   if(inp) inp.dataset.tipo=tipo;
 }
 
-async function toggleAccesoEmpleado(empIdx, city){
+function editAccesoEmpleado(empIdx, city){
   const emps=city==='wash'?EW:EC;
   const emp=emps[empIdx];if(!emp)return;
-  const userExists=US.find(u=>u.user.toLowerCase()===emp.n.toLowerCase());
+  const tieneAcceso=!!(emp.pass&&emp.rol);
+  const p=emp.perms||{};
+  const username=emp.user||emp.n.split(' ')[0].toLowerCase();
 
-  if(userExists){
-    // Desactivar — confirmar y eliminar usuario
-    if(!confirm(`¿Desactivar acceso al portal para ${emp.n}?\nEl empleado no podrá iniciar sesión.`))return;
-    const idx=US.indexOf(userExists);
-    US.splice(idx,1);
-    await SD('US',US);
-    renderCfgE();renderCfgU();
-    showToast(`🔒 Acceso desactivado para ${emp.n}`);
-  } else {
-    // Activar — pedir contraseña
-    const pass=prompt(`Crear acceso para ${emp.n}\n\nEscribe una contraseña (mínimo 4 caracteres):`);
-    if(pass===null) return; // cancelado
-    if(!pass||pass.length<4){showToast('⚠️ La contraseña debe tener al menos 4 caracteres');return;}
+  // Open the full user modal pre-filled with employee data
+  document.getElementById('mu-title').textContent=`✏️ ${emp.n}`;
+  const idxEl=document.getElementById('mu-idx');
+  idxEl.value=-2;
+  idxEl.dataset.ciudad=city;
+  idxEl.dataset.empIdx=empIdx;
 
-    // Determinar puesto por defecto según ciudad
-    const ciudadPerm=city==='wash'?{'ciudad-wash':true,'ciudad-chi':false}:{'ciudad-wash':false,'ciudad-chi':true};
+  // Username
+  const userEl=document.getElementById('mu-user');
+  userEl.value=emp.n;
+  userEl.disabled=true; // name is fixed
+  const usernameEl=document.getElementById('mu-username');
+  if(usernameEl) usernameEl.value=tieneAcceso?username:emp.n.split(' ')[0].toLowerCase();
 
-    const nuevoUser={
-      user:emp.n,
-      pass,
-      rol:'encargado',
-      puesto:emp.p||'',
-      perms:{
-        ventas:true,
-        asist:true,
-        nomina:false,
-        reportes:false,
-        config:false,
-        dashboard:true,
-        ...ciudadPerm
-      }
-    };
-    US.push(nuevoUser);
-    await SD('US',US);
-    renderCfgE();renderCfgU();
-    showToast(`🔓 Acceso activado para ${emp.n} — contraseña guardada`);
-  }
+  // Password
+  document.getElementById('mu-pass').value='';
+  const hint=document.getElementById('mu-pass-hint');
+  if(hint) hint.style.display=tieneAcceso?'inline':'none';
+
+  // Role
+  const rolEl=document.getElementById('mu-rol');
+  rolEl.value='encargado';
+  rolEl.disabled=true;
+
+  // Ciudad perms
+  const wChk=document.getElementById('perm-ciudad-wash');
+  const cChk=document.getElementById('perm-ciudad-chi');
+  if(wChk) wChk.checked=p['ciudad-wash']||(city==='wash'&&!tieneAcceso);
+  if(cChk) cChk.checked=p['ciudad-chi']||(city==='chi'&&!tieneAcceso);
+
+  // Section perms
+  setPermsToForm({
+    ventas:   p.ventas   ?? true,
+    asist:    p.asist    ?? true,
+    nomina:   p.nomina   ?? false,
+    reportes: p.reportes ?? false,
+    config:   p.config   ?? false,
+    dashboard:p.dashboard?? true
+  });
+
+  togglePuestoField();
+  populatePuestoSelect();
+  updatePuestoVisibility();
+  if(emp.p) document.getElementById('mu-puesto').value=emp.p;
+
+  // Save button label
+  document.getElementById('mu-savebtn').innerHTML=tieneAcceso?'💾 GUARDAR CAMBIOS':'🔓 ACTIVAR ACCESO';
+  document.getElementById('m-addU').classList.add('open');
 }
 
 async function guardarSueldos(){
@@ -3116,45 +3163,98 @@ function renderCfgMP(){
 
 function renderCfgU(){
   const c=document.getElementById('cfg-ul');if(!c)return;c.innerHTML='';
-  US.forEach((u,i)=>{
+  refreshUS();
+
+  // Admin card
+  const adminRow=document.createElement('div');adminRow.className='eitem';adminRow.style.alignItems='flex-start';
+  adminRow.innerHTML=`
+    <div class="eav" style="background:linear-gradient(135deg,var(--n),var(--n2));margin-top:2px">👑</div>
+    <div class="einfo" style="flex:1">
+      <div class="ename">${ADMIN.user}</div>
+      <div class="epos">Administrador</div>
+      <div style="font-size:.68rem;color:var(--t3);margin-top:3px">Acceso total al sistema</div>
+    </div>
+    <button class="bedit" onclick="editUsuario(-1)">✏️</button>`;
+  c.appendChild(adminRow);
+
+  // Separator
+  const sep=document.createElement('div');
+  sep.style.cssText='font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--t3);padding:10px 4px 6px';
+  sep.textContent='👷 Empleados con acceso';
+  c.appendChild(sep);
+
+  const badge=(txt,bg,fg)=>`<span style="font-size:.58rem;background:${bg};color:${fg};padding:2px 6px;border-radius:20px;font-weight:800">${txt}</span>`;
+
+  const allEmps=[...EW.map(e=>({...e,ciudad:'wash'})),...EC.map(e=>({...e,ciudad:'chi'}))];
+  const conAcceso=allEmps.filter(e=>e.pass&&e.rol);
+
+  if(!conAcceso.length){
+    const empty=document.createElement('div');
+    empty.style.cssText='padding:16px;text-align:center;font-size:.8rem;color:var(--t3)';
+    empty.textContent='Ningún empleado tiene acceso activo. Actívalo desde 👷 Empleados.';
+    c.appendChild(empty);return;
+  }
+
+  conAcceso.forEach(emp=>{
+    const p=emp.perms||{};
+    const ini=emp.n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const username=emp.user||emp.n.split(' ')[0].toLowerCase();
+    const ciudadStr=p['ciudad-wash']&&p['ciudad-chi']?'🌎 Wash+Chi':p['ciudad-wash']?'🌲 Washington':p['ciudad-chi']?'🌆 Chicago':`📍 ${emp.p||'—'}`;
     const row=document.createElement('div');row.className='eitem';row.style.alignItems='flex-start';
-    const bg=u.rol==='admin'?'linear-gradient(135deg,var(--n),var(--n2))':'linear-gradient(135deg,var(--az),#1d4ed8)';
-    const prot=u.user==='admin';
-    const p=u.perms||{};
-
-    // City access line
-    const ciudadStr=u.rol==='encargado'?(
-      p['ciudad-wash']&&p['ciudad-chi']?'🌎 Washington + Chicago':
-      p['ciudad-wash']?'🌲 Washington':
-      p['ciudad-chi']?'🌆 Chicago':
-      u.puesto?`📍 ${u.puesto}`:'Sin puesto asignado'
-    ):'';
-
-    const badge=(txt,bg,fg)=>`<span style="font-size:.58rem;background:${bg};color:${fg};padding:2px 6px;border-radius:20px;font-weight:800">${txt}</span>`;
-    const permBadges=u.rol==='encargado'?`
-      <div style="font-size:.68rem;color:var(--az);font-weight:800;margin-top:3px">${ciudadStr}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:5px">
-        ${p.ventas?badge('💰Ventas','var(--ns)','var(--n2)'):''}
-        ${p.asist?badge('✅Asist.','var(--vs)','var(--v)'):''}
-        ${p.nomina?badge('👷Nómina','var(--ams)','#92400E'):''}
-        ${p.reportes?badge('📊Rep.','var(--azs)','var(--az)'):''}
-        ${p.config?badge('⚙️Config','var(--g3)','var(--t2)'):''}
-        ${p.dashboard?badge('🏠Inicio','var(--vs)','var(--v)'):''}
-        ${!p.ventas&&!p.asist&&!p.nomina&&!p.reportes&&!p.config&&!p.dashboard?'<span style="font-size:.58rem;color:var(--t3)">Sin permisos de sección</span>':''}
-      </div>`:'<div style="font-size:.68rem;color:var(--t3);margin-top:3px">Acceso total a todo el sistema</div>';
     row.innerHTML=`
-      <div class="eav" style="background:${bg};margin-top:2px">${u.rol==='admin'?'👑':'👷'}</div>
+      <div class="eav" style="background:linear-gradient(135deg,var(--az),#1d4ed8);margin-top:2px">${ini}</div>
       <div class="einfo" style="flex:1;min-width:0">
-        <div class="ename">${u.user}</div>
-        <div class="epos">${u.rol==='admin'?'Admin':'Encargado'}</div>
-        ${permBadges}
+        <div class="ename">${emp.n}</div>
+        <div class="epos">${emp.p||'—'} · ${emp.ciudad==='wash'?'Washington':'Chicago'}</div>
+        <div style="font-size:.68rem;color:var(--az);font-weight:700;margin-top:2px">👤 @${username}</div>
+        <div style="font-size:.68rem;color:var(--az);font-weight:800;margin-top:2px">${ciudadStr}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:5px">
+          ${p.ventas?badge('💰Ventas','var(--ns)','var(--n2)'):''}
+          ${p.asist?badge('✅Asist.','var(--vs)','var(--v)'):''}
+          ${p.nomina?badge('👷Nómina','var(--ams)','#92400E'):''}
+          ${p.reportes?badge('📊Rep.','var(--azs)','var(--az)'):''}
+          ${p.config?badge('⚙️Config','var(--g3)','var(--t2)'):''}
+          ${p.dashboard?badge('🏠Inicio','var(--vs)','var(--v)'):''}
+        </div>
       </div>
       <div class="ebtns" style="flex-shrink:0;margin-top:2px">
-        <button class="bedit" onclick="editUsuario(${i})">✏️</button>
-        ${!prot?`<button class="bdang" onclick="confirmDel('usuario',null,${i})">🗑️</button>`:'<span style="font-size:.6rem;color:var(--t3)">🔒</span>'}
+        <button class="bedit" onclick="editUsuarioEmp('${emp.ciudad}','${emp.n}')">✏️</button>
+        <button class="bdang" onclick="quitarAccesoEmp('${emp.ciudad}','${emp.n}')">🔒</button>
       </div>`;
     c.appendChild(row);
   });
+}
+
+function editUsuarioEmp(ciudad, nombre){
+  const emps=ciudad==='wash'?EW:EC;
+  const emp=emps.find(e=>e.n===nombre);if(!emp)return;
+  const p=emp.perms||{};
+  document.getElementById('mu-title').textContent=`✏️ Editar acceso — ${nombre}`;
+  document.getElementById('mu-idx').value=-2; // special flag = editing emp
+  document.getElementById('mu-user').value=nombre;
+  document.getElementById('mu-user').disabled=true;
+  document.getElementById('mu-pass').value='';
+  document.getElementById('mu-pass-hint').style.display='block';
+  document.getElementById('mu-rol').value='encargado';
+  document.getElementById('mu-rol').disabled=true;
+  setPermsToForm(p);
+  togglePuestoField();
+  populatePuestoSelect();
+  document.getElementById('mu-puesto').value=emp.p||'';
+  document.getElementById('mu-savebtn').innerHTML='💾 GUARDAR CAMBIOS';
+  document.getElementById('m-addU').classList.add('open');
+  // Store ciudad in hidden field
+  document.getElementById('mu-idx').dataset.ciudad=ciudad;
+}
+
+async function quitarAccesoEmp(ciudad, nombre){
+  if(!confirm(`¿Quitar acceso a ${nombre}?`))return;
+  const emps=ciudad==='wash'?EW:EC;
+  const emp=emps.find(e=>e.n===nombre);if(!emp)return;
+  delete emp.pass;delete emp.rol;delete emp.perms;
+  await SD('EW',EW);await SD('EC',EC);
+  refreshUS();renderCfgE();renderCfgU();
+  showToast(`🔒 Acceso quitado a ${nombre}`);
 }
 
 // MODALS
@@ -3181,6 +3281,7 @@ function openM(id,data){
     document.getElementById('mu-title').textContent='👷 Nuevo Usuario';
     document.getElementById('mu-idx').value='-1';
     document.getElementById('mu-user').value='';document.getElementById('mu-user').disabled=false;
+    document.getElementById('mu-username').value='';
     document.getElementById('mu-pass').value='';
     document.getElementById('mu-rol').value='encargado';
     document.getElementById('mu-pass-hint').style.display='none';
@@ -3263,6 +3364,20 @@ function populatePuestoSelect(){
 }
 
 function editUsuario(idx){
+  // idx=-1 means admin
+  if(idx===-1){
+    document.getElementById('mu-title').textContent='✏️ Editar Admin';
+    document.getElementById('mu-idx').value=-1;
+    document.getElementById('mu-user').value=ADMIN.user;
+    document.getElementById('mu-user').disabled=true;
+    document.getElementById('mu-pass').value='';
+    document.getElementById('mu-pass-hint').style.display='inline';
+    document.getElementById('mu-rol').value='admin';
+    togglePuestoField();
+    document.getElementById('mu-savebtn').innerHTML='💾 GUARDAR CAMBIOS';
+    document.getElementById('m-addU').classList.add('open');
+    return;
+  }
   const u=US[idx];if(!u)return;
   document.getElementById('mu-title').textContent='✏️ Editar Usuario';
   document.getElementById('mu-idx').value=idx;
@@ -3271,67 +3386,70 @@ function editUsuario(idx){
   document.getElementById('mu-pass').value='';
   document.getElementById('mu-pass-hint').style.display='inline';
   document.getElementById('mu-rol').value=u.rol;
-  populatePuestoSelect();
-  togglePuestoField();
+  populatePuestoSelect();togglePuestoField();
   if(u.puesto)document.getElementById('mu-puesto').value=u.puesto;
   setPermsToForm(u.perms||{});
-  // Trigger city visibility update after setting perms
   updatePuestoVisibility();
   document.getElementById('mu-savebtn').innerHTML='💾 GUARDAR CAMBIOS';
   document.getElementById('m-addU').classList.add('open');
 }
 
 async function saveUsuario(){
-  const idx=parseInt(document.getElementById('mu-idx').value);
-  const isNew=idx===-1;
+  const idxEl=document.getElementById('mu-idx');
+  const idx=parseInt(idxEl.value);
+  const isNew=idx===-1&&!idxEl.dataset.ciudad;
+  const isEmpEdit=idx===-2||idxEl.dataset.ciudad;
   const user=document.getElementById('mu-user').value.trim();
+  const username=(document.getElementById('mu-username')?.value?.trim()||user.split(' ')[0]).toLowerCase();
   const pass=document.getElementById('mu-pass').value;
   const rol=document.getElementById('mu-rol').value;
   const perms=rol==='encargado'?getPermsFromForm():{};
-  // If city access is granted, clear specific puesto (city access takes priority)
   const hasCiudad=perms['ciudad-wash']||perms['ciudad-chi'];
   const puesto=rol==='encargado'&&!hasCiudad?document.getElementById('mu-puesto').value:'';
-  const asistencia=rol==='encargado'?document.getElementById('perm-asist').checked:true;
 
-  if(!user){showToast('⚠️ Escribe el nombre del empleado');return;}
+  if(!user){showToast('⚠️ Escribe el nombre');return;}
   if(isNew&&!pass){showToast('⚠️ La contraseña es requerida');return;}
   if(pass&&pass.length<4){showToast('⚠️ Contraseña mínimo 4 caracteres');return;}
 
-  // Check duplicate name (case insensitive)
-  const existIdx=US.findIndex(u=>u.user.toLowerCase()===user.toLowerCase());
-  if(isNew&&existIdx!==-1){showToast('⚠️ Ya existe un usuario con ese nombre');return;}
-  if(!isNew&&existIdx!==-1&&existIdx!==idx){showToast('⚠️ Ese nombre ya está en uso');return;}
-
-  // Build display description for log
-  const accessDesc=hasCiudad?(
-    perms['ciudad-wash']&&perms['ciudad-chi']?'Washington+Chicago':
-    perms['ciudad-wash']?'Washington':'Chicago'
-  ):(puesto||'Sin puesto');
-
-  if(isNew){
-    US.push({user,pass,rol,puesto,asistencia,perms});
-  } else {
-    US[idx].user=user;
-    if(pass)US[idx].pass=pass;
-    US[idx].rol=rol;
-    US[idx].puesto=puesto;
-    US[idx].asistencia=asistencia;
-    US[idx].perms=perms;
-    // If current user edited themselves, update session
-    if(CU&&(CU.user===user)){
-      SL('session',US[idx]);
-      document.getElementById('ubName').textContent=user;
-    }
+  // Admin
+  if(rol==='admin'||idx===-1){
+    ADMIN={user:ADMIN.user,pass:pass||ADMIN.pass,rol:'admin',puesto:''};
+    SL('ADMIN',ADMIN);await gsS('ADMIN','ADMIN',ADMIN).catch(()=>{});
+    refreshUS();renderCfgE();renderCfgU();closeM('addU');
+    showToast('✅ Admin actualizado');return;
   }
 
-  await SD('US',US);
-  await logChange('Usuarios',isNew?`Nuevo usuario: ${user}`:`Editado: ${user}`,
-    isNew?null:`Acceso anterior`,
-    `Acceso: ${accessDesc}`);
-  renderCfgU();closeM('addU');
-  showToast(isNew?`✅ "${user}" creado`:`✅ "${user}" actualizado`);
-}
+  // Employee edit from Usuarios tab or Empleados ✏️
+  const ciudad=idxEl.dataset.ciudad;
+  const empIdxData=idxEl.dataset.empIdx;
+  const emps=ciudad==='wash'?EW:EC;
+  let emp=empIdxData!==undefined?emps[parseInt(empIdxData)]:emps.find(e=>e.n.toLowerCase()===user.toLowerCase());
 
+  if(emp){
+    emp.user=username||emp.user; // save username
+    if(pass) emp.pass=pass;
+    emp.rol='encargado';
+    emp.perms=perms;
+    if(puesto) emp.p=puesto;
+    emp.ciudad=ciudad||'wash';
+    if(CU&&(CU.user.toLowerCase()===user.toLowerCase()||CU.n===emp.n)){
+      Object.assign(CU,emp,{user:emp.user||emp.n});SL('session',CU);
+    }
+  } else {
+    // New employee with access
+    const newEmp={n:user,p:puesto,s:0,t:'dia',user:user,pass,rol:'encargado',perms,ciudad:ciudad||'wash'};
+    if(!ciudad||ciudad==='wash') EW.push(newEmp); else EC.push(newEmp);
+  }
+
+  // Clear flags
+  delete idxEl.dataset.ciudad;
+  delete idxEl.dataset.empIdx;
+  await SD('EW',EW);await SD('EC',EC);
+  refreshUS();
+  await logChange('Usuarios',`Editado: ${user}`,null,`Permisos actualizados`);
+  renderCfgE();renderCfgU();closeM('addU');
+  showToast(`✅ "${user}" actualizado`);
+}
 async function addPuesto(){
   const nom=document.getElementById('np-nom').value.trim();const ciu=document.getElementById('np-ciu').value;
   if(!nom){showToast('⚠️ Escribe el nombre');return;}
@@ -3353,15 +3471,12 @@ async function addEmpleado(){
 }
 
 async function eliminarTodosUsuarios(){
-  if(!confirm('¿Eliminar TODOS los usuarios excepto admin?'))return;
-  isSaving=true;
-  US=US.filter(u=>u.user==='admin');
-  SL('US',US);
-  renderCfgU();
-  showToast('🗑️ Todos los usuarios eliminados');
-  const ok=await gsS('US','US',JSON.stringify(US));
-  setST(ok?'✅ Guardado en la nube':'⚠️ Solo local');
-  setTimeout(()=>isSaving=false,2000);
+  if(!confirm('¿Eliminar acceso de TODOS los empleados?\nSolo quedará el admin.'))return;
+  EW.forEach(e=>{delete e.pass;delete e.rol;delete e.perms;});
+  EC.forEach(e=>{delete e.pass;delete e.rol;delete e.perms;});
+  await SD('EW',EW);await SD('EC',EC);
+  refreshUS();renderCfgE();renderCfgU();
+  showToast('🗑️ Accesos eliminados');
 }
 
 // CONFIRM DELETE
@@ -3889,6 +4004,7 @@ async function loginConFaceID(){
     });
 
     // Face ID verified — log in the stored user
+    refreshUS();
     const user=US.find(u=>u.user===stored.userName);
     if(!user){showToast('⚠️ Usuario no encontrado');return;}
 
@@ -3943,6 +4059,7 @@ function borrarPIN(){
 function checkPINLogin(){
   const pinData=LL('PIN_DATA',null);
   if(!pinData) return false;
+  refreshUS();
   const user=US.find(u=>u.user===pinData.user);
   if(!user) return false;
   pinTargetUser=user;

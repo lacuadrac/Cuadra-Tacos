@@ -1288,6 +1288,52 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
     </div><!-- end cfg-section-content -->
   </div><!-- end cfg-section -->
 </div><!-- end view-config -->
+<!-- MI CUENTA — acceso rápido a PIN y biometría para todos los usuarios -->
+<div class="view" id="view-mi-cuenta">
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,var(--cb),var(--cb2));border-radius:16px;padding:18px 16px;margin-bottom:14px;position:relative;overflow:hidden">
+    <div style="position:absolute;right:-10px;top:-10px;font-size:80px;opacity:.07">🔐</div>
+    <div style="font-size:.68rem;font-weight:700;color:#a16207;text-transform:uppercase;letter-spacing:1px">Mi Cuenta</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:1px;margin-top:2px" id="mc-nombre">—</div>
+    <div style="font-size:.75rem;color:#fed7aa;font-weight:600;margin-top:2px" id="mc-puesto">—</div>
+  </div>
+
+  <!-- PIN Rápido -->
+  <div class="card">
+    <div class="ctit">🔢 PIN Rápido</div>
+    <p style="font-size:.78rem;color:var(--t3);margin-bottom:12px">Configura un PIN de 4 dígitos para entrar sin escribir tu contraseña.</p>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="password" inputmode="numeric" id="mc-pin-input" maxlength="4" placeholder="••••"
+        style="width:90px;text-align:center;border:2px solid var(--g3);border-radius:10px;padding:12px;font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:900;letter-spacing:8px;outline:none;background:var(--g2)"
+        onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
+      <button class="bsave" onclick="mcGuardarPIN()" style="flex:1;margin:0">💾 GUARDAR PIN</button>
+      <button class="bdang" onclick="mcBorrarPIN()">🗑️</button>
+    </div>
+    <div id="mc-pin-status" style="font-size:.72rem;color:var(--t3);margin-top:8px"></div>
+  </div>
+
+  <!-- Face ID / Touch ID / Biometría -->
+  <div class="card" style="margin-top:10px">
+    <div class="ctit">🔒 Biometría</div>
+    <p style="font-size:.78rem;color:var(--t3);margin-bottom:4px">Usa tu cara o huella para entrar sin contraseña.</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+      <span style="font-size:.68rem;background:var(--ns);color:var(--n);padding:3px 8px;border-radius:20px;font-weight:700">📱 Face ID (iPhone/iPad)</span>
+      <span style="font-size:.68rem;background:var(--azs);color:var(--az);padding:3px 8px;border-radius:20px;font-weight:700">🤖 Face ID (Android)</span>
+      <span style="font-size:.68rem;background:var(--vs);color:var(--v);padding:3px 8px;border-radius:20px;font-weight:700">👆 Touch ID / Huella</span>
+    </div>
+    <div id="mc-faceid-status" style="font-size:.78rem;color:var(--t3);margin-bottom:12px;padding:10px 12px;background:var(--g2);border-radius:10px;line-height:1.4">Estado: verificando...</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="bsave" style="flex:1" onclick="mcRegistrarBiometria()">🔒 REGISTRAR BIOMETRÍA</button>
+      <button class="bdang" onclick="mcBorrarBiometria()">🗑️ Borrar</button>
+    </div>
+    <p style="font-size:.68rem;color:var(--t3);margin-top:10px;line-height:1.5">
+      💡 <strong>iOS/macOS:</strong> Abre en Safari para Face ID o Touch ID.<br>
+      💡 <strong>Android:</strong> Abre en Chrome para Face ID o huella dactilar.<br>
+      💡 El registro es por dispositivo — regístralo en cada celular que uses.
+    </p>
+  </div>
+</div>
+
 <!-- FIREWORKS -->
 <div id="fireworks-overlay"></div>
 <div id="meta-celebracion" style="display:none;position:fixed;inset:0;z-index:9997;align-items:center;justify-content:center;pointer-events:none">
@@ -1305,11 +1351,11 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
 <div class="bnav" id="mainNav" style="display:none">
   <button class="nbtn active" onclick="irInicio(this)"><span class="ni">🏠</span><span class="nl">Inicio</span></button>
   <button class="nbtn" onclick="showV('ventas',this)"><span class="ni">💰</span><span class="nl">Ventas</span></button>
-  
   <button class="nbtn" onclick="showV('asist',this)"><span class="ni">✅</span><span class="nl">Asist.</span></button>
   <button class="nbtn ao" onclick="showV('nomina',this)"><span class="ni">👷</span><span class="nl">Nómina</span></button>
   <button class="nbtn ao" onclick="showV('prov',this);renderProvView()"><span class="ni">🏪</span><span class="nl">Proveed.</span></button>
   <button class="nbtn ao" onclick="showV('config',this);renderCfg()"><span class="ni">⚙️</span><span class="nl">Config</span></button>
+  <button class="nbtn" id="nav-mi-cuenta" onclick="irMiCuenta(this)"><span class="ni">🔐</span><span class="nl">Mi Cuenta</span></button>
 </div>
 
 <!-- MODALS -->
@@ -1378,11 +1424,7 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
   <div class="modal"><div class="mhandle"></div>
     <div class="mtitle" id="mu-title">👷 Nuevo Empleado</div>
     <input type="hidden" id="mu-idx" value="-1">
-    <label class="mlbl">🏠 Pantalla de Inicio</label>
-    <select class="msel" id="mu-dash-tipo">
-      <option value="completo">📊 Dashboard Completo — KPIs y estadísticas</option>
-      <option value="personal">🎯 Vista Personal — Meta, tips y asistencia</option>
-    </select>
+    <label class="mlbl">Posición de Trabajo</label>
     <select class="msel" id="mu-posicion"></select>
     <label class="mlbl">Nombre del Empleado</label>
     <input class="minput" id="mu-user" placeholder="Ej: dagoberto, jose..." autocapitalize="none" autocomplete="off">
@@ -1448,11 +1490,30 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
           <input type="checkbox" id="perm-config" style="width:17px;height:17px;accent-color:var(--n)">
           <span style="font-size:.82rem;font-weight:800">⚙️ Config</span>
         </label>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:white;padding:10px;border-radius:10px;border:1.5px solid var(--g3)">
-          <input type="checkbox" id="perm-dashboard" style="width:17px;height:17px;accent-color:var(--n)">
-          <div>
+        <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;background:white;padding:10px;border-radius:10px;border:1.5px solid var(--g3)">
+          <input type="checkbox" id="perm-dashboard" style="width:17px;height:17px;accent-color:var(--n);margin-top:2px;flex-shrink:0" onchange="toggleDashTipoSelect()">
+          <div style="flex:1">
             <div style="font-size:.82rem;font-weight:800">🏠 Pantalla de Inicio</div>
             <div style="font-size:.65rem;color:var(--t3);margin-top:1px">Ver ventas, totales y estadísticas generales</div>
+            <div id="dash-tipo-wrap" style="display:none;margin-top:8px">
+              <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;color:var(--t3);margin-bottom:4px">Tipo de pantalla</div>
+              <div style="display:flex;gap:6px">
+                <label style="flex:1;display:flex;align-items:center;gap:6px;background:var(--g2);padding:8px 10px;border-radius:8px;cursor:pointer;border:1.5px solid transparent" id="dash-opt-completo">
+                  <input type="radio" name="dash-tipo" value="completo" id="dash-radio-completo" style="accent-color:var(--n)" onchange="updateDashTipoStyle()">
+                  <div>
+                    <div style="font-size:.72rem;font-weight:800">📊 Completo</div>
+                    <div style="font-size:.6rem;color:var(--t3)">KPIs y estadísticas</div>
+                  </div>
+                </label>
+                <label style="flex:1;display:flex;align-items:center;gap:6px;background:var(--g2);padding:8px 10px;border-radius:8px;cursor:pointer;border:1.5px solid transparent" id="dash-opt-personal">
+                  <input type="radio" name="dash-tipo" value="personal" id="dash-radio-personal" style="accent-color:var(--n)" onchange="updateDashTipoStyle()">
+                  <div>
+                    <div style="font-size:.72rem;font-weight:800">🎯 Personal</div>
+                    <div style="font-size:.6rem;color:var(--t3)">Meta, tips y asistencia</div>
+                  </div>
+                </label>
+              </div>
+            </div>
           </div>
         </label>
       </div>
@@ -1791,9 +1852,10 @@ function showApp(){
     if(lbl==='Ventas')   btn.style.display=can('ventas')?'':'none';
     if(lbl==='Asist.')   btn.style.display=can('asist')?'':'none';
     if(lbl==='Nómina')   btn.style.display=isA||can('nomina')?'':'none';
-    if(lbl==='Reportes') btn.style.display='none'; // now inside Config
+    if(lbl==='Reportes') btn.style.display='none';
     if(lbl==='Proveed.') btn.style.display=isA||can('reportes')?'':'none';
     if(lbl==='Config')   btn.style.display=isA||can('config')?'':'none';
+    if(lbl==='Mi Cuenta') btn.style.display='flex'; // siempre visible
   });
 
   document.getElementById('ubName').textContent=CU.user;
@@ -2156,6 +2218,97 @@ async function guardarVentas(){
   checkMetaCumplida(CP, d.totalVentas);
   sendPushNotif(`✅ ${CP} registró ventas`,`$${fmt(d.totalVentas)} — ${fmtFecha(currentFecha)}`);
   showToast('✅ Guardado — '+CP+' · '+fmtFecha(currentFecha));
+}
+
+function irMiCuenta(btn){
+  // Populate header
+  const nombre=document.getElementById('mc-nombre');
+  const puesto=document.getElementById('mc-puesto');
+  if(nombre) nombre.textContent=CU?.user||'—';
+  if(puesto) puesto.textContent=CU?.puesto||CU?.p||'—';
+  // PIN status
+  mcInitPINStatus();
+  // Biometría status
+  mcInitBiometriaStatus();
+  showV('mi-cuenta',btn);
+}
+
+function mcInitPINStatus(){
+  const stored=LL('PIN_DATA',null);
+  const el=document.getElementById('mc-pin-status');
+  if(!el)return;
+  if(stored&&stored.user===CU?.user){
+    el.textContent='✅ PIN activo para '+stored.user;el.style.color='var(--v)';
+  } else {
+    el.textContent='Sin PIN configurado';el.style.color='var(--t3)';
+  }
+}
+
+function mcGuardarPIN(){
+  const inp=document.getElementById('mc-pin-input');
+  const pin=inp?.value?.trim();
+  if(!pin||pin.length<4||!/^\d+$/.test(pin)){showToast('⚠️ El PIN debe ser de 4 dígitos numéricos');return;}
+  if(!CU){showToast('⚠️ Debes estar conectado');return;}
+  SL('PIN_DATA',{user:CU.user,pin});
+  inp.value='';mcInitPINStatus();
+  showToast('✅ PIN guardado');
+}
+
+function mcBorrarPIN(){
+  SL('PIN_DATA',null);mcInitPINStatus();
+  showToast('🗑️ PIN eliminado');
+}
+
+async function mcInitBiometriaStatus(){
+  const el=document.getElementById('mc-faceid-status');if(!el)return;
+  if(!window.PublicKeyCredential){
+    el.textContent='⚠️ La biometría no está disponible en este navegador. Usa Safari (iOS) o Chrome (Android).';return;
+  }
+  const available=await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
+  if(!available){el.textContent='⚠️ Este dispositivo no tiene Face ID, Touch ID ni huella dactilar disponible.';return;}
+  const stored=LL('FACEID_DATA',null);
+  if(stored&&stored.userName===CU?.user){
+    el.textContent=`✅ Biometría registrada para ${stored.userName} en este dispositivo.`;
+    el.style.color='var(--v)';
+  } else {
+    el.textContent='Sin biometría registrada. Toca "Registrar Biometría" para activarla.';
+    el.style.color='var(--t3)';
+  }
+}
+
+async function mcRegistrarBiometria(){
+  if(!window.PublicKeyCredential){showToast('⚠️ No soportado en este navegador');return;}
+  const available=await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
+  if(!available){showToast('⚠️ Este dispositivo no tiene biometría disponible');return;}
+  if(!CU){showToast('⚠️ Debes estar conectado');return;}
+  const el=document.getElementById('mc-faceid-status');
+  if(el){el.textContent='🔒 Esperando autenticación biométrica...';el.style.color='var(--n)';}
+  try{
+    const challenge=new Uint8Array(32);crypto.getRandomValues(challenge);
+    const userId=new TextEncoder().encode(CU.user);
+    const cred=await navigator.credentials.create({publicKey:{
+      challenge,rp:{name:'La Cuadra Tacos'},
+      user:{id:userId,name:CU.user,displayName:CU.user},
+      pubKeyCredParams:[{alg:-7,type:'public-key'},{alg:-257,type:'public-key'}],
+      authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},
+      timeout:60000
+    }});
+    if(cred){
+      const data={credId:Array.from(new Uint8Array(cred.rawId)),userName:CU.user};
+      SL('FACEID_DATA',data);
+      await mcInitBiometriaStatus();
+      await initFaceIDStatus(); // también actualiza el botón de login
+      showToast('✅ Biometría registrada correctamente');
+    }
+  }catch(e){
+    if(el){el.textContent='No se pudo registrar. Inténtalo de nuevo.';el.style.color='var(--r)';}
+    showToast('⚠️ Error al registrar: '+e.message);
+  }
+}
+
+function mcBorrarBiometria(){
+  SL('FACEID_DATA',null);mcInitBiometriaStatus();initFaceIDStatus();
+  showToast('🗑️ Biometría eliminada');
 }
 
 function irInicio(btn){
@@ -3473,23 +3626,16 @@ function renderCfgE(){
             title="Eliminar">🗑️</button>
         </div>
       </div>
-      <!-- Sueldo inline inputs — hidden by default -->
+      <!-- Sueldo inline -->
       <div class="emp-sueldo-row" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--g3)">
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <div style="display:flex;border:1.5px solid var(--g3);border-radius:8px;overflow:hidden">
-            <button data-emp="${i}" data-city="${CECity}" data-tipo="dia" class="cfg-tipo-btn"
-              onclick="setCfgTipo(${i},'dia',this)"
-              style="padding:5px 10px;border:none;font-family:'Nunito',sans-serif;font-size:.7rem;font-weight:800;cursor:pointer;background:${(emp.t||'dia')==='dia'?'var(--n)':'white'};color:${(emp.t||'dia')==='dia'?'white':'var(--t3)'}">📅 Día</button>
-            <button data-emp="${i}" data-city="${CECity}" data-tipo="semana" class="cfg-tipo-btn"
-              onclick="setCfgTipo(${i},'semana',this)"
-              style="padding:5px 10px;border:none;border-left:1.5px solid var(--g3);font-family:'Nunito',sans-serif;font-size:.7rem;font-weight:800;cursor:pointer;background:${emp.t==='semana'?'var(--n)':'white'};color:${emp.t==='semana'?'white':'var(--t3)'}">📆 Sem.</button>
-          </div>
+        <div style="font-size:.62rem;font-weight:800;color:var(--t3);text-transform:uppercase;margin-bottom:6px">💰 Sueldo semanal</div>
+        <div style="display:flex;gap:8px;align-items:center">
           <input type="number" min="0" data-city="${CECity}" data-idx="${i}" data-tipo="semana"
             value="${sueldo||''}" placeholder="$0"
-            style="flex:1;min-width:80px;border:1.5px solid var(--g3);border-radius:8px;padding:6px 10px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:800;background:var(--g2);outline:none;color:var(--t)"
+            style="flex:1;border:1.5px solid var(--g3);border-radius:8px;padding:8px 12px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;background:white;outline:none;color:var(--t)"
             class="emp-sueldo-inp"
             onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
-          <span style="font-size:.65rem;color:var(--t3);font-weight:700">$/semana</span>
+          <span style="font-size:.72rem;color:var(--t3);font-weight:700;white-space:nowrap">$/semana</span>
         </div>
       </div>`;
 
@@ -3572,7 +3718,7 @@ function editarAdmin(){
   if(posEl){posEl.innerHTML='<option value="">—</option>';posEl.value='';}
 
   // Dash tipo
-  const dashEl=document.getElementById('mu-dash-tipo');
+  // dashTipo via radio buttons
   if(dashEl)dashEl.value='completo';
 
   document.getElementById('mu-savebtn').innerHTML='💾 GUARDAR ADMIN';
@@ -3637,25 +3783,16 @@ function getGrupoTipo(){
 function aplicarSueldoGrupo(){
   const sueldo=parseFloat(document.getElementById('grupo-sueldo-inp')?.value||0);
   if(!sueldo){showToast('⚠️ Escribe el sueldo a aplicar');return;}
-  const tipo=getGrupoTipo();
   let count=0;
-  document.querySelectorAll('#cfg-el .eitem').forEach(row=>{
-    const chk=row.querySelector('.emp-check');
-    if(!chk||chk.textContent!=='✓') return;
-    // Update salary input
-    const inp=row.querySelector('.emp-sueldo-inp');
-    if(inp){inp.value=sueldo;inp.dataset.tipo=tipo;}
-    // Update tipo toggle buttons in this row
-    row.querySelectorAll('.cfg-tipo-btn').forEach(b=>{
-      const isThis=b.dataset.tipo===tipo;
-      b.style.background=isThis?'var(--n)':'white';
-      b.style.color=isThis?'white':'var(--t3)';
-    });
+  document.querySelectorAll('#cfg-el .emp-check').forEach(chk=>{
+    if(chk.textContent!=='✓') return;
+    const card=chk.closest('[data-idx]');if(!card)return;
+    const inp=card.querySelector('.emp-sueldo-inp');
+    if(inp){inp.value=sueldo;inp.dataset.tipo='semana';}
     count++;
   });
   if(!count){showToast('⚠️ Selecciona al menos un empleado');return;}
-  const tipoLbl=tipo==='dia'?'día':'semana';
-  showToast(`⚡ $${sueldo}/${tipoLbl} aplicado a ${count} empleado${count!==1?'s':''}`);
+  showToast(`⚡ $${sueldo}/semana aplicado a ${count} empleado${count!==1?'s':''}`);
 }
 
 function setCfgTipo(empIdx,tipo,btn){/* tipo fijo: semana */}
@@ -3675,8 +3812,7 @@ function editAccesoEmpleado(empIdx, city){
   idxEl.dataset.empIdx=empIdx;
 
   // Pantalla de inicio
-  const dashEl=document.getElementById('mu-dash-tipo');
-  if(dashEl) dashEl.value=emp.dashTipo||'completo';
+  setDashTipo(emp.dashTipo||'completo');
 
   // Posición de trabajo
   const posEl=document.getElementById('mu-posicion');
@@ -3716,7 +3852,7 @@ function editAccesoEmpleado(empIdx, city){
     reportes: p.reportes ?? false,
     config:   p.config   ?? false,
     dashboard:p.dashboard?? true
-  });
+  }, emp.dashTipo||'completo');
 
   togglePuestoField();
   populatePuestoSelect();
@@ -3733,7 +3869,6 @@ async function guardarSueldos(){
     const city=inp.dataset.city;
     const idx=parseInt(inp.dataset.idx);
     const sueldo=parseFloat(inp.value||0);
-    const tipo=inp.dataset.tipo||'dia';
     const emps=city==='wash'?EW:EC;
     if(emps[idx]){emps[idx].s=sueldo;emps[idx].t='semana';}
   });
@@ -3902,6 +4037,33 @@ function openM(id,data){
 }
 function closeM(id){document.getElementById(`m-${id}`).classList.remove('open');}
 
+function toggleDashTipoSelect(){
+  const chk=document.getElementById('perm-dashboard');
+  const wrap=document.getElementById('dash-tipo-wrap');
+  if(wrap) wrap.style.display=chk?.checked?'block':'none';
+}
+
+function updateDashTipoStyle(){
+  ['completo','personal'].forEach(v=>{
+    const opt=document.getElementById('dash-opt-'+v);
+    const radio=document.getElementById('dash-radio-'+v);
+    if(opt&&radio){
+      opt.style.border=radio.checked?'1.5px solid var(--n)':'1.5px solid transparent';
+      opt.style.background=radio.checked?'var(--ns)':'var(--g2)';
+    }
+  });
+}
+
+function getDashTipo(){
+  const r=document.querySelector('input[name="dash-tipo"]:checked');
+  return r?r.value:'completo';
+}
+
+function setDashTipo(val){
+  const radio=document.getElementById('dash-radio-'+(val||'completo'));
+  if(radio){radio.checked=true;updateDashTipoStyle();}
+}
+
 function togglePuestoField(){
   const rol=document.getElementById('mu-rol').value;
   const isEnc=rol==='encargado';
@@ -3953,7 +4115,7 @@ function getPermsFromForm(){
   return p;
 }
 
-function setPermsToForm(perms){
+function setPermsToForm(perms, dashTipo='completo'){
   ALL_PERMS.forEach(k=>{
     const el=document.getElementById(`perm-${k}`);
     if(el) el.checked=perms?.[k]===true;
@@ -3962,6 +4124,9 @@ function setPermsToForm(perms){
     const el=document.getElementById(`perm-ciudad-${c}`);
     if(el) el.checked=perms?.[`ciudad-${c}`]===true;
   });
+  // Dashboard tipo
+  setDashTipo(dashTipo||'completo');
+  toggleDashTipoSelect();
   onCiudadPermChange();
 }
 
@@ -4048,8 +4213,7 @@ async function saveUsuario(){
     emp.perms=perms;
     const posEl=document.getElementById('mu-posicion');
     if(posEl&&posEl.value) emp.p=posEl.value;
-    const dashTipoEl=document.getElementById('mu-dash-tipo');
-    if(dashTipoEl) emp.dashTipo=dashTipoEl.value;
+    emp.dashTipo=getDashTipo();
     emp.ciudad=ciudad||'wash';
     if(CU&&(CU.user.toLowerCase()===emp.user.toLowerCase()||CU.n===emp.n)){
       Object.assign(CU,emp,{user:emp.user});SL('session',CU);

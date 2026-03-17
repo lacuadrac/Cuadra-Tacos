@@ -326,6 +326,16 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
 .cfg-card-lbl{font-size:.88rem;font-weight:900;color:var(--t);line-height:1}
 .cfg-card-sub{font-size:.68rem;color:var(--t3);font-weight:600;line-height:1.3}
 
+/* FIREWORKS */
+#fireworks-overlay{position:fixed;inset:0;pointer-events:none;z-index:9998;overflow:hidden}
+.fw-particle{position:absolute;width:8px;height:8px;border-radius:50%;animation:fw-fly var(--dur,1.2s) ease-out forwards}
+@keyframes fw-fly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0}}
+.fw-star{position:absolute;font-size:1.4rem;animation:fw-star var(--dur,1.4s) ease-out forwards}
+@keyframes fw-star{0%{transform:translate(0,0) scale(0) rotate(0deg);opacity:1}50%{opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(1.2) rotate(var(--rot,360deg));opacity:0}}
+#meta-celebracion{position:fixed;inset:0;z-index:9997;display:none;align-items:center;justify-content:center;pointer-events:none}
+.meta-msg{background:linear-gradient(135deg,#ea580c,#f97316);color:white;border-radius:24px;padding:28px 36px;text-align:center;box-shadow:0 20px 60px rgba(234,88,12,.5);animation:meta-pop .5s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes meta-pop{0%{transform:scale(0) rotate(-10deg);opacity:0}100%{transform:scale(1) rotate(0deg);opacity:1}}
+
 /* TOAST */
 .toast{position:fixed;bottom:95px;left:50%;transform:translateX(-50%);background:var(--cb);color:white;padding:12px 20px;border-radius:30px;font-size:.85rem;font-weight:700;z-index:9998;display:none;box-shadow:var(--sh2);white-space:nowrap;border:1px solid rgba(234,88,12,.3)}
 
@@ -1142,10 +1152,28 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
       <div id="alertas-faltantes" style="margin-top:4px"></div>
       <button class="bsave" onclick="checkFaltantes()" style="margin-top:8px">🔍 REVISAR AHORA</button>
     </div>
+    <!-- BORRAR TODO -->
+    <div class="card" style="border:2px solid var(--r);background:var(--rs)">
+      <div class="ctit" style="color:var(--r)">☢️ Zona de Peligro</div>
+      <p style="font-size:.78rem;color:var(--r);margin-bottom:12px;font-weight:700">Elimina <strong>absolutamente todos los datos</strong> ingresados — ventas, nómina, asistencia, empleados, puestos, usuarios, historial. Esta acción es <strong>irreversible</strong>.</p>
+      <button onclick="iniciarBorradoTotal()" style="width:100%;background:var(--r);border:none;border-radius:10px;padding:14px;color:white;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:900;cursor:pointer;letter-spacing:.5px">
+        🗑️ ELIMINAR TODOS LOS DATOS
+      </button>
+    </div>
   </div>
     </div><!-- end cfg-section-content -->
   </div><!-- end cfg-section -->
 </div><!-- end view-config -->
+<!-- FIREWORKS -->
+<div id="fireworks-overlay"></div>
+<div id="meta-celebracion" style="display:none;position:fixed;inset:0;z-index:9997;align-items:center;justify-content:center;pointer-events:none">
+  <div class="meta-msg">
+    <div style="font-size:3rem;margin-bottom:8px">🎉</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:2px">¡META CUMPLIDA!</div>
+    <div id="meta-cel-nombre" style="font-size:1rem;font-weight:800;margin-top:4px;opacity:.9"></div>
+    <div id="meta-cel-monto" style="font-size:1.3rem;font-weight:900;margin-top:6px"></div>
+  </div>
+</div>
 
 </div><!-- end appContent -->
 
@@ -1902,6 +1930,7 @@ async function guardarVentas(){
     antes?`$${fmt(antes.totalVentas||0)} ventas`:null,
     `$${fmt(d.totalVentas)} ventas / $${fmt(d.totalGastos)} gastos${otrosDesc}${cajaLog}${mpResumen?` | MP: ${mpResumen}`:''}`);
   renderDash();renderReportes();renderVentaMeta();
+  checkMetaCumplida(CP, d.totalVentas);
   sendPushNotif(`✅ ${CP} registró ventas`,`$${fmt(d.totalVentas)} — ${fmtFecha(currentFecha)}`);
   showToast('✅ Guardado — '+CP+' · '+fmtFecha(currentFecha));
 }
@@ -3644,6 +3673,91 @@ function updateDarkSlider(isDark){
   const knob=document.getElementById('dark-knob');
   if(slider) slider.style.background=isDark?'var(--n)':'var(--g3)';
   if(knob) knob.style.transform=isDark?'translateX(22px)':'translateX(0)';
+}
+
+// ══════════════════════════════════════════
+// 🎆 FUEGOS ARTIFICIALES — META CUMPLIDA
+// ══════════════════════════════════════════
+function lanzarFuegosArtificiales(){
+  const overlay=document.getElementById('fireworks-overlay');
+  if(!overlay)return;
+  const colors=['#f97316','#ef4444','#eab308','#22c55e','#3b82f6','#a855f7','#ec4899','#fff'];
+  const emojis=['⭐','✨','🌟','💥','🎊','🎉','🏆','🔥'];
+  const W=window.innerWidth,H=window.innerHeight;
+  const origins=[{x:W*.2,y:H*.4},{x:W*.5,y:H*.3},{x:W*.8,y:H*.4},{x:W*.35,y:H*.6},{x:W*.65,y:H*.5}];
+  origins.forEach((orig,oi)=>{
+    setTimeout(()=>{
+      for(let i=0;i<30;i++){
+        const p=document.createElement('div');p.className='fw-particle';
+        const a=Math.random()*Math.PI*2,d=60+Math.random()*140;
+        p.style.cssText=`left:${orig.x}px;top:${orig.y}px;background:${colors[Math.floor(Math.random()*colors.length)]};--tx:${Math.cos(a)*d}px;--ty:${Math.sin(a)*d-80}px;--dur:${.8+Math.random()*.8}s;width:${4+Math.random()*8}px;height:${4+Math.random()*8}px`;
+        overlay.appendChild(p);setTimeout(()=>p.remove(),1800);
+      }
+      for(let i=0;i<8;i++){
+        const s=document.createElement('div');s.className='fw-star';
+        const a=Math.random()*Math.PI*2,d=80+Math.random()*120;
+        s.style.cssText=`left:${orig.x}px;top:${orig.y}px;--tx:${Math.cos(a)*d}px;--ty:${Math.sin(a)*d-60}px;--dur:${1+Math.random()*.6}s;--rot:${Math.random()*720-360}deg`;
+        s.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+        overlay.appendChild(s);setTimeout(()=>s.remove(),2000);
+      }
+    },oi*300);
+  });
+  setTimeout(()=>{
+    for(let i=0;i<3;i++){
+      const o={x:W*(.3+Math.random()*.4),y:H*(.2+Math.random()*.4)};
+      setTimeout(()=>{
+        for(let j=0;j<20;j++){
+          const p=document.createElement('div');p.className='fw-particle';
+          const a=Math.random()*Math.PI*2,d=50+Math.random()*100;
+          p.style.cssText=`left:${o.x}px;top:${o.y}px;background:${colors[Math.floor(Math.random()*colors.length)]};--tx:${Math.cos(a)*d}px;--ty:${Math.sin(a)*d-60}px;--dur:${.7+Math.random()*.7}s`;
+          overlay.appendChild(p);setTimeout(()=>p.remove(),1500);
+        }
+      },i*200);
+    }
+  },1200);
+}
+
+function mostrarCelebracion(puesto,metaMonto,ventasActuales){
+  const cel=document.getElementById('meta-celebracion');
+  if(!cel)return;
+  document.getElementById('meta-cel-nombre').textContent=puesto;
+  document.getElementById('meta-cel-monto').textContent=`$${fmt(ventasActuales)} / Meta $${fmt(metaMonto)} 🏆`;
+  cel.style.display='flex';
+  lanzarFuegosArtificiales();
+  setTimeout(lanzarFuegosArtificiales,1500);
+  setTimeout(lanzarFuegosArtificiales,3000);
+  setTimeout(()=>{cel.style.display='none';},5500);
+}
+
+function checkMetaCumplida(puesto,totalVentas){
+  const meta=METAS[puesto];if(!meta||!meta.monto)return;
+  const metaActual=getMetaActual(puesto,meta.tipo);
+  const prevVentas=metaActual-totalVentas;
+  if(prevVentas<meta.monto&&metaActual>=meta.monto){
+    setTimeout(()=>mostrarCelebracion(puesto,meta.monto,metaActual),600);
+  }
+}
+
+// ══════════════════════════════════════════
+// ☢️ BORRADO TOTAL
+// ══════════════════════════════════════════
+async function iniciarBorradoTotal(){
+  if(!confirm('⚠️ ADVERTENCIA #1 de 3\n\nEstás a punto de ELIMINAR ABSOLUTAMENTE TODOS LOS DATOS:\n\n• Todas las ventas registradas\n• Toda la nómina y asistencia\n• Todos los empleados y puestos\n• Todos los usuarios\n• Todo el historial\n\n¿Deseas continuar?'))return;
+  if(!confirm('🚨 ADVERTENCIA #2 de 3\n\nEsta acción es COMPLETAMENTE IRREVERSIBLE.\n\nUna vez eliminados, los datos NO se pueden recuperar bajo ninguna circunstancia.\n\n¿Estás absolutamente seguro?'))return;
+  const pass=prompt('🔐 CONFIRMACIÓN FINAL — Escribe la contraseña de administrador:');
+  if(pass===null)return;
+  const admin=US.find(u=>u.rol==='admin');
+  if(!admin||pass!==admin.pass){showToast('❌ Contraseña incorrecta — operación cancelada');return;}
+  if(!confirm('☢️ ÚLTIMA ADVERTENCIA #3 de 3\n\n¡ATENCIÓN! Esta es tu última oportunidad de cancelar.\n\nSe eliminarán TODOS los datos sin excepción.\n\n¿Confirmas el borrado total e irreversible?'))return;
+  // Execute reset
+  DP={};DN={};DA={};DF={};DG={};EW=[];EC=[];MP=[];HIST=[];METAS={};PROV=[];
+  PW=[...DEW.map(()=>'')].filter(Boolean);PC=[];
+  const adminUser={...admin};US=[adminUser];
+  const saves=[['DP',DP],['DN',DN],['DA',DA],['DF',DF],['DG',DG],['EW',EW],['EC',EC],
+    ['US',US],['MP',MP],['HIST',HIST],['METAS',METAS],['PROV',PROV],['PW',PW],['PC',PC]];
+  for(const [k,v] of saves){SL(k,v);await gsS(k,k,v).catch(()=>{});}
+  showToast('🗑️ Todos los datos han sido eliminados');
+  setTimeout(()=>logout(),1500);
 }
 
 // ═══════════════════════════════════════════

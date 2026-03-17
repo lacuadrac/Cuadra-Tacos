@@ -588,7 +588,67 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
 
 </div>
 
-<!-- VENTAS -->
+<!-- PERSONAL DASHBOARD -->
+<div class="view" id="view-dashboard-personal" style="padding-bottom:20px">
+
+  <!-- Hero header -->
+  <div style="background:linear-gradient(135deg,var(--cb),var(--cb2));border-radius:0 0 24px 24px;padding:24px 20px 28px;margin:-12px -12px 0;position:relative;overflow:hidden">
+    <div style="position:absolute;right:-20px;top:-20px;font-size:120px;opacity:.06;transform:rotate(-10deg)">🌮</div>
+    <div style="font-size:.75rem;font-weight:700;color:#a16207;text-transform:uppercase;letter-spacing:1px" id="dp-fecha"></div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:white;letter-spacing:1px;margin-top:4px" id="dp-saludo"></div>
+    <div style="font-size:.85rem;color:#fed7aa;font-weight:600;margin-top:2px" id="dp-puesto"></div>
+  </div>
+
+  <!-- Meta del día -->
+  <div id="dp-meta-wrap" style="margin-top:16px">
+    <div class="card" style="border-left:4px solid var(--n)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--t3)">🎯 Tu Meta de Hoy</div>
+          <div id="dp-meta-puesto" style="font-size:.78rem;font-weight:700;color:var(--t3);margin-top:1px"></div>
+        </div>
+        <div style="text-align:right">
+          <div id="dp-meta-nums" style="font-size:.85rem;font-weight:900;color:var(--n)"></div>
+          <div id="dp-meta-tipo" style="font-size:.65rem;color:var(--t3)"></div>
+        </div>
+      </div>
+      <!-- Progress bar -->
+      <div style="height:12px;background:var(--g3);border-radius:6px;overflow:hidden">
+        <div id="dp-meta-bar" style="height:100%;border-radius:6px;width:0%;transition:width .8s cubic-bezier(.34,1.2,.64,1);background:linear-gradient(90deg,var(--n),var(--n2))"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px">
+        <div id="dp-meta-pct" style="font-size:.82rem;font-weight:900;color:var(--n)">—</div>
+        <div id="dp-meta-falta" style="font-size:.72rem;color:var(--t3)"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ventas del día -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+    <div class="card" style="text-align:center;padding:14px">
+      <div style="font-size:.65rem;font-weight:800;color:var(--t3);text-transform:uppercase;margin-bottom:6px">💰 Ventas Hoy</div>
+      <div id="dp-ventas-hoy" style="font-size:1.4rem;font-weight:900;color:var(--v)">—</div>
+    </div>
+    <div class="card" style="text-align:center;padding:14px">
+      <div style="font-size:.65rem;font-weight:800;color:var(--t3);text-transform:uppercase;margin-bottom:6px">📅 Esta Semana</div>
+      <div id="dp-ventas-semana" style="font-size:1.4rem;font-weight:900;color:var(--az)">—</div>
+    </div>
+  </div>
+
+  <!-- Tip del día -->
+  <div class="card" style="margin-top:12px;background:linear-gradient(135deg,var(--ns),white);border:1.5px solid var(--nm)">
+    <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--n);margin-bottom:8px">💡 Consejo del Día</div>
+    <div id="dp-tip" style="font-size:.9rem;color:var(--t);font-weight:600;line-height:1.5"></div>
+    <button onclick="renderPersonalDash()" style="margin-top:10px;background:none;border:1px solid var(--nm);border-radius:8px;padding:5px 12px;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:700;color:var(--n);cursor:pointer">🔄 Otro consejo</button>
+  </div>
+
+  <!-- Asistencia semana -->
+  <div class="card" style="margin-top:12px">
+    <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);margin-bottom:10px">📋 Tu Asistencia Esta Semana</div>
+    <div id="dp-asist-semana" style="display:flex;gap:8px;justify-content:center"></div>
+  </div>
+
+</div>
 <div class="view" id="view-ventas">
   <div class="sh" id="vtit">Ventas</div>
 
@@ -740,6 +800,13 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
   </div>
   <!-- Filtros por posición -->
   <div id="asist-pos-filters" style="display:flex;flex-wrap:wrap;gap:6px;padding:0 0 4px"></div>
+  <!-- Búsqueda -->
+  <div style="position:relative;margin-bottom:8px">
+    <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.4">🔍</span>
+    <input id="asist-search" type="text" placeholder="Buscar empleado..." oninput="renderAsist()"
+      style="width:100%;padding:9px 12px 9px 32px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;color:var(--t);background:var(--g2);outline:none;box-sizing:border-box"
+      onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
+  </div>
 
   <div class="card">
     <!-- Leyenda -->
@@ -788,6 +855,13 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
   </div>
   <!-- Filtros por posición -->
   <div id="nom-pos-filters" style="display:flex;flex-wrap:wrap;gap:6px;padding:0 0 4px"></div>
+  <!-- Búsqueda -->
+  <div style="position:relative;margin-bottom:8px">
+    <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.4">🔍</span>
+    <input id="nom-search" type="text" placeholder="Buscar empleado..." oninput="renderNomina()"
+      style="width:100%;padding:9px 12px 9px 32px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;color:var(--t);background:var(--g2);outline:none;box-sizing:border-box"
+      onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
+  </div>
   <div id="nomcontent"></div>
   <button class="bsave" onclick="guardarNomina()">💾 GUARDAR NÓMINA</button>
 </div>
@@ -1022,7 +1096,14 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
       <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--t3)">Filtrar por posición</div>
       <button onclick="openM('addPos')" style="background:none;border:1px solid var(--g3);border-radius:8px;padding:4px 10px;font-family:'Nunito',sans-serif;font-size:.65rem;font-weight:800;color:var(--t3);cursor:pointer">🏷️ Gestionar</button>
     </div>
-    <div id="emp-pos-filters" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
+    <div id="emp-pos-filters" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+    <!-- Búsqueda -->
+    <div style="position:relative;margin-bottom:12px">
+      <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.4">🔍</span>
+      <input id="emp-search" type="text" placeholder="Buscar empleado..." oninput="renderCfgE()"
+        style="width:100%;padding:9px 12px 9px 32px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;color:var(--t);background:var(--g2);outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
+    </div>
 
     <!-- EMPLOYEE LIST -->
     <div id="cfg-el"></div>
@@ -1144,6 +1225,17 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
       <div id="push-status" style="font-size:.8rem;color:var(--t3);margin-bottom:10px">Estado: verificando...</div>
       <button class="bsave" id="push-btn" onclick="togglePush()">🔔 ACTIVAR NOTIFICACIONES</button>
     </div>
+    <!-- Tips / Consejos -->
+    <div class="card">
+      <div class="ctit">💡 Consejos del Día</div>
+      <p style="font-size:.78rem;color:var(--t3);margin-bottom:12px">Estos consejos aparecen en la pantalla personal de los empleados.</p>
+      <div id="tips-list" style="max-height:200px;overflow-y:auto;margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px">
+        <input id="new-tip-inp" class="minput" placeholder="Escribe un nuevo consejo..." style="margin:0;flex:1" onkeydown="if(event.key==='Enter')agregarTip()">
+        <button class="bsave" style="margin:0;padding:10px 14px;white-space:nowrap" onclick="agregarTip()">+ Agregar</button>
+      </div>
+      <button onclick="restaurarTipsDefault()" style="margin-top:8px;background:none;border:1px solid var(--g3);border-radius:8px;padding:6px 12px;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:700;color:var(--t3);cursor:pointer;width:100%">🔄 Restaurar consejos predeterminados</button>
+    </div>
     <!-- Admin -->
     <div class="card" style="border-left:4px solid var(--n)">
       <div class="ctit">👑 Cuenta Admin</div>
@@ -1211,7 +1303,7 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
 
 <!-- BOTTOM NAV -->
 <div class="bnav" id="mainNav" style="display:none">
-  <button class="nbtn active" onclick="showV('dashboard',this)"><span class="ni">🏠</span><span class="nl">Inicio</span></button>
+  <button class="nbtn active" onclick="irInicio(this)"><span class="ni">🏠</span><span class="nl">Inicio</span></button>
   <button class="nbtn" onclick="showV('ventas',this)"><span class="ni">💰</span><span class="nl">Ventas</span></button>
   
   <button class="nbtn" onclick="showV('asist',this)"><span class="ni">✅</span><span class="nl">Asist.</span></button>
@@ -1286,7 +1378,11 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
   <div class="modal"><div class="mhandle"></div>
     <div class="mtitle" id="mu-title">👷 Nuevo Empleado</div>
     <input type="hidden" id="mu-idx" value="-1">
-    <label class="mlbl">Posición de Trabajo</label>
+    <label class="mlbl">🏠 Pantalla de Inicio</label>
+    <select class="msel" id="mu-dash-tipo">
+      <option value="completo">📊 Dashboard Completo — KPIs y estadísticas</option>
+      <option value="personal">🎯 Vista Personal — Meta, tips y asistencia</option>
+    </select>
     <select class="msel" id="mu-posicion"></select>
     <label class="mlbl">Nombre del Empleado</label>
     <input class="minput" id="mu-user" placeholder="Ej: dagoberto, jose..." autocapitalize="none" autocomplete="off">
@@ -1518,6 +1614,24 @@ let HIST=LL('HIST',[]); // Change history log
 let METAS=LL('METAS',{}); // Sales goals per puesto
 let PROV=LL('PROV',[]); // Proveedores
 let POSICIONES=LL('POSICIONES',['Taquero','Pastorero','Cajero','Cajera','Planchero','Encargado','Encargada','Ayudante','Bodeguero']);
+const DEFAULT_TIPS=[
+  '💪 Una sonrisa es el mejor ingrediente de un taco.',
+  '⏱️ La rapidez sin descuidar la calidad fideliza clientes.',
+  '🧹 Un puesto limpio vende más — los clientes lo notan.',
+  '🤝 Trabaja en equipo, el resultado es de todos.',
+  '📦 Avisa cuando el inventario esté por acabarse.',
+  '🌟 Un cliente satisfecho regresa y trae a sus amigos.',
+  '💡 Si algo se puede mejorar, dilo — tu opinión cuenta.',
+  '🎯 Mantén el enfoque en la meta del día.',
+  '🔥 La energía que pones en tu trabajo se nota.',
+  '📱 Registra las ventas a tiempo para tener datos exactos.',
+  '🌮 Cada taco que preparas representa la tradición de La Cuadra.',
+  '🙌 Ayuda a tus compañeros cuando puedas — el equipo es primero.',
+  '⚡ En las horas pico, mantén la calma y el ritmo.',
+  '📊 Conocer la meta diaria te ayuda a esforzarte más.',
+  '🛡️ Cuida el efectivo como si fuera tuyo.',
+];
+let TIPS=LL('TIPS',[...DEFAULT_TIPS]);
 let empPosFilter='todos';
 let BACKUPS=LL('BACKUPS',[]); // Backup log
 let PUSH_SUB=LL('PUSH_SUB',null); // Push subscription
@@ -1703,16 +1817,19 @@ function showApp(){
   buildPSel();
 
   // Show initial view — dashboard or first available
+  const empData=[...EW,...EC].find(e=>e.n===CU.user||e.user===CU.user);
+  const dashTipo=isA?'completo':(empData?.dashTipo||'completo');
+
   if(isA||can('dashboard')){
-    renderDash();
-    showV('dashboard', document.querySelector('.nbtn[onclick*="dashboard"]'));
+    if(dashTipo==='personal'){
+      renderPersonalDash();
+      showV('dashboard-personal', document.querySelector('.nbtn[onclick*="dashboard"]'));
+    } else {
+      renderDash();
+      showV('dashboard', document.querySelector('.nbtn[onclick*="dashboard"]'));
+    }
   } else {
-    // Redirect to first accessible section
-    const firstView=
-      can('ventas')?'ventas':
-      can('asist')?'asist':
-      can('nomina')?'nomina':
-      can('config')?'config':'ventas';
+    const firstView=can('ventas')?'ventas':can('asist')?'asist':can('nomina')?'nomina':can('config')?'config':'ventas';
     const firstBtn=document.querySelector(`.nbtn[onclick*="${firstView}"]`);
     showV(firstView, firstBtn);
   }
@@ -1847,7 +1964,7 @@ function goCfg(id){
   if(id==='mp')renderCfgMP();
   if(id==='metas')renderCfgMetas();
   if(id==='reportes'){renderReportes();mountReportesInConfig();}
-  if(id==='ajustes'){initPush();initPINStatus();checkFaltantes();initFaceIDStatus();}
+  if(id==='ajustes'){initPush();initPINStatus();checkFaltantes();initFaceIDStatus();renderTipsList();}
   if(id==='historial')renderHistorial();
 }
 function goCfgHome(){
@@ -1855,11 +1972,12 @@ function goCfgHome(){
   document.getElementById('cfg-section').style.display='none';
 }
 function setCT(id,btn){goCfg(id);}
-function setNC(city,btn){NCity=city;nomPosFilter='todos';document.querySelectorAll('#view-nomina .cchip').forEach(c=>c.classList.remove('active'));btn.classList.add('active');renderNomina();}
+function setNC(city,btn){NCity=city;nomPosFilter='todos';const s=document.getElementById('nom-search');if(s)s.value='';document.querySelectorAll('#view-nomina .cchip').forEach(c=>c.classList.remove('active'));btn.classList.add('active');renderNomina();}
 function renderCfg(){goCfgHome();populateEditSel();}
 
 function setCEC(city,btn){
   CECity=city;empPosFilter='todos';
+  const s=document.getElementById('emp-search');if(s)s.value='';
   // Update city tab styles
   ['wash','chi'].forEach(c=>{
     const t=document.getElementById('emp-tab-'+c);
@@ -2040,7 +2158,146 @@ async function guardarVentas(){
   showToast('✅ Guardado — '+CP+' · '+fmtFecha(currentFecha));
 }
 
-// ── POSITION FILTER CHIPS (reusable) ──
+function irInicio(btn){
+  const empData=[...EW,...EC].find(e=>e.n===CU?.user||e.user===CU?.user);
+  const isA=CU?.rol==='admin';
+  const dashTipo=isA?'completo':(empData?.dashTipo||'completo');
+  if(dashTipo==='personal'){
+    renderPersonalDash();showV('dashboard-personal',btn);
+  } else {
+    renderDash();showV('dashboard',btn);
+  }
+}
+
+function renderPersonalDash(){
+  const hoy=new Date();
+  const dias=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+  // Saludo
+  const h=hoy.getHours();
+  const saludo=h<12?'¡Buenos días':h<19?'¡Buenas tardes':'¡Buenas noches';
+  const nombre=CU?.user||'Empleado';
+
+  document.getElementById('dp-fecha').textContent=`${dias[hoy.getDay()]}, ${hoy.getDate()} de ${meses[hoy.getMonth()]}`;
+  document.getElementById('dp-saludo').textContent=`${saludo}, ${nombre}!`;
+
+  // Puesto de trabajo hoy
+  const puesto=CU?.puesto||CP||'—';
+  document.getElementById('dp-puesto').textContent=`📍 ${puesto}`;
+
+  // Meta del puesto actual
+  const meta=METAS[puesto];
+  const metaWrap=document.getElementById('dp-meta-wrap');
+  if(meta&&meta.monto){
+    const ventasHoy=getMetaActual(puesto,'dia');
+    const ventasSem=getMetaActual(puesto,'semana');
+    const ventasRef=meta.tipo==='semana'?ventasSem:ventasHoy;
+    const pct=Math.min(Math.round(ventasRef/meta.monto*100),100);
+    const falta=Math.max(meta.monto-ventasRef,0);
+
+    document.getElementById('dp-meta-puesto').textContent=puesto;
+    document.getElementById('dp-meta-nums').textContent=`$${fmt(ventasRef)} / $${fmt(meta.monto)}`;
+    document.getElementById('dp-meta-tipo').textContent=meta.tipo==='semana'?'Meta semanal':'Meta diaria';
+    setTimeout(()=>{
+      const bar=document.getElementById('dp-meta-bar');
+      if(bar){
+        bar.style.width=pct+'%';
+        bar.style.background=pct>=100?'linear-gradient(90deg,var(--v),#16a34a)':pct>=70?'linear-gradient(90deg,var(--am),var(--n))':'linear-gradient(90deg,var(--n),var(--n2))';
+      }
+    },100);
+    document.getElementById('dp-meta-pct').textContent=pct+'%';
+    document.getElementById('dp-meta-falta').textContent=falta>0?`Faltan $${fmt(falta)}`:'✅ ¡Meta cumplida!';
+    document.getElementById('dp-meta-falta').style.color=falta===0?'var(--v)':'var(--t3)';
+    if(metaWrap) metaWrap.style.display='block';
+  } else {
+    if(metaWrap) metaWrap.style.display='none';
+  }
+
+  // Ventas stats
+  const ventasHoy=puesto?getMetaActual(puesto,'dia'):0;
+  const ventasSem=puesto?getMetaActual(puesto,'semana'):0;
+  document.getElementById('dp-ventas-hoy').textContent='$'+fmt(ventasHoy);
+  document.getElementById('dp-ventas-semana').textContent='$'+fmt(ventasSem);
+
+  // Tip aleatorio
+  const tip=TIPS[Math.floor(Math.random()*TIPS.length)]||'¡Sigue adelante! 💪';
+  document.getElementById('dp-tip').textContent=tip;
+
+  // Asistencia semana
+  renderDpAsistencia(puesto);
+}
+
+function renderDpAsistencia(puesto){
+  const c=document.getElementById('dp-asist-semana');if(!c)return;
+  const ciudad=[...EW].find(e=>e.n===CU?.user||e.user===CU?.user)?'wash':'chi';
+  const empIdx=[...(ciudad==='wash'?EW:EC)].findIndex(e=>e.n===CU?.user||e.user===CU?.user);
+
+  const hoy=new Date();
+  const day=hoy.getDay();
+  const lunes=new Date(hoy);lunes.setDate(hoy.getDate()-((day+6)%7));
+
+  const diasNom=['L','M','X','J','V','S','D'];
+  const offsets=[0,1,2,3,4,5,6];
+
+  c.innerHTML='';
+  offsets.forEach((off,di)=>{
+    const fecha=new Date(lunes);fecha.setDate(lunes.getDate()+off);
+    const fechaStr=fecha.toISOString().split('T')[0];
+    const key=`asist-city__${ciudad}__${fechaStr}`;
+    const rec=DA[key];
+    const dayKeys=['mar','mie','jue','vie','sab','dom'];
+    // lunes offset=0 → no key in dks (lunes es descanso), mar=1→dks[0]
+    let estado='—';
+    if(off>=1&&off<=6&&rec&&empIdx>=0){
+      const dk=dayKeys[off-1];
+      estado=rec[`${empIdx}-${dk}`]||'—';
+    }
+    const esHoy=fechaStr===todayStr();
+    const col=estado==='P'?'var(--v)':estado==='MD'?'#92400e':estado==='A'?'var(--r)':'var(--t3)';
+    const bg=estado==='P'?'var(--vs)':estado==='MD'?'var(--ams)':estado==='A'?'var(--rs)':'var(--g2)';
+    const icon=estado==='P'?'✓':estado==='MD'?'½':estado==='A'?'✗':'·';
+    const div=document.createElement('div');
+    div.style.cssText=`flex:1;text-align:center;padding:8px 4px;border-radius:10px;background:${bg};border:${esHoy?'2px solid var(--n)':'1.5px solid transparent'}`;
+    div.innerHTML=`<div style="font-size:.6rem;color:var(--t3);font-weight:700">${diasNom[di]}</div>
+      <div style="font-size:.9rem;font-weight:900;color:${col};margin-top:2px">${icon}</div>`;
+    c.appendChild(div);
+  });
+}
+
+// ── TIPS MANAGEMENT ──
+function renderTipsList(){
+  const c=document.getElementById('tips-list');if(!c)return;c.innerHTML='';
+  TIPS.forEach((tip,i)=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--g2);border-radius:10px;margin-bottom:6px';
+    row.innerHTML=`
+      <div style="flex:1;font-size:.8rem;color:var(--t);line-height:1.4">${tip}</div>
+      <button onclick="eliminarTip(${i})" style="background:none;border:none;cursor:pointer;color:var(--r);font-size:.85rem;flex-shrink:0;padding:0">✕</button>`;
+    c.appendChild(row);
+  });
+}
+
+function agregarTip(){
+  const inp=document.getElementById('new-tip-inp');
+  const val=inp?.value?.trim();
+  if(!val){showToast('⚠️ Escribe el consejo');return;}
+  TIPS.push(val);SL('TIPS',TIPS);
+  inp.value='';renderTipsList();
+  showToast('✅ Consejo agregado');
+}
+
+function eliminarTip(idx){
+  TIPS.splice(idx,1);SL('TIPS',TIPS);
+  renderTipsList();
+  showToast('🗑️ Consejo eliminado');
+}
+
+function restaurarTipsDefault(){
+  if(!confirm('¿Restaurar la lista de consejos a los valores predeterminados?'))return;
+  TIPS=[...DEFAULT_TIPS];SL('TIPS',TIPS);renderTipsList();
+  showToast('✅ Consejos restaurados');
+}
 function renderViewPosFilters(containerId, emps, activeFilter, onSelect){
   const c=document.getElementById(containerId);if(!c)return;
   c.innerHTML='';
@@ -2065,6 +2322,7 @@ function renderViewPosFilters(containerId, emps, activeFilter, onSelect){
 // ── ASISTENCIA ──
 function setAsistCity(city, btn){
   asistCity=city;asistPosFilter='todos';
+  const s=document.getElementById('asist-search');if(s)s.value='';
   document.querySelectorAll('#view-asist .cchip').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
   const atit=document.getElementById('atit');
@@ -2086,15 +2344,18 @@ function renderAsist(){
     asistPosFilter=val;renderAsist();
   });
 
-  const filtered=asistPosFilter==='todos'?allEmps:allEmps.filter(e=>e.p===asistPosFilter);
+  const filtered=empPosFilter==='todos'?allEmps:allEmps.filter(e=>e.p===empPosFilter);
+  // Apply search
+  const asistQ=(document.getElementById('asist-search')?.value||'').toLowerCase().trim();
+  const asistFiltered=asistQ?filtered.filter(e=>e.n.toLowerCase().includes(asistQ)):filtered;
 
   // Group by position if showing all
   const grupos={};
-  filtered.forEach(emp=>{
+  asistFiltered.forEach(emp=>{
     const pos=emp.p||'—';if(!grupos[pos])grupos[pos]=[];
     grupos[pos].push({emp,i:allEmps.indexOf(emp)});
   });
-  const showGroups=asistPosFilter==='todos'&&Object.keys(grupos).length>1;
+  const showGroups=asistPosFilter==='todos'&&!asistQ&&Object.keys(grupos).length>1;
 
   const renderRow=(emp,i)=>{
     const row=document.createElement('div');row.className='agrid';
@@ -2106,7 +2367,7 @@ function renderAsist(){
     dks.forEach(dk=>{
       const k=`${i}-${dk}`;const state=AS[k]||'P';
       const btn=document.createElement('button');btn.className=`abtn ${state}`;btn.textContent=state;
-      btn.onclick=()=>{const cy={P:'MD',MD:'A',A:'P'};const nx=cy[btn.textContent]||'P';btn.textContent=nx;btn.className=`abtn ${nx}`;AS[k]=nx;updAR(filtered.length)};
+      btn.onclick=()=>{const cy={P:'MD',MD:'A',A:'P'};const nx=cy[btn.textContent]||'P';btn.textContent=nx;btn.className=`abtn ${nx}`;AS[k]=nx;updAR(asistFiltered.length)};
       row.appendChild(btn);
     });
     return row;
@@ -2122,9 +2383,9 @@ function renderAsist(){
       grupos[pos].forEach(({emp,i})=>c.appendChild(renderRow(emp,i)));
     });
   } else {
-    filtered.forEach(emp=>c.appendChild(renderRow(emp,allEmps.indexOf(emp))));
+    asistFiltered.forEach(emp=>c.appendChild(renderRow(emp,allEmps.indexOf(emp))));
   }
-  updAR(filtered.length);
+  updAR(asistFiltered.length);
   updateAsistSemanaUI();
 }
 function updAR(total){
@@ -2224,9 +2485,8 @@ function onFechaNominaChange(){
 const DIAS_NOM=['Mar','Mié','Jue','Vie','Sáb','Dom'];
 
 function calcPago(sueldo, tipo, diasTrab){
-  // diasTrab can be fractional (e.g. 4.5 if one medio día)
+  // Solo pago semanal: sueldo ÷ 6 × días trabajados
   if(!sueldo) return 0;
-  if(tipo==='dia') return Math.round(sueldo * diasTrab);
   return Math.round((sueldo/6) * diasTrab);
 }
 
@@ -2352,10 +2612,14 @@ function renderNomina(){
 
   // Apply filter (keep original indices for saved data lookup)
   const filtered=nomPosFilter==='todos'?emps:emps.filter(e=>e.p===nomPosFilter);
+  // Apply search
+  const nomQ=(document.getElementById('nom-search')?.value||'').toLowerCase().trim();
+  const nomFiltered=nomQ?filtered.filter(e=>e.n.toLowerCase().includes(nomQ)):filtered;
+  const card=document.createElement('div');card.className='card';
   const headerDiv=document.createElement('div');
   headerDiv.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:8px';
   headerDiv.innerHTML=`
-    <div class="ctit" style="margin-bottom:0">👷 ${NCity==='wash'?'Washington':'Chicago'} — ${filtered.length}${filtered.length!==emps.length?' / '+emps.length:''} empleados</div>
+    <div class="ctit" style="margin-bottom:0">👷 ${NCity==='wash'?'Washington':'Chicago'} — ${nomFiltered.length}${nomFiltered.length!==emps.length?' / '+emps.length:''} empleados</div>
     <button onclick="sincronizarAsistencia()"
       style="background:${hasAsistData?'var(--vs)':'var(--g2)'};color:${hasAsistData?'var(--v)':'var(--t3)'};border:1.5px solid ${hasAsistData?'var(--v)':'var(--g3)'};border-radius:8px;padding:5px 10px;font-family:'Nunito',sans-serif;font-size:.7rem;font-weight:800;cursor:pointer">
       ${hasAsistData?'✅ Sincronizar Asistencia':'📋 Sin asistencia registrada'}
@@ -2363,13 +2627,13 @@ function renderNomina(){
   card.appendChild(headerDiv);
 
   let total=0;
-  filtered.forEach(emp=>{
+  nomFiltered.forEach(emp=>{
     const i=emps.indexOf(emp);
     const empData=saved[i]||{};
     const sueldoBase=emp.s||0;
-    const tipoBase=emp.t||'dia';
+    const tipoBase='semana';
     const sueldo=empData.sueldo!==undefined?empData.sueldo:sueldoBase;
-    const tipo=empData.tipo||tipoBase;
+    const tipo='semana';
 
     let dias={};
     if(hasNominaSaved&&empData.dias&&Object.keys(empData.dias).length){
@@ -2381,10 +2645,11 @@ function renderNomina(){
       });
     }
 
-    const diasTrab=Object.values(dias).reduce((a,v)=>a+(v==='P'?1:v==='MD'?0.5:0),0)||(tipo==='semana'?6:0);
+    const diasTrab=Object.values(dias).reduce((a,v)=>a+(v==='P'?1:v==='MD'?0.5:0),0)||6;
     const pago=calcPago(sueldo,tipo,diasTrab);
     total+=pago;
     const ini=emp.n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const posCol=getPosColor(emp.p||'');
     const row=document.createElement('div');row.className='nrow';
     const daysHTML=DIAS_NOM.map((d,di)=>{
       const k='d'+di;const st=dias[k]||'P';
@@ -2392,19 +2657,21 @@ function renderNomina(){
       const icon=st==='P'?'✓':st==='MD'?'½':'✗';
       return '<div class="nday"><div class="nday-lbl">'+d+'</div><button class="nday-btn '+cls+'" data-emp="'+i+'" data-day="'+k+'" onclick="toggleNDay(this)">'+icon+'</button></div>';
     }).join('');
-    const lblTipo=tipo==='dia'?'$/día':'$/semana';
-    const sueldoLabel=sueldo>0?'$'+fmt(sueldo)+' '+lblTipo:'Sin sueldo — configura en ⚙️ Empleados';
+    const lblTipo='$/semana';
+    const sueldoLabel=sueldo>0?'$'+fmt(sueldo)+'/semana':'Sin sueldo — configura en ⚙️ Empleados';
     const sueldoColor=sueldo>0?'var(--t2)':'var(--r)';
     row.innerHTML=`
-      <div class="nav2">${ini}</div>
+      <div class="nav2" style="background:${posCol}22;color:${posCol}">${ini}</div>
       <div class="ninfo">
         <div class="nname">${emp.n}</div>
-        <div class="npos">${emp.p}</div>
+        <div style="display:flex;align-items:center;gap:5px;margin-top:1px">
+          <span style="font-size:.6rem;font-weight:800;color:${posCol};background:${posCol}18;padding:1px 7px;border-radius:20px">${emp.p||'—'}</span>
+        </div>
         <div class="ndays">${daysHTML}</div>
         <div style="display:flex;align-items:center;gap:6px;margin-top:8px;background:var(--g2);border-radius:8px;padding:6px 10px">
           <span style="font-size:.65rem;color:var(--t3)">💰 Sueldo:</span>
           <span style="font-size:.82rem;font-weight:900;color:${sueldoColor}">${sueldoLabel}</span>
-          <input type="hidden" class="nsuel" data-emp="${i}" data-tipo="${tipo}" value="${sueldo||0}">
+          <input type="hidden" class="nsuel" data-emp="${i}" data-tipo="semana" value="${sueldo||0}">
         </div>
       </div>
       <div class="nright">
@@ -2437,7 +2704,7 @@ function toggleNDay(btn){
 function recalcEmp(empIdx){
   const inp=document.querySelector(`.nsuel[data-emp="${empIdx}"]`);
   const sueldo=parseFloat(inp?.value||0);
-  const tipo=inp?.dataset.tipo||'dia';
+  const tipo='semana';
   const allDays=document.querySelectorAll(`.nday-btn[data-emp="${empIdx}"]`);
   // Count P=1, MD=0.5, rest=0
   const diasTrab=[...allDays].reduce((a,b)=>a+(b.classList.contains('on')?1:b.classList.contains('half')?0.5:0),0);
@@ -2463,7 +2730,7 @@ async function guardarNomina(){
   emps.forEach((_,i)=>{
     const inp=document.querySelector(`.nsuel[data-emp="${i}"]`);
     const sueldo=parseFloat(inp?.value||0);
-    const tipo=inp?.dataset.tipo||'dia';
+    const tipo='semana';
     const dias={};
     document.querySelectorAll(`.nday-btn[data-emp="${i}"]`).forEach(btn=>{
       const st=btn.classList.contains('on')?'P':btn.classList.contains('half')?'MD':'A';
@@ -2471,7 +2738,7 @@ async function guardarNomina(){
     });
     const diasTrab=Object.values(dias).reduce((a,v)=>a+(v==='P'?1:v==='MD'?0.5:0),0);
     const pago=calcPago(sueldo,tipo,diasTrab);
-    s[i]={sueldo,tipo,dias,diasTrab,pago};
+    s[i]={sueldo,tipo:'semana',dias,diasTrab,pago};
   });
   const totalNuevo=Object.values(s).reduce((a,v)=>a+(v.pago||0),0);
   const keyAntes=DN[key];
@@ -3111,23 +3378,25 @@ function renderCfgE(){
   const filtered=empPosFilter==='todos'?emps:
     empPosFilter==='__acceso__'?emps.filter(e=>e.pass&&e.rol):
     emps.filter(e=>e.p===empPosFilter);
+  // Apply search
+  const empQ=(document.getElementById('emp-search')?.value||'').toLowerCase().trim();
+  const empFiltered=empQ?filtered.filter(e=>e.n.toLowerCase().includes(empQ)):filtered;
 
-  if(!filtered.length){
+  if(!empFiltered.length){
     c.innerHTML=`<div style="padding:32px;text-align:center;color:var(--t3)">
       <div style="font-size:2rem;margin-bottom:8px">👷</div>
-      <div style="font-size:.85rem;font-weight:700">Sin empleados${empPosFilter!=='todos'?' con posición '+empPosFilter:''}</div>
+      <div style="font-size:.85rem;font-weight:700">Sin resultados${empQ?' para "'+empQ+'"':''}</div>
     </div>`;
     return;
   }
 
-  // Group by position
   const grupos={};
-  filtered.forEach(emp=>{
+  empFiltered.forEach(emp=>{
     const pos=emp.p||'Sin posición';
     if(!grupos[pos]) grupos[pos]=[];
     grupos[pos].push({emp,origIdx:emps.indexOf(emp)});
   });
-  const showGroups=empPosFilter==='todos'&&Object.keys(grupos).length>1;
+  const showGroups=empPosFilter==='todos'&&!empQ&&Object.keys(grupos).length>1;
   // Bulk salary panel — collapsible
   const bulkToggle=document.createElement('div');
   bulkToggle.style.cssText='margin-bottom:12px';
@@ -3153,9 +3422,8 @@ function renderCfgE(){
             onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--nm)'">
         </div>
         <div>
-          <div style="font-size:.62rem;font-weight:800;color:var(--t3);margin-bottom:3px;text-transform:uppercase">Tipo</div>
-          <div style="display:flex;border:1.5px solid var(--g3);border-radius:8px;overflow:hidden">
-            <button id="grupo-tipo-dia" onclick="setGrupoTipo('dia')" style="padding:8px 12px;border:none;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;cursor:pointer;background:var(--n);color:white">📅 Día</button>
+          
+          <div style="display:none"><button id="grupo-tipo-dia" onclick="setGrupoTipo('dia')" style="padding:8px 12px;border:none;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;cursor:pointer;background:var(--n);color:white">📅 Día</button>
             <button id="grupo-tipo-semana" onclick="setGrupoTipo('semana')" style="padding:8px 12px;border:none;border-left:1.5px solid var(--g3);font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;cursor:pointer;background:white;color:var(--t3)">📆 Sem.</button>
           </div>
         </div>
@@ -3216,12 +3484,12 @@ function renderCfgE(){
               onclick="setCfgTipo(${i},'semana',this)"
               style="padding:5px 10px;border:none;border-left:1.5px solid var(--g3);font-family:'Nunito',sans-serif;font-size:.7rem;font-weight:800;cursor:pointer;background:${emp.t==='semana'?'var(--n)':'white'};color:${emp.t==='semana'?'white':'var(--t3)'}">📆 Sem.</button>
           </div>
-          <input type="number" min="0" data-city="${CECity}" data-idx="${i}" data-tipo="${emp.t||'dia'}"
+          <input type="number" min="0" data-city="${CECity}" data-idx="${i}" data-tipo="semana"
             value="${sueldo||''}" placeholder="$0"
             style="flex:1;min-width:80px;border:1.5px solid var(--g3);border-radius:8px;padding:6px 10px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:800;background:var(--g2);outline:none;color:var(--t)"
             class="emp-sueldo-inp"
             onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
-          <span style="font-size:.65rem;color:var(--t3);font-weight:700">${tipo==='dia'?'$/día':'$/semana'}</span>
+          <span style="font-size:.65rem;color:var(--t3);font-weight:700">$/semana</span>
         </div>
       </div>`;
 
@@ -3236,6 +3504,22 @@ function renderCfgE(){
     return card;
   };
 
+  // ── Admin card (solo en wash para no duplicar) ──
+  if(CECity==='wash'&&!empQ){
+    const adminCard=document.createElement('div');
+    adminCard.style.cssText='background:linear-gradient(135deg,#1e1e2e,#2d2d44);border-radius:14px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px';
+    adminCard.innerHTML=`
+      <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.1);color:#fbbf24;font-weight:900;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">👑</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.88rem;font-weight:900;color:white">${ADMIN.user}</div>
+        <div style="font-size:.65rem;color:rgba(255,255,255,.5);margin-top:2px">Administrador · Acceso total</div>
+        <div style="font-size:.6rem;color:#fbbf24;font-weight:700;margin-top:2px">🔓 Siempre activo</div>
+      </div>
+      <button onclick="editarAdmin()"
+        style="width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center">✏️</button>`;
+    c.appendChild(adminCard);
+  }
+
   // Render with or without groups
   if(showGroups){
     Object.keys(grupos).sort().forEach(pos=>{
@@ -3247,7 +3531,7 @@ function renderCfgE(){
       grupos[pos].forEach(({emp,origIdx})=>c.appendChild(renderEmpCard(emp,origIdx)));
     });
   } else {
-    filtered.forEach(emp=>c.appendChild(renderEmpCard(emp,emps.indexOf(emp))));
+    empFiltered.forEach(emp=>c.appendChild(renderEmpCard(emp,emps.indexOf(emp))));
   }
 
   // Save button
@@ -3256,6 +3540,43 @@ function renderCfgE(){
   saveBtn.textContent='💾 GUARDAR TODOS LOS SUELDOS';
   saveBtn.onclick=guardarSueldos;
   c.appendChild(saveBtn);
+}
+
+function editarAdmin(){
+  document.getElementById('mu-title').textContent='👑 Editar Admin';
+  const idxEl=document.getElementById('mu-idx');
+  idxEl.value=-1;
+  delete idxEl.dataset.ciudad;
+  delete idxEl.dataset.empIdx;
+
+  // Name
+  const userEl=document.getElementById('mu-user');
+  userEl.value=ADMIN.user;userEl.disabled=false;
+
+  // Username field
+  const usernameEl=document.getElementById('mu-username');
+  if(usernameEl){usernameEl.value=ADMIN.user;usernameEl.disabled=false;}
+
+  // Password
+  document.getElementById('mu-pass').value='';
+  const hint=document.getElementById('mu-pass-hint');
+  if(hint)hint.style.display='inline';
+
+  // Role — admin, hide perms
+  const rolEl=document.getElementById('mu-rol');
+  rolEl.value='admin';rolEl.disabled=true;
+  togglePuestoField();
+
+  // Posición
+  const posEl=document.getElementById('mu-posicion');
+  if(posEl){posEl.innerHTML='<option value="">—</option>';posEl.value='';}
+
+  // Dash tipo
+  const dashEl=document.getElementById('mu-dash-tipo');
+  if(dashEl)dashEl.value='completo';
+
+  document.getElementById('mu-savebtn').innerHTML='💾 GUARDAR ADMIN';
+  document.getElementById('m-addU').classList.add('open');
 }
 
 function toggleEmpSel(idx, row){
@@ -3337,16 +3658,7 @@ function aplicarSueldoGrupo(){
   showToast(`⚡ $${sueldo}/${tipoLbl} aplicado a ${count} empleado${count!==1?'s':''}`);
 }
 
-function setCfgTipo(empIdx, tipo, btn){
-  const row=btn.closest('.eitem');
-  row.querySelectorAll('.cfg-tipo-btn').forEach(b=>{
-    const isThis=b.dataset.tipo===tipo;
-    b.style.background=isThis?'var(--n)':'white';
-    b.style.color=isThis?'white':'var(--t3)';
-  });
-  const inp=row.querySelector(`.emp-sueldo-inp[data-idx="${empIdx}"]`);
-  if(inp) inp.dataset.tipo=tipo;
-}
+function setCfgTipo(empIdx,tipo,btn){/* tipo fijo: semana */}
 
 function editAccesoEmpleado(empIdx, city){
   const emps=city==='wash'?EW:EC;
@@ -3361,6 +3673,10 @@ function editAccesoEmpleado(empIdx, city){
   idxEl.value=-2;
   idxEl.dataset.ciudad=city;
   idxEl.dataset.empIdx=empIdx;
+
+  // Pantalla de inicio
+  const dashEl=document.getElementById('mu-dash-tipo');
+  if(dashEl) dashEl.value=emp.dashTipo||'completo';
 
   // Posición de trabajo
   const posEl=document.getElementById('mu-posicion');
@@ -3419,7 +3735,7 @@ async function guardarSueldos(){
     const sueldo=parseFloat(inp.value||0);
     const tipo=inp.dataset.tipo||'dia';
     const emps=city==='wash'?EW:EC;
-    if(emps[idx]){emps[idx].s=sueldo;emps[idx].t=tipo;}
+    if(emps[idx]){emps[idx].s=sueldo;emps[idx].t='semana';}
   });
   await SD('EW',EW);await SD('EC',EC);
   renderCfgE();renderNomina();
@@ -3689,61 +4005,68 @@ function editUsuario(idx){
 async function saveUsuario(){
   const idxEl=document.getElementById('mu-idx');
   const idx=parseInt(idxEl.value);
-  const isNew=idx===-1&&!idxEl.dataset.ciudad;
-  const isEmpEdit=idx===-2||idxEl.dataset.ciudad;
+  const ciudad=idxEl.dataset.ciudad;
+  const empIdxData=idxEl.dataset.empIdx;
+  const isEmpEdit=ciudad!==undefined;
+  const isNew=idx===-1&&!isEmpEdit;
+
   const user=document.getElementById('mu-user').value.trim();
-  const username=(document.getElementById('mu-username')?.value?.trim()||user.split(' ')[0]).toLowerCase();
-  const pass=document.getElementById('mu-pass').value;
+  const usernameRaw=(document.getElementById('mu-username')?.value?.trim()||'');
+  const username=usernameRaw.toLowerCase()||user.split(' ')[0].toLowerCase();
+  const pass=document.getElementById('mu-pass').value.trim();
   const rol=document.getElementById('mu-rol').value;
   const perms=rol==='encargado'?getPermsFromForm():{};
   const hasCiudad=perms['ciudad-wash']||perms['ciudad-chi'];
   const puesto=rol==='encargado'&&!hasCiudad?document.getElementById('mu-puesto').value:'';
 
   if(!user){showToast('⚠️ Escribe el nombre');return;}
-  if(isNew&&!pass){showToast('⚠️ La contraseña es requerida');return;}
   if(pass&&pass.length<4){showToast('⚠️ Contraseña mínimo 4 caracteres');return;}
 
   // Admin
-  if(rol==='admin'||idx===-1){
-    ADMIN={user:ADMIN.user,pass:pass||ADMIN.pass,rol:'admin',puesto:''};
+  if(rol==='admin'||idx===-1&&!isEmpEdit){
+    ADMIN.user=user||ADMIN.user;
+    if(pass) ADMIN.pass=pass;
     SL('ADMIN',ADMIN);await gsS('ADMIN','ADMIN',ADMIN).catch(()=>{});
     refreshUS();renderCfgE();closeM('addU');
     showToast('✅ Admin actualizado');return;
   }
 
-  // Employee edit from Usuarios tab or Empleados ✏️
-  const ciudad=idxEl.dataset.ciudad;
-  const empIdxData=idxEl.dataset.empIdx;
+  // Employee edit from ✏️
   const emps=ciudad==='wash'?EW:EC;
-  let emp=empIdxData!==undefined?emps[parseInt(empIdxData)]:emps.find(e=>e.n.toLowerCase()===user.toLowerCase());
+  let emp=empIdxData!==undefined&&empIdxData!==''
+    ?emps[parseInt(empIdxData)]
+    :emps.find(e=>e.n.toLowerCase()===user.toLowerCase());
+
+  const esNuevoAcceso=emp&&!emp.pass;
+  if(esNuevoAcceso&&!pass){showToast('⚠️ Escribe una contraseña para activar el acceso');return;}
 
   if(emp){
-    emp.user=username||emp.user;
+    // Always save username
+    emp.user=username||emp.user||emp.n.split(' ')[0].toLowerCase();
     if(pass) emp.pass=pass;
     emp.rol='encargado';
     emp.perms=perms;
-    // Save position from mu-posicion field
     const posEl=document.getElementById('mu-posicion');
     if(posEl&&posEl.value) emp.p=posEl.value;
-    else if(puesto) emp.p=puesto;
+    const dashTipoEl=document.getElementById('mu-dash-tipo');
+    if(dashTipoEl) emp.dashTipo=dashTipoEl.value;
     emp.ciudad=ciudad||'wash';
-    if(CU&&(CU.user.toLowerCase()===user.toLowerCase()||CU.n===emp.n)){
-      Object.assign(CU,emp,{user:emp.user||emp.n});SL('session',CU);
+    if(CU&&(CU.user.toLowerCase()===emp.user.toLowerCase()||CU.n===emp.n)){
+      Object.assign(CU,emp,{user:emp.user});SL('session',CU);
     }
   } else {
     // New employee with access
-    const newEmp={n:user,p:puesto,s:0,t:'dia',user:user,pass,rol:'encargado',perms,ciudad:ciudad||'wash'};
+    const newEmp={n:user,p:puesto,s:0,t:'semana',user:username,pass,rol:'encargado',perms,ciudad:ciudad||'wash'};
     if(!ciudad||ciudad==='wash') EW.push(newEmp); else EC.push(newEmp);
   }
 
-  // Clear flags
   delete idxEl.dataset.ciudad;
   delete idxEl.dataset.empIdx;
   await SD('EW',EW);await SD('EC',EC);
   refreshUS();
-  await logChange('Usuarios',`Editado: ${user}`,null,`Permisos actualizados`);
+  await logChange('Usuarios',esNuevoAcceso?`Acceso activado: ${user}`:`Editado: ${user}`,null,`@${username}`);
   renderCfgE();closeM('addU');
-  showToast(`✅ "${user}" actualizado`);
+  showToast(esNuevoAcceso?`🔓 Acceso activado — @${username}`:`✅ "${user}" actualizado`);
 }
 async function addPuesto(){
   const nom=document.getElementById('np-nom').value.trim();const ciu=document.getElementById('np-ciu').value;
@@ -3758,7 +4081,7 @@ async function addPuesto(){
 async function addEmpleado(){
   const nom=document.getElementById('ne-nom').value.trim();const pos=document.getElementById('ne-pos').value;const ciu=document.getElementById('ne-ciu').value;
   if(!nom){showToast('⚠️ Escribe el nombre');return;}
-  if(ciu==='wash')EW.push({n:nom,p:pos,s:0});else EC.push({n:nom,p:pos,s:0});
+  if(ciu==='wash')EW.push({n:nom,p:pos,s:0,t:'semana'});else EC.push({n:nom,p:pos,s:0,t:'semana'});
   await SD('EW',EW);await SD('EC',EC);
   await logChange('Empleados',`Nuevo empleado: ${nom}`,null,`Posición: ${pos}, Ciudad: ${ciu==='wash'?'Washington':'Chicago'}`);
   renderNomina();renderCfg();

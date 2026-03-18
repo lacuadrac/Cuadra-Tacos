@@ -2083,15 +2083,15 @@ body.dark .dash-cstat{background:#111827;border-color:#374151} .alerta-item{disp
           </div>
         </div>
       </div>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:white;padding:10px;border-radius:10px;border:1.5px solid var(--g3);grid-column:span 2" id="perm-config-label">
-          <input type="checkbox" id="perm-config" style="width:17px;height:17px;accent-color:var(--n)" onchange="toggleCfgSubPerms()">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--g);padding:10px 12px;border-radius:10px;border:1.5px solid var(--g3)" id="perm-config-label">
+          <input type="checkbox" id="perm-config" style="width:17px;height:17px;accent-color:var(--n);flex-shrink:0" onchange="toggleCfgSubPerms()">
           <div style="flex:1">
             <div style="font-size:.82rem;font-weight:800">⚙️ Config</div>
             <div style="font-size:.65rem;color:var(--t3)">Acceso a Configuración</div>
           </div>
         </label>
-        <!-- SUB-PERMISOS DE CONFIG (se muestran solo si config está marcado) -->
-        <div id="cfg-sub-perms-wrap" style="display:none;grid-column:span 2;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px">
+        <!-- SUB-PERMISOS DE CONFIG -->
+        <div id="cfg-sub-perms-wrap" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:0 0 10px 10px;margin-top:-4px;padding:12px">
           <!-- Ciudad para Config -->
           <div style="margin-bottom:10px">
             <div style="font-size:.62rem;font-weight:900;text-transform:uppercase;color:#374151;margin-bottom:6px">🌎 Ciudad para Config</div>
@@ -2158,7 +2158,7 @@ body.dark .dash-cstat{background:#111827;border-color:#374151} .alerta-item{disp
             </div>
           </div>
         </div>
-        <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;background:white;padding:10px;border-radius:10px;border:1.5px solid var(--g3)">
+        <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;background:var(--g);padding:10px 12px;border-radius:10px;border:1.5px solid var(--g3)">
           <input type="checkbox" id="perm-dashboard" style="width:17px;height:17px;accent-color:var(--n);margin-top:2px;flex-shrink:0" onchange="toggleDashTipoSelect()">
           <div style="flex:1">
             <div style="font-size:.82rem;font-weight:800">🏠 Pantalla de Inicio</div>

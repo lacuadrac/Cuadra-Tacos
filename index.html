@@ -272,6 +272,8 @@ body.dark .egr-tab-badge{background:#818cf8}
 .rv-guardado{font-size:.65rem;color:var(--t3);font-weight:700;padding:6px 0;border-top:1px solid var(--g3);margin-top:6px}
 body.dark .rv-card{background:#1f2937;border-color:#374151}
 body.dark .rv-stat{background:#111827;border-color:#374151}
+.rv-anulado{opacity:.55;border-color:#fca5a5!important}
+.rv-anulado .rv-total{color:var(--t3)!important}
 .prov-card{background:white;border-radius:var(--Rs);padding:14px;box-shadow:var(--sh);margin-bottom:10px;border-left:4px solid var(--v)} .ao{} .vstep-panel{display:none}
 #view-ventas .vstep-panel.active{display:block}
 .vstep-steps{display:flex;align-items:center;gap:0;margin-bottom:16px;padding:0 4px}
@@ -4366,7 +4368,7 @@ to:document.getElementById('dash-date-to')?.value||null};
 return{from:null,to:null};
 }
 function getDPuestoFiltered(p,from,to){
-let keys=Object.keys(DP).filter(k=>k.startsWith(p+'__')||k===p);
+let keys=Object.keys(DP).filter(k=>(k.startsWith(p+'__')||k===p)&&!DP[k]?.anulado);
 if(from||to){
 keys=keys.filter(k=>{
 const fecha=k.includes('__')?k.split('__')[1]:null;
@@ -5666,6 +5668,8 @@ registros.push({key,puesto,fecha,ciudad,d});
 registros=registros.filter(r=>{
 if(ciudadF&&r.ciudad!==ciudadF) return false;
 if(fechaF&&r.fecha!==fechaF) return false;
+if(orden==='anulados'&&!r.d.anulado) return false;
+if(orden==='activos'&&r.d.anulado) return false;
 if(q){
 const haystack=`${r.puesto} ${r.d.guardadoPor||''} ${r.d.editadoPor||''} ${r.fecha}`.toLowerCase();
 if(!haystack.includes(q)) return false;
@@ -5691,8 +5695,10 @@ c.innerHTML=`<div style="text-align:center;padding:40px 16px;color:var(--t3)">
 return;
 }
 c.innerHTML='';
+const isAdmin=CU?.rol==='admin';
 registros.forEach(({key,puesto,fecha,ciudad,d})=>{
-const ventas=d.totalVentas||0;
+const ventas=d.anulado?0:d.totalVentas||0;
+const ventasReal=d.totalVentas||0;
 const gastos=d.totalGastos||0;
 const util=ventas-gastos;
 const ef=d['ve-ef']||0;
@@ -5704,22 +5710,24 @@ const ciudadBadge=ciudad==='wash'?
 '<span class="rv-chip" style="background:#dbeafe;color:#1e40af">🌆 Chi</span>';
 const colorVenta=ventas>0?'var(--n)':'var(--t3)';
 const card=document.createElement('div');
-card.className='rv-card';
+card.className='rv-card'+(d.anulado?' rv-anulado':'');
 card.id='rv-'+key.replace(/[^a-z0-9]/gi,'_');
 card.innerHTML=`
 <div class="rv-header" onclick="toggleRV('${key.replace(/'/g,"\'")}')">
 <div style="flex:1;min-width:0">
 <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
-<div class="rv-puesto">${puesto}</div>
+<div class="rv-puesto" style="${d.anulado?'text-decoration:line-through;color:var(--t3)':''}">${puesto}</div>
 ${ciudadBadge}
-${PI.includes(puesto)?'<span class="rv-chip" style="background:#fee2e2;color:#dc2626">PAUSADO</span>':''}
+${d.anulado?'<span class="rv-chip" style="background:#fee2e2;color:#dc2626;font-weight:900">🚫 ANULADO</span>':''}
+${PI.includes(puesto)&&!d.anulado?'<span class="rv-chip" style="background:#fef3c7;color:#92400e">PAUSADO</span>':''}
 </div>
 <div class="rv-fecha-lbl">📅 ${fmtFecha(fecha)} · 👤 ${guardadoPor}</div>
 <div style="font-size:.6rem;color:var(--t3);margin-top:1px">${fechaGuardado?'⏱️ '+fechaGuardado:''}</div>
 </div>
 <div style="text-align:right;flex-shrink:0">
-<div class="rv-total" style="color:${colorVenta}">$${fmt(ventas)}</div>
-<div style="font-size:.62rem;color:${util>=0?'var(--v)':'var(--r)'};font-weight:800">
+${d.anulado?'<div style="background:#fee2e2;color:#dc2626;border-radius:6px;padding:2px 8px;font-size:.65rem;font-weight:900;margin-bottom:4px">🚫 ANULADO</div>':''}
+<div class="rv-total" style="color:${d.anulado?'var(--t3)':colorVenta};${d.anulado?'text-decoration:line-through;opacity:.5':''}">$${fmt(ventas)}</div>
+<div style="font-size:.62rem;color:${util>=0?'var(--v)':'var(--r)'};font-weight:800;${d.anulado?'opacity:.4':''}">
 ${util>=0?'▲':'▼'} $${fmt(Math.abs(util))} util
 </div>
 <div style="font-size:.75rem;color:var(--t3);margin-top:4px">▼</div>
@@ -5753,14 +5761,68 @@ ${d.vx_justificacion?`<br><span style="color:var(--t3);font-style:italic">"${d.v
 </div>`:''}
 <div class="rv-guardado">
 📝 ${fechaGuardado?`Guardado ${fechaGuardado} por ${guardadoPor}`:'Sin información de guardado'}
+${d.anulado?`<br><span style="color:var(--r);font-weight:900">🚫 Anulado ${d.anuladoFecha||''} por ${d.anuladoPor||'—'}${d.anuladoMotivo?' — '+d.anuladoMotivo:''}</span>`:''}
 </div>
-<button onclick="abrirEditarVenta('${key.replace(/'/g,"\'")}','${puesto.replace(/'/g,"\'")}','${fecha}')"
-style="width:100%;margin-top:8px;padding:10px;border:1.5px solid var(--az);border-radius:10px;background:none;color:var(--az);font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
-✏️ Editar este registro
+<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+<button onclick="abrirEditarVenta('${key.replace(/'/g,"\'")}',' ${puesto.replace(/'/g,"\'")}','${fecha}')"
+style="flex:1;min-width:80px;padding:10px;border:1.5px solid var(--az);border-radius:10px;background:none;color:var(--az);font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
+✏️ Editar
 </button>
+${isAdmin&&!d.anulado?`<button onclick="anularVenta('${key.replace(/'/g,"\'")}','${puesto.replace(/'/g,"\'")}','${fecha}')"
+style="padding:10px 12px;border:1.5px solid var(--am);border-radius:10px;background:none;color:var(--am);font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:900;cursor:pointer">
+🚫 Anular
+</button>`:''}
+${isAdmin&&d.anulado?`<button onclick="reactivarVenta('${key.replace(/'/g,"\'")}','${puesto.replace(/'/g,"\'")}','${fecha}')"
+style="padding:10px 12px;border:1.5px solid var(--v);border-radius:10px;background:none;color:var(--v);font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:900;cursor:pointer">
+✅ Reactivar
+</button>`:''}
+${isAdmin?`<button onclick="eliminarVenta('${key.replace(/'/g,"\'")}','${puesto.replace(/'/g,"\'")}','${fecha}')"
+style="padding:10px 12px;border:1.5px solid var(--r);border-radius:10px;background:none;color:var(--r);font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:900;cursor:pointer">
+🗑️
+</button>`:''}
+</div>
 </div>`;
 c.appendChild(card);
 });
+}
+async function anularVenta(key,puesto,fecha){
+  if(!confirm(`¿Anular el registro de "${puesto}" del ${fmtFecha(fecha)}?\n\nEl registro quedará marcado como ANULADO y no contará en los reportes.`)) return;
+  const motivo=prompt('Motivo de la anulación (opcional):');
+  const d=DP[key]||{};
+  d.anulado=true;
+  d.anuladoPor=CU?.user||'admin';
+  d.anuladoFecha=new Date().toLocaleString('es');
+  if(motivo) d.anuladoMotivo=motivo;
+  DP[key]=d;
+  await SDp(key,d);
+  await logChange('Ventas',`Anulado: ${puesto} — ${fmtFecha(fecha)}${motivo?' — '+motivo:''}`,`$${fmt(d.totalVentas||0)} ventas`,'ANULADO');
+  renderRegistrosVentas();
+  renderDash();renderReportes();
+  showToast(`🚫 Registro de "${puesto}" anulado`);
+}
+async function reactivarVenta(key,puesto,fecha){
+  if(!confirm(`¿Reactivar el registro de "${puesto}" del ${fmtFecha(fecha)}?`)) return;
+  const d=DP[key]||{};
+  delete d.anulado;
+  delete d.anuladoPor;
+  delete d.anuladoFecha;
+  delete d.anuladoMotivo;
+  DP[key]=d;
+  await SDp(key,d);
+  await logChange('Ventas',`Reactivado: ${puesto} — ${fmtFecha(fecha)}`,'ANULADO',`$${fmt(d.totalVentas||0)} ventas`);
+  renderRegistrosVentas();
+  renderDash();renderReportes();
+  showToast(`✅ Registro de "${puesto}" reactivado`);
+}
+async function eliminarVenta(key,puesto,fecha){
+if(!confirm(`⚠️ ELIMINAR PERMANENTEMENTE\n\nEsto borrará el registro de "${puesto}" del ${fmtFecha(fecha)} para siempre.\n\n¿Estás seguro? Esta acción NO se puede deshacer.`)) return;
+const antes=`$${fmt(DP[key]?.totalVentas||0)} ventas`;
+delete DP[key];
+SL('DP',DP);
+await gsS('DP__'+key,'DP__'+key,JSON.stringify({deleted:true,deletedPor:CU?.user||'admin',deletedFecha:new Date().toLocaleString('es')}));
+await logChange('Ventas',`ELIMINADO: ${puesto} — ${fmtFecha(fecha)}`,antes,'ELIMINADO PERMANENTE');
+renderRegistrosVentas();renderDash();renderReportes();
+showToast(`🗑️ Registro eliminado permanentemente`);
 }
 function toggleRV(key){
 const safeKey=key.replace(/[^a-z0-9]/gi,'_');

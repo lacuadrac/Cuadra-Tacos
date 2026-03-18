@@ -2536,10 +2536,17 @@ function _validarDato(tabla, valor){
   const debenSerObj=['DP','DN','DA','DF','DG','METAS'];
   if(debenSerObj.includes(tabla)){
     if(typeof valor!=='object'||Array.isArray(valor)) return false;
-    // No reemplazar objeto con datos con objeto vacío
     const local=LL(tabla,null);
-    if(local&&typeof local==='object'&&Object.keys(local).length>2&&Object.keys(valor).length===0){
+    const localKeys=local&&typeof local==='object'?Object.keys(local).length:0;
+    const newKeys=Object.keys(valor).length;
+    // No reemplazar objeto con datos con objeto vacío o mucho más pequeño
+    if(localKeys>2&&newKeys===0){
       console.warn(`⚠️ Sheets devolvió objeto vacío para ${tabla} — ignorando`);
+      return false;
+    }
+    // Para DP especialmente: si local tiene más registros que Sheets, NO sobreescribir
+    if(tabla==='DP'&&localKeys>newKeys&&newKeys<3){
+      console.warn(`⚠️ Sheets DP tiene menos registros (${newKeys}) que local (${localKeys}) — ignorando`);
       return false;
     }
     return true;
@@ -2908,19 +2915,30 @@ async function syncNow(){
   };
   loaded.forEach(({t,data})=>{
     if(!data) return;
-    // Reconstruct DP from individual DP__ keys (conflict-free saves)
+    // Merge DP de forma segura — nunca sobreescribir ciegamente
     if(t==='DP'){
-      // Merge individual keys into DP
+      let merged=false;
       Object.entries(data).forEach(([k,v])=>{
+        if(!v) return;
         if(k.startsWith('DP__')){
-          const puestoFecha=k.replace('DP__','');
-          if(_validarDato('DP_entry',v)) DP[puestoFecha]=v;
-        } else if(k==='DP'&&_validarDato('DP',v)){
-          // Also merge the old blob format
-          Object.assign(DP,v);
+          const pf=k.replace('DP__','');
+          const localEntry=DP[pf];
+          const sheetsTS=v.fechaGuardado||'';
+          const localTS=localEntry?.fechaGuardado||'';
+          if(!localEntry||sheetsTS>=localTS) DP[pf]=v;
+          merged=true;
+        } else if(k==='DP'&&typeof v==='object'&&!Array.isArray(v)){
+          Object.entries(v).forEach(([pk,pv])=>{
+            if(!pv) return;
+            const localEntry=DP[pk];
+            const sheetsTS=pv.fechaGuardado||'';
+            const localTS=localEntry?.fechaGuardado||'';
+            if(!localEntry||sheetsTS>=localTS) DP[pk]=pv;
+          });
+          merged=true;
         }
       });
-      SL('DP',DP);
+      if(merged) SL('DP',DP);
     } else {
       if(data[t]!==undefined) _aplicarDatoSeguro(t,data[t],applyMap);
     }
@@ -3174,11 +3192,33 @@ async function showApp(){
         results.forEach(({t,data})=>{
           if(!data) return;
           if(t==='DP'){
+            // ✅ MERGE SEGURO: nunca sobreescribir DP completo
+            // Solo agregar/actualizar claves individuales
+            let merged=false;
             Object.entries(data).forEach(([k,v])=>{
-              if(k.startsWith('DP__')){const pf=k.replace('DP__','');if(v) DP[pf]=v;}
-              else if(k==='DP'&&v) Object.assign(DP,v);
+              if(!v) return;
+              if(k.startsWith('DP__')){
+                // Formato nuevo: clave individual por puesto+fecha
+                const pf=k.replace('DP__','');
+                // Solo actualizar si Sheets tiene datos más nuevos
+                const localEntry=DP[pf];
+                const sheetsTS=v.fechaGuardado||'';
+                const localTS=localEntry?.fechaGuardado||'';
+                if(!localEntry||sheetsTS>=localTS) DP[pf]=v;
+                merged=true;
+              } else if(k==='DP'&&typeof v==='object'&&!Array.isArray(v)){
+                // Formato viejo: blob completo — hacer merge clave por clave
+                Object.entries(v).forEach(([pk,pv])=>{
+                  if(!pv) return;
+                  const localEntry=DP[pk];
+                  const sheetsTS=pv.fechaGuardado||'';
+                  const localTS=localEntry?.fechaGuardado||'';
+                  if(!localEntry||sheetsTS>=localTS) DP[pk]=pv;
+                });
+                merged=true;
+              }
             });
-            SL('DP',DP);
+            if(merged) SL('DP',DP);
           } else {
             if(data[t]!==undefined) _aplicarDatoSeguro(t,data[t],apply);
           }

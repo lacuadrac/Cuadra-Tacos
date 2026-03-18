@@ -365,6 +365,24 @@ body.dark .egr-tab-badge{background:#818cf8}
 .gg-card-accent{position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:16px 0 0 16px}
 .gg-card-cat{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px}
 .gg-empty{text-align:center;padding:40px 16px;color:var(--t3)}
+/* ── REGISTROS DE VENTAS ── */
+.rv-card{background:var(--g2);border:1.5px solid var(--g3);border-radius:14px;margin-bottom:10px;overflow:hidden;transition:all .2s}
+.rv-card:active{transform:scale(.99)}
+.rv-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer}
+.rv-puesto{font-size:.88rem;font-weight:900;color:var(--t)}
+.rv-fecha-lbl{font-size:.65rem;font-weight:800;color:var(--t3)}
+.rv-total{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.5px}
+.rv-meta{display:flex;align-items:center;gap:8px;padding:0 14px 10px;flex-wrap:wrap}
+.rv-chip{font-size:.65rem;font-weight:800;padding:3px 8px;border-radius:20px}
+.rv-body{border-top:1px solid var(--g3);padding:12px 14px;display:none}
+.rv-body.open{display:block}
+.rv-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.rv-stat{background:var(--g);border-radius:8px;padding:8px 6px;text-align:center;border:1px solid var(--g3)}
+.rv-stat-val{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.3px}
+.rv-stat-lbl{font-size:.55rem;font-weight:800;text-transform:uppercase;color:var(--t3);margin-top:1px}
+.rv-guardado{font-size:.65rem;color:var(--t3);font-weight:700;padding:6px 0;border-top:1px solid var(--g3);margin-top:6px}
+body.dark .rv-card{background:#1f2937;border-color:#374151}
+body.dark .rv-stat{background:#111827;border-color:#374151}
 .prov-card{background:white;border-radius:var(--Rs);padding:14px;box-shadow:var(--sh);margin-bottom:10px;border-left:4px solid var(--v)}
 
 /* VENTAS WIZARD */
@@ -1406,6 +1424,56 @@ body.dark .dash-cstat{background:#111827;border-color:#374151}
 
 </div>
 
+<!-- MODAL EDITAR VENTA -->
+<div class="moverlay" id="m-editVenta">
+  <div class="modal">
+    <div id="edit-venta-header" style="background:linear-gradient(135deg,#1e3a5f,#1d4ed8);margin:-20px -20px 16px;padding:18px 20px;border-radius:16px 16px 0 0">
+      <div id="edit-venta-title" style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:white;letter-spacing:.5px"></div>
+      <div id="edit-venta-subtitle" style="font-size:.7rem;color:#93c5fd;font-weight:700;margin-top:3px"></div>
+    </div>
+    <input type="hidden" id="edit-venta-key">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div>
+        <div style="font-size:.65rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:4px">💵 Efectivo</div>
+        <input class="minput" type="number" id="ev-ef" inputmode="decimal" placeholder="$0">
+      </div>
+      <div>
+        <div style="font-size:.65rem;font-weight:900;color:var(--az);text-transform:uppercase;margin-bottom:4px">💳 Tarjeta</div>
+        <input class="minput" type="number" id="ev-tj" inputmode="decimal" placeholder="$0">
+      </div>
+    </div>
+    <div style="font-size:.72rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:8px">📤 Gastos del puesto</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <div>
+        <div style="font-size:.62rem;color:var(--t3);margin-bottom:3px">⛽ Gasolina</div>
+        <input class="minput" type="number" id="ev-gas" inputmode="decimal" placeholder="$0" style="padding:8px 12px">
+      </div>
+      <div>
+        <div style="font-size:.62rem;color:var(--t3);margin-bottom:3px">🧊 Hielo</div>
+        <input class="minput" type="number" id="ev-hie" inputmode="decimal" placeholder="$0" style="padding:8px 12px">
+      </div>
+      <div>
+        <div style="font-size:.62rem;color:var(--t3);margin-bottom:3px">🔧 Reparación</div>
+        <input class="minput" type="number" id="ev-rep" inputmode="decimal" placeholder="$0" style="padding:8px 12px">
+      </div>
+      <div>
+        <div style="font-size:.62rem;color:var(--t3);margin-bottom:3px">📦 Otros</div>
+        <input class="minput" type="number" id="ev-otr" inputmode="decimal" placeholder="$0" style="padding:8px 12px">
+      </div>
+    </div>
+    <div style="font-size:.65rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:4px">📝 Motivo de edición</div>
+    <input class="minput" id="ev-motivo" placeholder="¿Por qué se está editando este registro?" style="margin-bottom:14px">
+    <div id="ev-totales" style="background:var(--g2);border-radius:10px;padding:10px 12px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:.72rem;font-weight:800;color:var(--t3)">💰 Total ventas</span>
+      <span id="ev-total-val" style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--n)">$0</span>
+    </div>
+    <div class="macts">
+      <button class="bmcancel" onclick="closeM('editVenta')">Cancelar</button>
+      <button class="bsave" onclick="guardarEdicionModal()">💾 GUARDAR</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL AGREGAR GASTO GENERAL -->
 <div class="moverlay" id="m-addGG">
   <div class="modal">
@@ -1598,27 +1666,61 @@ body.dark .dash-cstat{background:#111827;border-color:#374151}
     <div id="cfg-el"></div>
   </div>
   <div id="cfg-editar" style="display:none">
-    <div class="card">
-      <div class="ctit">✏️ Seleccionar Registro a Editar</div>
-      <div class="crow"><span class="clbl">📍 Puesto</span>
-        <select class="msel" id="editPsel" onchange="loadEditForm()" style="width:auto;flex:1;margin:0;padding:8px 10px"></select>
-      </div>
-      <div class="crow"><span class="clbl">📅 Fecha</span>
-        <input type="date" id="editFechaSel" onchange="loadEditForm()" style="flex:1;border:2px solid var(--g3);border-radius:8px;padding:8px 10px;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:700;color:var(--t);outline:none;background:var(--g2)">
-      </div>
+
+    <!-- HERO -->
+    <div style="background:linear-gradient(135deg,#1e3a5f,#1d4ed8);border-radius:16px;padding:16px;margin-bottom:14px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-10px;top:-10px;font-size:80px;opacity:.07;transform:rotate(-8deg)">📋</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:white;letter-spacing:1px">📋 Registros de Ventas</div>
+      <div id="editar-count-lbl" style="font-size:.72rem;color:#93c5fd;font-weight:700;margin-top:3px">Cargando registros...</div>
     </div>
+
+    <!-- BARRA DE BÚSQUEDA -->
+    <div style="position:relative;margin-bottom:10px">
+      <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.4;pointer-events:none">🔍</span>
+      <input id="edit-search" type="text" placeholder="Buscar por puesto, encargado o fecha..."
+        oninput="renderRegistrosVentas()"
+        style="width:100%;padding:11px 12px 11px 34px;border:1.5px solid var(--g3);border-radius:12px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;color:var(--t);background:var(--g2);outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='var(--az)'" onblur="this.style.borderColor='var(--g3)'">
+    </div>
+
+    <!-- FILTROS -->
+    <div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px">
+      <select id="edit-filter-ciudad" onchange="renderRegistrosVentas()"
+        style="flex-shrink:0;padding:7px 10px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;color:var(--t);background:var(--g2);outline:none">
+        <option value="">🌎 Todas</option>
+        <option value="wash">🌲 Washington</option>
+        <option value="chi">🌆 Chicago</option>
+      </select>
+      <select id="edit-filter-orden" onchange="renderRegistrosVentas()"
+        style="flex-shrink:0;padding:7px 10px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;color:var(--t);background:var(--g2);outline:none">
+        <option value="fecha-desc">📅 Más reciente</option>
+        <option value="fecha-asc">📅 Más antiguo</option>
+        <option value="venta-desc">💰 Mayor venta</option>
+        <option value="venta-asc">💰 Menor venta</option>
+        <option value="puesto">📍 Por puesto</option>
+      </select>
+      <input type="date" id="edit-filter-fecha"
+        onchange="renderRegistrosVentas()"
+        style="flex-shrink:0;padding:7px 10px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;color:var(--t);background:var(--g2);outline:none">
+      <button onclick="limpiarFiltrosEditar()"
+        style="flex-shrink:0;padding:7px 12px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;color:var(--t3);background:var(--g2);cursor:pointer">
+        ✕ Limpiar
+      </button>
+    </div>
+
+    <!-- LISTA DE REGISTROS -->
+    <div id="edit-registros-list"></div>
+
+    <!-- Hidden fields for legacy compatibility -->
+    <input type="hidden" id="editPsel">
+    <input type="hidden" id="editFechaSel">
     <div id="editForm" style="display:none">
-      <div id="editFormInfo" style="font-size:.72rem;color:var(--t3);padding:0 2px 12px;font-weight:700"></div>
-      <div class="card">
-        <div class="ctit">💰 Editar Totales</div>
-        <div class="crow"><span class="clbl">💵 Efectivo Total</span><input class="cinp" type="number" id="ed-ef"></div>
-        <div class="crow"><span class="clbl">💳 Tarjeta Total</span><input class="cinp" type="number" id="ed-tj"></div>
-        <div class="crow"><span class="clbl">⛽ Gasolina</span><input class="cinp" type="number" id="ed-gas"></div>
-        <div class="crow"><span class="clbl">🧊 Hielo</span><input class="cinp" type="number" id="ed-hie"></div>
-        <div class="crow"><span class="clbl">🔧 Reparación</span><input class="cinp" type="number" id="ed-rep"></div>
-        <div class="crow"><span class="clbl">📦 Otros</span><input class="cinp" type="number" id="ed-otr"></div>
-      </div>
-      <button class="bsave" onclick="guardarEdicion()">💾 GUARDAR CAMBIOS</button>
+      <input type="hidden" id="ed-ef">
+      <input type="hidden" id="ed-tj">
+      <input type="hidden" id="ed-gas">
+      <input type="hidden" id="ed-hie">
+      <input type="hidden" id="ed-rep">
+      <input type="hidden" id="ed-otr">
     </div>
   </div>
   <div id="cfg-historial" style="display:none">
@@ -3530,7 +3632,7 @@ function goCfg(id){
   });
   if(id==='puestos')renderCfgP();
   if(id==='empleados')renderCfgE();
-  if(id==='editar')populateEditSel();
+  if(id==='editar'){populateEditSel();renderRegistrosVentas();}
   if(id==='mp')renderCfgMP();
   if(id==='metas')renderCfgMetas();
   if(id==='reportes'){renderReportes();mountReportesInConfig();}
@@ -6280,48 +6382,217 @@ function confirmDel(type,sub,idx){
 }
 
 // EDIT RECORDS
+// ════════════════════════════════════════════
+// 📋 REGISTROS DE VENTAS — nuevo diseño
+// ════════════════════════════════════════════
 function populateEditSel(){
-  const sel=document.getElementById('editPsel');if(!sel)return;
-  sel.innerHTML='<option value="">— Selecciona —</option>';
-  allP().forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);});
-  // Init date to today
-  const fd=document.getElementById('editFechaSel');
-  if(fd&&!fd.value) fd.value=todayStr();
-}
-function loadEditForm(){
-  const p=document.getElementById('editPsel').value;
-  const c=document.getElementById('editForm');if(!p){c.style.display='none';return;}
-  const fecha=document.getElementById('editFechaSel')?.value||todayStr();
-  const key=dpKey(p,fecha);
-  c.style.display='block';
-  const d=DP[key]||{};
-  // Use new single-day keys, fall back to old week keys for legacy data
-  const ef=d['ve-ef']||0;
-  const tj=(d['ve-tj']||0)+(d['ve-ot']||0);
-  document.getElementById('ed-ef').value=ef||'';
-  document.getElementById('ed-tj').value=tj||'';
-  ['gas','hie','rep','otr'].forEach(k=>{const el=document.getElementById(`ed-${k}`);if(el)el.value=d[`g-${k}`]||'';});
-  const info=document.getElementById('editFormInfo');
-  if(info) info.textContent=d.fechaGuardado?`Último guardado: ${d.fechaGuardado} por ${d.editadoPor||d.guardadoPor||'—'}`:'Sin registro para esta fecha';
+  // Compatibilidad — ahora renderRegistrosVentas hace el trabajo
+  renderRegistrosVentas();
 }
 
-async function guardarEdicion(){
-  const p=document.getElementById('editPsel').value;if(!p)return;
-  const fecha=document.getElementById('editFechaSel')?.value||currentFecha;
-  const key=dpKey(p,fecha);
+function limpiarFiltrosEditar(){
+  const s=document.getElementById('edit-search');if(s)s.value='';
+  const c=document.getElementById('edit-filter-ciudad');if(c)c.value='';
+  const o=document.getElementById('edit-filter-orden');if(o)o.value='fecha-desc';
+  const f=document.getElementById('edit-filter-fecha');if(f)f.value='';
+  renderRegistrosVentas();
+}
+
+function renderRegistrosVentas(){
+  const c=document.getElementById('edit-registros-list');if(!c)return;
+  const q=(document.getElementById('edit-search')?.value||'').toLowerCase();
+  const ciudadF=document.getElementById('edit-filter-ciudad')?.value||'';
+  const orden=document.getElementById('edit-filter-orden')?.value||'fecha-desc';
+  const fechaF=document.getElementById('edit-filter-fecha')?.value||'';
+
+  // Construir lista de registros desde DP
+  let registros=[];
+  Object.entries(DP).forEach(([key,d])=>{
+    if(!d||!d.fechaGuardado) return;
+    const parts=key.split('__');
+    if(parts.length<2) return;
+    const puesto=parts[0];
+    const fecha=parts[1];
+    const ciudad=PW.includes(puesto)?'wash':PC.includes(puesto)?'chi':'';
+    registros.push({key,puesto,fecha,ciudad,d});
+  });
+
+  // Filtrar
+  registros=registros.filter(r=>{
+    if(ciudadF&&r.ciudad!==ciudadF) return false;
+    if(fechaF&&r.fecha!==fechaF) return false;
+    if(q){
+      const haystack=`${r.puesto} ${r.d.guardadoPor||''} ${r.d.editadoPor||''} ${r.fecha}`.toLowerCase();
+      if(!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+
+  // Ordenar
+  registros.sort((a,b)=>{
+    if(orden==='fecha-desc') return (b.fecha+b.d.fechaGuardado||'').localeCompare(a.fecha+a.d.fechaGuardado||'');
+    if(orden==='fecha-asc')  return (a.fecha+a.d.fechaGuardado||'').localeCompare(b.fecha+b.d.fechaGuardado||'');
+    if(orden==='venta-desc') return (b.d.totalVentas||0)-(a.d.totalVentas||0);
+    if(orden==='venta-asc')  return (a.d.totalVentas||0)-(b.d.totalVentas||0);
+    if(orden==='puesto')     return a.puesto.localeCompare(b.puesto);
+    return 0;
+  });
+
+  // Label
+  const lbl=document.getElementById('editar-count-lbl');
+  if(lbl) lbl.textContent=`${registros.length} registro${registros.length!==1?'s':''}${q||ciudadF||fechaF?' (filtrado)':''}`;
+
+  if(!registros.length){
+    c.innerHTML=`<div style="text-align:center;padding:40px 16px;color:var(--t3)">
+      <div style="font-size:2.5rem;margin-bottom:10px">📋</div>
+      <div style="font-weight:800;font-size:.9rem">Sin registros</div>
+      <div style="font-size:.78rem;margin-top:6px">${q||ciudadF||fechaF?'Intenta con otros filtros':'Aún no hay ventas guardadas'}</div>
+    </div>`;
+    return;
+  }
+
+  c.innerHTML='';
+  registros.forEach(({key,puesto,fecha,ciudad,d})=>{
+    const ventas=d.totalVentas||0;
+    const gastos=d.totalGastos||0;
+    const util=ventas-gastos;
+    const ef=d['ve-ef']||0;
+    const tj=(d['ve-tj']||0)+(d['ve-ot']||0);
+    const guardadoPor=d.editadoPor||d.guardadoPor||'—';
+    const fechaGuardado=d.fechaGuardado||'';
+    const ciudadBadge=ciudad==='wash'?
+      '<span class="rv-chip" style="background:#d1fae5;color:#065f46">🌲 Wash</span>':
+      '<span class="rv-chip" style="background:#dbeafe;color:#1e40af">🌆 Chi</span>';
+    const colorVenta=ventas>0?'var(--n)':'var(--t3)';
+
+    const card=document.createElement('div');
+    card.className='rv-card';
+    card.id='rv-'+key.replace(/[^a-z0-9]/gi,'_');
+    card.innerHTML=`
+      <div class="rv-header" onclick="toggleRV('${key.replace(/'/g,"\'")}')">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+            <div class="rv-puesto">${puesto}</div>
+            ${ciudadBadge}
+            ${PI.includes(puesto)?'<span class="rv-chip" style="background:#fee2e2;color:#dc2626">PAUSADO</span>':''}
+          </div>
+          <div class="rv-fecha-lbl">📅 ${fmtFecha(fecha)} · 👤 ${guardadoPor}</div>
+          <div style="font-size:.6rem;color:var(--t3);margin-top:1px">${fechaGuardado?'⏱️ '+fechaGuardado:''}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="rv-total" style="color:${colorVenta}">$${fmt(ventas)}</div>
+          <div style="font-size:.62rem;color:${util>=0?'var(--v)':'var(--r)'};font-weight:800">
+            ${util>=0?'▲':'▼'} $${fmt(Math.abs(util))} util
+          </div>
+          <div style="font-size:.75rem;color:var(--t3);margin-top:4px">▼</div>
+        </div>
+      </div>
+      <div class="rv-body" id="rvb-${key.replace(/[^a-z0-9]/gi,'_')}">
+        <div class="rv-stats">
+          <div class="rv-stat">
+            <div class="rv-stat-val" style="color:var(--n)">$${fmt(ef)}</div>
+            <div class="rv-stat-lbl">💵 Efectivo</div>
+          </div>
+          <div class="rv-stat">
+            <div class="rv-stat-val" style="color:var(--az)">$${fmt(tj)}</div>
+            <div class="rv-stat-lbl">💳 Tarjeta</div>
+          </div>
+          <div class="rv-stat">
+            <div class="rv-stat-val" style="color:var(--r)">$${fmt(gastos)}</div>
+            <div class="rv-stat-lbl">📤 Gastos</div>
+          </div>
+          <div class="rv-stat">
+            <div class="rv-stat-val" style="color:${util>=0?'var(--v)':'var(--r)'}">$${fmt(util)}</div>
+            <div class="rv-stat-lbl">💚 Utilidad</div>
+          </div>
+        </div>
+        ${d.check_danos!==undefined?`<div style="font-size:.65rem;color:${d.check_danos?'var(--v)':'var(--r)'};font-weight:800;margin-bottom:6px">
+          ${d.check_danos?'✅ Confirmó productos dañados':'⚠️ No confirmó productos dañados'}
+        </div>`:''}
+        ${d.vx_nivel&&d.vx_nivel!=='ok'?`<div style="font-size:.65rem;color:${d.vx_nivel==='danger'?'var(--r)':'var(--am)'};font-weight:800;margin-bottom:4px">
+          ${d.vx_nivel==='danger'?'🚨':'⚠️'} Diferencia con productos: $${fmt(Math.abs((d.totalVentas||0)-(d.vx_esperado||0)))}
+          ${d.vx_justificacion?`<br><span style="color:var(--t3);font-style:italic">"${d.vx_justificacion}"</span>`:''}
+        </div>`:''}
+        <div class="rv-guardado">
+          📝 ${fechaGuardado?`Guardado ${fechaGuardado} por ${guardadoPor}`:'Sin información de guardado'}
+        </div>
+        <button onclick="abrirEditarVenta('${key.replace(/'/g,"\'")}','${puesto.replace(/'/g,"\'")}','${fecha}')"
+          style="width:100%;margin-top:8px;padding:10px;border:1.5px solid var(--az);border-radius:10px;background:none;color:var(--az);font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+          ✏️ Editar este registro
+        </button>
+      </div>`;
+    c.appendChild(card);
+  });
+}
+
+function toggleRV(key){
+  const safeKey=key.replace(/[^a-z0-9]/gi,'_');
+  const body=document.getElementById('rvb-'+safeKey);
+  const card=document.getElementById('rv-'+safeKey);
+  if(!body)return;
+  const isOpen=body.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.rv-body.open').forEach(b=>b.classList.remove('open'));
+  if(!isOpen) body.classList.add('open');
+}
+
+function abrirEditarVenta(key,puesto,fecha){
   const d=DP[key]||{};
-  const ef=parseFloat(document.getElementById('ed-ef').value||0);
-  const tj=parseFloat(document.getElementById('ed-tj').value||0);
+  document.getElementById('edit-venta-key').value=key;
+  document.getElementById('edit-venta-title').textContent=puesto;
+  document.getElementById('edit-venta-subtitle').textContent=`📅 ${fmtFecha(fecha)} · 👤 ${d.guardadoPor||'—'}`;
+  document.getElementById('ev-ef').value=d['ve-ef']||'';
+  document.getElementById('ev-tj').value=(d['ve-tj']||0)+(d['ve-ot']||0)||'';
+  document.getElementById('ev-gas').value=d['g-gas']||'';
+  document.getElementById('ev-hie').value=d['g-hie']||'';
+  document.getElementById('ev-rep').value=d['g-rep']||'';
+  document.getElementById('ev-otr').value=d['g-otr']||'';
+  document.getElementById('ev-motivo').value='';
+  calcEvTotal();
+  openM('editVenta');
+}
+
+function calcEvTotal(){
+  const ef=parseFloat(document.getElementById('ev-ef')?.value||0);
+  const tj=parseFloat(document.getElementById('ev-tj')?.value||0);
+  const el=document.getElementById('ev-total-val');
+  if(el) el.textContent='$'+fmt(ef+tj);
+}
+
+// Agregar listeners de cálculo
+['ev-ef','ev-tj'].forEach(id=>{
+  document.addEventListener('input',e=>{if(e.target.id===id)calcEvTotal();});
+});
+
+async function guardarEdicionModal(){
+  const key=document.getElementById('edit-venta-key').value;if(!key)return;
+  const parts=key.split('__');
+  const puesto=parts[0];const fecha=parts[1]||currentFecha;
+  const d=DP[key]||{};
+  const ef=parseFloat(document.getElementById('ev-ef').value||0);
+  const tj=parseFloat(document.getElementById('ev-tj').value||0);
+  const motivo=document.getElementById('ev-motivo').value.trim();
   d['ve-ef']=ef;d['ve-tj']=tj;d['ve-ot']=0;
-  ['gas','hie','rep','otr'].forEach(k=>{d[`g-${k}`]=parseFloat(document.getElementById(`ed-${k}`).value||0);});
+  ['gas','hie','rep','otr'].forEach(k=>{d[`g-${k}`]=parseFloat(document.getElementById(`ev-${k}`)?.value||0);});
   const antes=DP[key]?`$${fmt(DP[key].totalVentas||0)} ventas`:null;
   d.totalVentas=ef+tj;
-  d.totalGastos=['gas','hie','rep','otr'].reduce((a,k)=>a+(d[`g-${k}`]||0),0);
-  d.fechaGuardado=new Date().toLocaleString('es');d.fechaRegistro=fecha;d.editadoPor=CU?.user||'admin';
-  DP[key]=d;await SDp(key,d);
-  await logChange('Ventas',`Edición: ${p} — ${fmtFecha(fecha)}`,antes,`$${fmt(d.totalVentas)} ventas / $${fmt(d.totalGastos)} gastos`);
-  renderDash();renderReportes();showToast(`✅ "${p}" actualizado`);
+  d.totalGastos=['gas','hie','rep','otr'].reduce((k2,k)=>k2+(d[`g-${k}`]||0),0);
+  d.fechaGuardado=new Date().toLocaleString('es');
+  d.fechaRegistro=fecha;
+  d.editadoPor=CU?.user||'admin';
+  if(motivo) d.motivoEdicion=motivo;
+  DP[key]=d;
+  await SDp(key,d);
+  await logChange('Ventas',`Edición: ${puesto} — ${fmtFecha(fecha)}${motivo?' — '+motivo:''}`,antes,`$${fmt(d.totalVentas)} ventas / $${fmt(d.totalGastos)} gastos`);
+  closeM('editVenta');
+  renderRegistrosVentas();
+  renderDash();renderReportes();
+  showToast(`✅ "${puesto}" actualizado`);
 }
+
+// Legacy compatibility
+function loadEditForm(){}
+async function guardarEdicion(){ await guardarEdicionModal(); }
 
 // ── MATERIA PRIMA ──
 function renderMPRows(){

@@ -332,6 +332,13 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
 .venta-inp-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
 .venta-big-inp{background:none;border:none;outline:none;font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--t);width:100%;letter-spacing:.5px}
 .venta-big-inp::placeholder{color:var(--t3);font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:0;line-height:1.4}
+.gan-period-btn{padding:6px 14px;border:1.5px solid rgba(110,231,183,.4);border-radius:20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;cursor:pointer;transition:all .2s}
+.gan-period-btn.active{background:rgba(255,255,255,.25);color:white;border-color:white}
+.gan-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--g3)}
+.gan-row:last-child{border-bottom:none}
+.gan-row-label{font-size:.82rem;font-weight:700;color:var(--t2);display:flex;align-items:center;gap:6px}
+.gan-row-val{font-size:.88rem;font-weight:900;font-family:'Nunito',sans-serif}
+.gan-total-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:14px;margin-top:6px}
 .gasto-row{display:flex;align-items:center;gap:10px;background:var(--g2);border-radius:12px;padding:10px 14px}
 .gasto-icon{font-size:1.1rem;width:28px;text-align:center;flex-shrink:0}
 .gasto-lbl{font-size:.85rem;font-weight:700;color:var(--t2);flex:1}
@@ -748,17 +755,17 @@ body.dark #syncBar{background:#374151}
   <div style="display:flex;align-items:center;gap:0;margin-bottom:16px;padding:0 4px" id="venta-steps-bar">
     <div class="vstep active" id="vstep-0" onclick="goVStep(0)">
       <div class="vstep-num">1</div>
-      <div class="vstep-lbl">Ventas</div>
+      <div class="vstep-lbl">Extra</div>
     </div>
     <div class="vstep-line" id="vstep-line-0"></div>
     <div class="vstep" id="vstep-1" onclick="goVStep(1)">
       <div class="vstep-num">2</div>
-      <div class="vstep-lbl">Extra</div>
+      <div class="vstep-lbl">Gastos</div>
     </div>
     <div class="vstep-line" id="vstep-line-1"></div>
     <div class="vstep" id="vstep-2" onclick="goVStep(2)">
       <div class="vstep-num">3</div>
-      <div class="vstep-lbl">Gastos</div>
+      <div class="vstep-lbl">Ventas</div>
     </div>
     <div class="vstep-line" id="vstep-line-2"></div>
     <div class="vstep" id="vstep-3" onclick="goVStep(3)">
@@ -767,52 +774,8 @@ body.dark #syncBar{background:#374151}
     </div>
   </div>
 
-  <!-- ══ STEP 1: VENTAS ══ -->
+  <!-- ══ STEP 1: EXTRAS (Caja + MP) ══ -->
   <div class="vstep-panel" id="vpanel-0">
-    <div class="card">
-      <div class="ctit">💰 Ventas del Día</div>
-      <p style="font-size:.75rem;color:var(--t3);margin-bottom:16px" id="ventas-dia-lbl">Registra el total cobrado por tipo de pago</p>
-
-      <!-- Big input buttons -->
-      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
-        <div class="venta-inp-row" id="row-ef">
-          <div class="venta-inp-icon" style="background:linear-gradient(135deg,#16a34a,#15803d)">💵</div>
-          <div style="flex:1">
-            <div style="font-size:.7rem;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Efectivo</div>
-            <input class="venta-big-inp" type="number" min="0" id="ve-dia-ef" oninput="calcV()" placeholder="Si no hay efectivo pon 0" inputmode="decimal">
-          </div>
-          <div style="font-size:.9rem;font-weight:900;color:var(--v)" id="tef-inline">$0</div>
-        </div>
-        <div class="venta-inp-row" id="row-tj">
-          <div class="venta-inp-icon" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)">💳</div>
-          <div style="flex:1">
-            <div style="font-size:.7rem;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Tarjeta</div>
-            <input class="venta-big-inp" type="number" min="0" id="ve-dia-tj" oninput="calcV()" placeholder="Si no hay tarjeta pon 0" inputmode="decimal">
-          </div>
-          <div style="font-size:.9rem;font-weight:900;color:var(--az)" id="ttj-inline">$0</div>
-        </div>
-        <div class="venta-inp-row" id="row-ot">
-          <div class="venta-inp-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">📱</div>
-          <div style="flex:1">
-            <div style="font-size:.7rem;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Otros pagos</div>
-            <input class="venta-big-inp" type="number" min="0" id="ve-dia-ot" oninput="calcV()" placeholder="Si no hay otros pagos pon 0" inputmode="decimal">
-          </div>
-          <div style="font-size:.9rem;font-weight:900;color:#7c3aed" id="tot-inline">$0</div>
-        </div>
-      </div>
-
-      <!-- Total bruto pill -->
-      <div style="background:linear-gradient(135deg,var(--n),var(--n2));border-radius:14px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center">
-        <div style="font-size:.8rem;font-weight:900;color:white;opacity:.85">🏆 VENTAS BRUTAS</div>
-        <div id="tbruto" style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:1px">$0</div>
-      </div>
-    </div>
-
-    <button class="venta-next-btn" onclick="goVStep(1)">Siguiente: Extra →</button>
-  </div>
-
-  <!-- ══ STEP 2: EXTRAS (Caja + MP) ══ -->
-  <div class="vstep-panel" id="vpanel-1">
     <!-- Caja chica -->
     <div class="card" style="border-left:4px solid var(--am)">
       <div class="ctit">💵 Fondo de Caja</div>
@@ -866,14 +829,11 @@ body.dark #syncBar{background:#374151}
       </div>
     </div>
 
-    <div style="display:flex;gap:8px">
-      <button class="venta-back-btn" onclick="goVStep(0)">← Volver</button>
-      <button class="venta-next-btn" style="flex:1" onclick="goVStep(2)">Siguiente: Gastos →</button>
-    </div>
+    <button class="venta-next-btn" onclick="goVStep(1)">Siguiente: Gastos →</button>
   </div>
 
-  <!-- ══ STEP 3: GASTOS ══ -->
-  <div class="vstep-panel" id="vpanel-2">
+  <!-- ══ STEP 2: GASTOS ══ -->
+  <div class="vstep-panel" id="vpanel-1">
     <div class="card">
       <div class="ctit">📤 Gastos del Puesto</div>
       <p style="font-size:.75rem;color:var(--t3);margin-bottom:16px">Solo llena los que apliquen hoy</p>
@@ -895,11 +855,6 @@ body.dark #syncBar{background:#374151}
           <input class="gasto-inp" type="number" id="g-rep" oninput="calcV()" placeholder="$0" inputmode="decimal">
         </div>
         <div class="gasto-row">
-          <span class="gasto-icon">🛣️</span>
-          <span class="gasto-lbl">Casetas</span>
-          <input class="gasto-inp" type="number" id="g-cas" oninput="calcV()" placeholder="$0" inputmode="decimal">
-        </div>
-        <div class="gasto-row">
           <span class="gasto-icon">📦</span>
           <span class="gasto-lbl">Otros</span>
           <input class="gasto-inp" type="number" id="g-otr" oninput="calcV()" placeholder="$0" inputmode="decimal">
@@ -919,6 +874,53 @@ body.dark #syncBar{background:#374151}
     </div>
 
     <div style="display:flex;gap:8px">
+      <button class="venta-back-btn" onclick="goVStep(0)">← Volver</button>
+      <button class="venta-next-btn" style="flex:1" onclick="goVStep(2)">Siguiente: Ventas →</button>
+    </div>
+  </div>
+
+  <!-- ══ STEP 3: VENTAS ══ -->
+  <div class="vstep-panel" id="vpanel-2">
+    <div class="card">
+      <div class="ctit">💰 Ventas del Día</div>
+      <p style="font-size:.75rem;color:var(--t3);margin-bottom:16px" id="ventas-dia-lbl">Registra el total cobrado por tipo de pago</p>
+
+      <!-- Big input buttons -->
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+        <div class="venta-inp-row" id="row-ef">
+          <div class="venta-inp-icon" style="background:linear-gradient(135deg,#16a34a,#15803d)">💵</div>
+          <div style="flex:1">
+            <div style="font-size:.7rem;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Efectivo</div>
+            <input class="venta-big-inp" type="number" min="0" id="ve-dia-ef" oninput="calcV()" placeholder="Si no hay efectivo pon 0" inputmode="decimal">
+          </div>
+          <div style="font-size:.9rem;font-weight:900;color:var(--v)" id="tef-inline">$0</div>
+        </div>
+        <div class="venta-inp-row" id="row-tj">
+          <div class="venta-inp-icon" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)">💳</div>
+          <div style="flex:1">
+            <div style="font-size:.7rem;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Tarjeta</div>
+            <input class="venta-big-inp" type="number" min="0" id="ve-dia-tj" oninput="calcV()" placeholder="Si no hay tarjeta pon 0" inputmode="decimal">
+          </div>
+          <div style="font-size:.9rem;font-weight:900;color:var(--az)" id="ttj-inline">$0</div>
+        </div>
+        <div class="venta-inp-row" id="row-ot">
+          <div class="venta-inp-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">📱</div>
+          <div style="flex:1">
+            <div style="font-size:.7rem;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Otros pagos</div>
+            <input class="venta-big-inp" type="number" min="0" id="ve-dia-ot" oninput="calcV()" placeholder="Si no hay otros pagos pon 0" inputmode="decimal">
+          </div>
+          <div style="font-size:.9rem;font-weight:900;color:#7c3aed" id="tot-inline">$0</div>
+        </div>
+      </div>
+
+      <!-- Total bruto pill -->
+      <div style="background:linear-gradient(135deg,var(--n),var(--n2));border-radius:14px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:.8rem;font-weight:900;color:white;opacity:.85">🏆 VENTAS BRUTAS</div>
+        <div id="tbruto" style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:1px">$0</div>
+      </div>
+    </div>
+
+        <div style="display:flex;gap:8px">
       <button class="venta-back-btn" onclick="goVStep(1)">← Volver</button>
       <button class="venta-next-btn" style="flex:1" onclick="goVStep(3)">Siguiente: Guardar →</button>
     </div>
@@ -1071,6 +1073,7 @@ body.dark #syncBar{background:#374151}
     <button class="tab" onclick="setTab('flujo',this)">💸 Flujo</button>
     <button class="tab" onclick="setTab('gasgen',this)">💰 Gastos</button>
     <button class="tab" onclick="setTab('nomina-rep',this)">👷 Nómina</button>
+    <button class="tab" onclick="setTab('ganancia',this);document.getElementById('tab-ganancia').style.display='block'">🌟 Ganancia</button>
     <button class="tab" onclick="setTab('exportar',this)">📤 Exportar</button>
   </div>
   <div id="tab-mensual">
@@ -1130,6 +1133,28 @@ body.dark #syncBar{background:#374151}
       </div>
     </div>
     <div id="nom-rep-content"></div>
+  </div>
+
+  <!-- GANANCIA LIMPIA -->
+  <div id="tab-ganancia" style="display:none">
+    <!-- Selector de período -->
+    <div class="card" style="background:linear-gradient(135deg,#064e3b,#065f46);border:none;padding:14px 16px;margin-bottom:14px">
+      <div style="font-size:.68rem;font-weight:900;color:#6ee7b7;text-transform:uppercase;margin-bottom:10px;letter-spacing:1px">📅 Período del Reporte</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <button class="gan-period-btn active" onclick="ganSetPeriodo('semana',this)">Semana</button>
+        <button class="gan-period-btn" onclick="ganSetPeriodo('quincena',this)">Quincena</button>
+        <button class="gan-period-btn" onclick="ganSetPeriodo('mes',this)">Mes</button>
+        <button class="gan-period-btn" onclick="ganSetPeriodo('personalizado',this)">Personalizado</button>
+      </div>
+      <div id="gan-custom-range" style="display:none;gap:8px;flex-wrap:wrap">
+        <input type="date" id="gan-from" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(110,231,183,.4);border-radius:8px;padding:7px 10px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;color:white;outline:none;color-scheme:dark">
+        <span style="color:#6ee7b7;align-self:center">→</span>
+        <input type="date" id="gan-to" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(110,231,183,.4);border-radius:8px;padding:7px 10px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;color:white;outline:none;color-scheme:dark">
+      </div>
+      <div id="gan-period-label" style="font-size:.72rem;color:#a7f3d0;margin-top:6px">Esta semana</div>
+      <button onclick="renderGananciaReporte()" style="margin-top:10px;background:rgba(255,255,255,.15);border:1.5px solid rgba(110,231,183,.4);border-radius:10px;padding:9px 18px;color:white;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;cursor:pointer">🔄 Generar Reporte</button>
+    </div>
+    <div id="gan-content"></div>
   </div>
 
   <!-- EXPORTAR -->
@@ -1228,6 +1253,11 @@ body.dark #syncBar{background:#374151}
           <span class="cfg-card-icon" style="background:linear-gradient(135deg,var(--am),#d97706)">🎯</span>
           <span class="cfg-card-lbl">Metas</span>
           <span class="cfg-card-sub">Objetivos de venta</span>
+        </button>
+        <button class="cfg-card" onclick="goCfg('gastosfijos')" data-cfg-id="gastosfijos">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,#be185d,#9d174d)">🏠</span>
+          <span class="cfg-card-lbl">Gastos Fijos</span>
+          <span class="cfg-card-sub">Renta, utilidades y más</span>
         </button>
       </div>
     </div>
@@ -1356,7 +1386,6 @@ body.dark #syncBar{background:#374151}
         <div class="crow"><span class="clbl">⛽ Gasolina</span><input class="cinp" type="number" id="ed-gas"></div>
         <div class="crow"><span class="clbl">🧊 Hielo</span><input class="cinp" type="number" id="ed-hie"></div>
         <div class="crow"><span class="clbl">🔧 Reparación</span><input class="cinp" type="number" id="ed-rep"></div>
-        <div class="crow"><span class="clbl">🛣️ Casetas</span><input class="cinp" type="number" id="ed-cas"></div>
         <div class="crow"><span class="clbl">📦 Otros</span><input class="cinp" type="number" id="ed-otr"></div>
       </div>
       <button class="bsave" onclick="guardarEdicion()">💾 GUARDAR CAMBIOS</button>
@@ -1428,6 +1457,7 @@ body.dark #syncBar{background:#374151}
       <button class="tab" onclick="setRepTab('flujo',this)">💸 Flujo</button>
       <button class="tab" onclick="setRepTab('gasgen',this)">💰 Gastos</button>
       <button class="tab" onclick="setRepTab('nomina-rep',this)">👷 Nómina</button>
+      <button class="tab" onclick="setRepTab('ganancia',this)">🌟 Ganancia</button>
       <button class="tab" onclick="setRepTab('exportar',this)">📤 Exportar</button>
     </div>
     <div id="cfg-rep-content"></div>
@@ -1531,6 +1561,20 @@ body.dark #syncBar{background:#374151}
       <p style="font-size:.78rem;color:var(--r);margin-bottom:12px;font-weight:700">Elimina <strong>absolutamente todos los datos</strong> ingresados — ventas, nómina, asistencia, empleados, puestos, usuarios, historial. Esta acción es <strong>irreversible</strong>.</p>
       <button onclick="iniciarBorradoTotal()" style="width:100%;background:var(--r);border:none;border-radius:10px;padding:14px;color:white;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:900;cursor:pointer;letter-spacing:.5px">
         🗑️ ELIMINAR TODOS LOS DATOS
+      </button>
+    </div>
+  </div>
+  <div id="cfg-gastosfijos" style="display:none">
+    <div style="padding:0 16px">
+      <div style="font-size:.75rem;color:var(--t3);margin-bottom:16px">
+        Gastos recurrentes del negocio. Se registran una vez, no diario.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px" id="gf-lista"></div>
+      <button onclick="gfAgregar()" style="width:100%;margin-top:14px;padding:12px;border:2px dashed var(--n);border-radius:12px;background:none;color:var(--n);font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;cursor:pointer">
+        ➕ Agregar gasto fijo
+      </button>
+      <button onclick="guardarGastosFijos()" style="width:100%;margin-top:10px;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--n),var(--n2));color:white;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:900;cursor:pointer">
+        💾 Guardar Gastos Fijos
       </button>
     </div>
   </div>
@@ -2602,18 +2646,39 @@ function showV(id,btn){
   if(btn)btn.classList.add('active');
   const psel=document.getElementById('puestoSel');
   if(psel) psel.style.display=VIEWS_WITH_PSEL.includes(id)?'flex':'none';
-  if(id==='ventas') { renderVentaMeta(); mpSectionOpen=false; goVStep(0); }
+  if(id==='ventas'){
+    renderVentaMeta(); mpSectionOpen=false; goVStep(0);
+    const fp=document.getElementById('fechaVentas');
+    if(fp){
+      const isAdminUser=(CU&&CU.rol==='admin');
+      fp.disabled=!isAdminUser;
+      fp.style.opacity=isAdminUser?'1':'0.5';
+      fp.style.cursor=isAdminUser?'pointer':'not-allowed';
+      fp.title=isAdminUser?'':'Solo el admin puede cambiar la fecha';
+    }
+  }
 }
 function setTab(id,btn){
   document.querySelectorAll('#view-reportes .tabs .tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');
-  ['mensual','flujo','gasgen','nomina-rep','exportar'].forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display=t===id?'block':'none';});
+  ['mensual','flujo','gasgen','nomina-rep','ganancia','exportar'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);
+    if(el) el.style.cssText=t===id?'display:block':'display:none';
+  });
   if(id==='exportar'){renderBackupList();const t=todayStr();const from=document.getElementById('exp-from');const to=document.getElementById('exp-to');if(from&&!from.value){const d=new Date();d.setDate(1);from.value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`;}if(to&&!to.value)to.value=t;}
   if(id==='nomina-rep'){const t=todayStr();const from=document.getElementById('nom-rep-from');const to=document.getElementById('nom-rep-to');if(from&&!from.value){const d=new Date();d.setDate(d.getDate()-30);from.value=d.toISOString().split('T')[0];}if(to&&!to.value)to.value=t;}
+  if(id==='ganancia'){
+    const tabEl=document.getElementById('tab-ganancia');
+    if(tabEl){tabEl.style.cssText='display:block';}
+    const gc=document.getElementById('gan-content');
+    if(gc) gc.innerHTML='<div style="padding:20px;text-align:center;color:white;font-weight:900">⏳ Generando reporte...</div>';
+    setTimeout(renderGananciaReporte,100);
+  }
 }
 const CFG_LABELS={
   puestos:'📍 Puestos',empleados:'👷 Empleados',editar:'✏️ Editar Ventas',
 mp:'🧅 Materia Prima',metas:'🎯 Metas',
-  reportes:'📊 Reportes',ajustes:'⚙️ Ajustes',historial:'📋 Historial'
+  reportes:'📊 Reportes',ajustes:'⚙️ Ajustes',historial:'📋 Historial',
+  gastosfijos:'🏠 Gastos Fijos'
 };
 function goCfg(id){
   // Check sub-perm for encargados
@@ -2627,7 +2692,7 @@ function goCfg(id){
   document.getElementById('cfg-section').style.display='block';
   const lbl=document.getElementById('cfg-back-lbl');
   if(lbl) lbl.textContent=CFG_LABELS[id]||'Configuración';
-  ['puestos','empleados','editar','mp','metas','reportes','ajustes','historial'].forEach(t=>{
+  ['puestos','empleados','editar','mp','metas','reportes','ajustes','historial','gastosfijos'].forEach(t=>{
     const el=document.getElementById('cfg-'+t);if(el)el.style.display=t===id?'block':'none';
   });
   if(id==='puestos')renderCfgP();
@@ -2638,6 +2703,7 @@ function goCfg(id){
   if(id==='reportes'){renderReportes();mountReportesInConfig();}
   if(id==='ajustes'){initPush();initPINStatus();checkFaltantes();initFaceIDStatus();renderTipsList();renderCfgU();}
   if(id==='historial')renderHistorial();
+  if(id==='gastosfijos')renderGastosFijos();
 }
 
 // Filter cfg-home cards based on sub-perms
@@ -2710,8 +2776,8 @@ let currentVStep=0;
 const VSTEP_COUNT=4;
 
 function goVStep(n){
-  // Validate step 0 before moving forward
-  if(n>currentVStep && currentVStep===0){
+  // Validate step 2 (Ventas) before moving forward
+  if(n>currentVStep && currentVStep===2){
     const efEl=document.getElementById('ve-dia-ef');
     const tjEl=document.getElementById('ve-dia-tj');
     const otEl=document.getElementById('ve-dia-ot');
@@ -2758,7 +2824,7 @@ function goVStep(n){
   }
   currentVStep=n;
   // Abrir MP automaticamente al entrar al step Extra
-  if(n===1 && !mpSectionOpen){
+  if(n===0 && !mpSectionOpen){
     mpSectionOpen=true;
     const body=document.getElementById('mp-section-body');
     const icon=document.getElementById('mp-toggle-icon');
@@ -2776,7 +2842,7 @@ function updateVentaResumen(){
   const ef=parseFloat(document.getElementById('ve-dia-ef')?.value||0);
   const tj=parseFloat(document.getElementById('ve-dia-tj')?.value||0);
   const ot=parseFloat(document.getElementById('ve-dia-ot')?.value||0);
-  const g=['gas','hie','rep','cas','otr'].reduce((a,k)=>a+parseFloat(document.getElementById(`g-${k}`)?.value||0),0);
+  const g=['gas','hie','rep','otr'].reduce((a,k)=>a+parseFloat(document.getElementById(`g-${k}`)?.value||0),0);
   const bruto=ef+tj+ot;
   const util=bruto-g;
   const s=id=>document.getElementById(id);
@@ -2809,7 +2875,7 @@ function calcV(){
   const tj2=document.getElementById('ttj-inline');if(tj2)tj2.textContent='$'+fmt(tj+ot);
   const tot=document.getElementById('tot-inline');if(tot)tot.textContent='$'+fmt(ot);
   const bruto=document.getElementById('tbruto');if(bruto)bruto.textContent='$'+fmt(ef+tj+ot);
-  const g=['gas','hie','rep','cas','otr'].reduce((a,k)=>a+parseFloat(document.getElementById(`g-${k}`)?.value||0),0);
+  const g=['gas','hie','rep','otr'].reduce((a,k)=>a+parseFloat(document.getElementById(`g-${k}`)?.value||0),0);
   const gt=document.getElementById('gtot');if(gt)gt.textContent='$'+fmt(g);
 }
 
@@ -2860,7 +2926,7 @@ function loadVF(p,fecha){
   const ef=document.getElementById('ve-dia-ef');if(ef)ef.value=d['ve-ef']||'';
   const tj=document.getElementById('ve-dia-tj');if(tj)tj.value=d['ve-tj']||'';
   const ot=document.getElementById('ve-dia-ot');if(ot)ot.value=d['ve-ot']||'';
-  ['gas','hie','rep','cas','otr'].forEach(k=>{const el=document.getElementById(`g-${k}`);if(el)el.value=d[`g-${k}`]||'';});
+  ['gas','hie','rep','otr'].forEach(k=>{const el=document.getElementById(`g-${k}`);if(el)el.value=d[`g-${k}`]||'';});
   // Load encargado name — pre-fill with saved or current user
   const enc=document.getElementById('ve-encargado');
   if(enc) enc.value=d['encargado']||CU?.user||'';
@@ -2892,7 +2958,7 @@ function onFechaChange(){
 
 function limpiarV(){
   ['ve-dia-ef','ve-dia-tj','ve-dia-ot'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  ['gas','hie','rep','cas','otr'].forEach(k=>{const el=document.getElementById(`g-${k}`);if(el)el.value='';});
+  ['gas','hie','rep','otr'].forEach(k=>{const el=document.getElementById(`g-${k}`);if(el)el.value='';});
   const desc=document.getElementById('g-otr-desc');if(desc)desc.value='';
   // Clear caja
   ['caja-inicio','caja-cierre'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
@@ -2920,7 +2986,7 @@ async function guardarVentas(){
   if(ef<0||tj<0||ot<0){showToast('⚠️ Las ventas no pueden ser negativas');return;}
   if(ef>MAX_VENTA||tj>MAX_VENTA||ot>MAX_VENTA){showToast('⚠️ Valor demasiado alto — verifica el monto');return;}
   d['ve-ef']=ef;d['ve-tj']=tj;d['ve-ot']=ot;
-  ['gas','hie','rep','cas','otr'].forEach(k=>{
+  ['gas','hie','rep','otr'].forEach(k=>{
     const v=parseFloat(document.getElementById(`g-${k}`)?.value||0);
     if(v<0){showToast('⚠️ Los gastos no pueden ser negativos');return;}
     d[`g-${k}`]=Math.max(0,v);
@@ -2949,7 +3015,7 @@ async function guardarVentas(){
     d[`mp-des-cos-${i}`]=des*item.precio;
   });
   d.totalVentas=d['ve-ef']+d['ve-tj']+d['ve-ot'];
-  d.totalGastos=['gas','hie','rep','cas','otr'].reduce((a,k)=>a+(d[`g-${k}`]||0),0);
+  d.totalGastos=['gas','hie','rep','otr'].reduce((a,k)=>a+(d[`g-${k}`]||0),0);
   d.fechaGuardado=new Date().toLocaleString('es');
   d.fechaRegistro=currentFecha;
   d.guardadoPor=encargadoNombre; // nombre del encargado que registra
@@ -5193,7 +5259,7 @@ function loadEditForm(){
   const tj=(d['ve-tj']||0)+(d['ve-ot']||0);
   document.getElementById('ed-ef').value=ef||'';
   document.getElementById('ed-tj').value=tj||'';
-  ['gas','hie','rep','cas','otr'].forEach(k=>{const el=document.getElementById(`ed-${k}`);if(el)el.value=d[`g-${k}`]||'';});
+  ['gas','hie','rep','otr'].forEach(k=>{const el=document.getElementById(`ed-${k}`);if(el)el.value=d[`g-${k}`]||'';});
   const info=document.getElementById('editFormInfo');
   if(info) info.textContent=d.fechaGuardado?`Último guardado: ${d.fechaGuardado} por ${d.editadoPor||d.guardadoPor||'—'}`:'Sin registro para esta fecha';
 }
@@ -5206,10 +5272,10 @@ async function guardarEdicion(){
   const ef=parseFloat(document.getElementById('ed-ef').value||0);
   const tj=parseFloat(document.getElementById('ed-tj').value||0);
   d['ve-ef']=ef;d['ve-tj']=tj;d['ve-ot']=0;
-  ['gas','hie','rep','cas','otr'].forEach(k=>{d[`g-${k}`]=parseFloat(document.getElementById(`ed-${k}`).value||0);});
+  ['gas','hie','rep','otr'].forEach(k=>{d[`g-${k}`]=parseFloat(document.getElementById(`ed-${k}`).value||0);});
   const antes=DP[key]?`$${fmt(DP[key].totalVentas||0)} ventas`:null;
   d.totalVentas=ef+tj;
-  d.totalGastos=['gas','hie','rep','cas','otr'].reduce((a,k)=>a+(d[`g-${k}`]||0),0);
+  d.totalGastos=['gas','hie','rep','otr'].reduce((a,k)=>a+(d[`g-${k}`]||0),0);
   d.fechaGuardado=new Date().toLocaleString('es');d.fechaRegistro=fecha;d.editadoPor=CU?.user||'admin';
   DP[key]=d;await SD('DP',DP);
   await logChange('Ventas',`Edición: ${p} — ${fmtFecha(fecha)}`,antes,`$${fmt(d.totalVentas)} ventas / $${fmt(d.totalGastos)} gastos`);
@@ -6165,7 +6231,7 @@ function mountReportesInConfig(){
   const container=document.getElementById('cfg-rep-content');
   if(!container) return;
   // Move reportes tab divs content into cfg-rep-content
-  const tabs=['mensual','flujo','gasgen','nomina-rep','exportar'];
+  const tabs=['mensual','flujo','gasgen','nomina-rep','ganancia','exportar'];
   container.innerHTML='';
   tabs.forEach((t,idx)=>{
     const orig=document.getElementById('tab-'+t);
@@ -6181,7 +6247,7 @@ function mountReportesInConfig(){
 function setRepTab(id,btn){
   document.querySelectorAll('#cfg-rep-tabs .tab').forEach(t=>t.classList.remove('active'));
   if(btn) btn.classList.add('active');
-  ['mensual','flujo','gasgen','nomina-rep','exportar'].forEach(t=>{
+  ['mensual','flujo','gasgen','nomina-rep','ganancia','exportar'].forEach(t=>{
     const el=document.getElementById('cfg-tab-'+t);
     if(el) el.style.display=t===id?'block':'none';
   });
@@ -6192,6 +6258,7 @@ function setRepTab(id,btn){
     if(from&&!from.value){const d=new Date();d.setDate(1);from.value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`;}
     if(to&&!to.value) to.value=today;
   }
+  if(id==='ganancia') renderGananciaReporte();
 }
 
 function renderCfgProv(){
@@ -6421,7 +6488,7 @@ function getExportData(){
       const d=DP[k]||{};const fecha=k.split('__')[1];
       rows.push({Puesto:p,Fecha:fecha,Efectivo:d['ve-ef']||0,Tarjeta:(d['ve-tj']||0)+(d['ve-ot']||0),
         TotalVentas:d.totalVentas||0,TotalGastos:d.totalGastos||0,Utilidad:(d.totalVentas||0)-(d.totalGastos||0),
-        Gasolina:d['g-gas']||0,Hielo:d['g-hie']||0,Reparacion:d['g-rep']||0,Casetas:d['g-cas']||0,
+        Gasolina:d['g-gas']||0,Hielo:d['g-hie']||0,Reparacion:d['g-rep']||0,
         Otros:d['g-otr']||0,OtrosDesc:d['g-otr-desc']||'',Guardado:d.fechaGuardado||'',Por:d.guardadoPor||''});
     });
   });
@@ -6549,6 +6616,364 @@ if('serviceWorker' in navigator){
 // ═══════════════════════════════════════════
 // 📖 MANUAL DE USUARIO
 // ═══════════════════════════════════════════
+
+
+// ══════════════════════════════════════════════
+//  REPORTE DE GANANCIA LIMPIA
+// ══════════════════════════════════════════════
+let _ganPeriodo = 'semana'; // semana | quincena | mes | personalizado
+
+function ganGetRango(){
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = today.getMonth();
+  const dd = today.getDate();
+
+  let from, to;
+  const pad = n => String(n).padStart(2,'0');
+  const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+
+  if(_ganPeriodo === 'semana'){
+    // Monday–Sunday of current week
+    const day = today.getDay(); // 0=Sun
+    const mon = new Date(today); mon.setDate(dd - (day===0?6:day-1));
+    const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+    from = iso(mon); to = iso(sun);
+  } else if(_ganPeriodo === 'quincena'){
+    // 1-15 or 16-end
+    if(dd <= 15){
+      from = `${yyyy}-${pad(mm+1)}-01`;
+      to   = `${yyyy}-${pad(mm+1)}-15`;
+    } else {
+      from = `${yyyy}-${pad(mm+1)}-16`;
+      const last = new Date(yyyy, mm+1, 0).getDate();
+      to   = `${yyyy}-${pad(mm+1)}-${pad(last)}`;
+    }
+  } else if(_ganPeriodo === 'mes'){
+    from = `${yyyy}-${pad(mm+1)}-01`;
+    const last = new Date(yyyy, mm+1, 0).getDate();
+    to   = `${yyyy}-${pad(mm+1)}-${pad(last)}`;
+  } else {
+    // personalizado
+    from = document.getElementById('gan-from')?.value || iso(today);
+    to   = document.getElementById('gan-to')?.value   || iso(today);
+  }
+  return {from, to};
+}
+
+function ganSetPeriodo(tipo, btn){
+  _ganPeriodo = tipo;
+  document.querySelectorAll('.gan-period-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const customDiv = document.getElementById('gan-custom-range');
+  if(customDiv) customDiv.style.display = tipo === 'personalizado' ? 'flex' : 'none';
+  renderGananciaReporte();
+}
+
+function ganNominaPeriodo(from, to){
+  // Sum nómina in the date range from DN keys
+  // DN keys: city__YYYY-MM-DD or city__YYYY-WW etc.
+  let total = 0;
+  ['wash','chi'].forEach(city=>{
+    const emps = city==='wash'?EW:EC;
+    Object.keys(DN).forEach(key=>{
+      const s = DN[key]||{};
+      // Extract date from key: city__YYYY-MM-DD  (semKey format)
+      let fecha = null;
+      if(key.startsWith(city+'__')){
+        // semKey = city__YYYY-MM-DD where date is Monday of that week
+        const parts = key.split('__');
+        if(parts.length>=2) fecha = parts[1];
+      }
+      if(!fecha) return; // skip old format keys
+      if(from && fecha < from) return;
+      if(to   && fecha > to)   return;
+      emps.forEach((_,i)=>{
+        const row = s[i]||{};
+        total += parseFloat(row.pago||row.sueldo||0);
+      });
+    });
+  });
+  return total;
+}
+
+function renderGananciaReporte(){
+  const cont = document.getElementById('gan-content');
+  if(!cont){ console.warn('gan-content not found'); return; }
+
+  try{
+    const {from, to} = ganGetRango();
+
+    // Update label
+    const lbl = document.getElementById('gan-period-label');
+    if(lbl){
+      const labels = {semana:'Esta semana',quincena:'Esta quincena',mes:'Este mes',personalizado:'Período personalizado'};
+      lbl.textContent = (labels[_ganPeriodo]||'') + ' · '+fmtFecha(from)+' → '+fmtFecha(to);
+    }
+
+    // Gastos fijos
+    const gfList = loadGF();
+    const totalGF = gfList.reduce((a,x)=>a+(parseFloat(x.monto)||0),0);
+
+    // Helper: city card
+    function cityCard(emoji, label, puestos, emps, cityKey, color1, color2){
+      let tV=0, tG=0;
+      puestos.forEach(p=>{
+        const d=getDPuestoFiltered(p,from,to);
+        tV+=d.totalVentas; tG+=d.totalGastos;
+      });
+
+      // Nómina de esta ciudad en el rango
+      let tN=0;
+      Object.keys(DN).forEach(key=>{
+        if(!key.startsWith(cityKey+'__')) return;
+        const parts=key.split('__');
+        const fecha=parts[1]||'';
+        if(from && fecha<from) return;
+        if(to   && fecha>to)   return;
+        const s=DN[key]||{};
+        emps.forEach((_,i)=>{
+          const row=s[i]||{};
+          tN+=parseFloat(row.pago||row.sueldo||0);
+        });
+      });
+
+      const ganancia = tV - tG - tN - totalGF;
+      const pos = ganancia >= 0;
+      const bgGrad = pos ? 'linear-gradient(135deg,'+color1+','+color2+')' : 'linear-gradient(135deg,#7f1d1d,#991b1b)';
+      const bgResult = pos ? 'linear-gradient(135deg,#064e3b,#065f46)' : 'linear-gradient(135deg,#7f1d1d,#991b1b)';
+
+      // Rows per puesto
+      const pRows = puestos.map(p=>{
+        const d=getDPuestoFiltered(p,from,to);
+        return `<div class="gan-row" style="padding:7px 0">
+          <span class="gan-row-label" style="font-size:.77rem;color:var(--t2)">${p}</span>
+          <div style="text-align:right">
+            <div style="font-size:.77rem;font-weight:900;color:var(--v)">$${fmt(d.totalVentas)}</div>
+            ${d.totalGastos>0?`<div style="font-size:.68rem;color:var(--r)">-$${fmt(d.totalGastos)} op.</div>`:''}
+          </div>
+        </div>`;
+      }).join('');
+
+      const gfRowsHTML = totalGF>0 ? `<div class="gan-row">
+        <span class="gan-row-label" style="font-size:.78rem">🏠 Gastos Fijos</span>
+        <span class="gan-row-val" style="color:var(--r);font-size:.82rem">-$${fmt(totalGF)}</span>
+      </div>` : '';
+
+      return `<div class="card" style="margin-bottom:14px">
+        <div style="background:${bgGrad};border-radius:12px;padding:12px 14px;margin-bottom:10px">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:white;letter-spacing:1px">${emoji} ${label}</div>
+        </div>
+        ${pRows}
+        <div style="height:1px;background:var(--g3);margin:8px 0"></div>
+        <div class="gan-row" style="background:var(--vs);border-radius:8px;padding:8px 12px;border:none">
+          <span class="gan-row-label" style="font-size:.78rem">💰 Ventas</span>
+          <span class="gan-row-val" style="color:var(--v)">$${fmt(tV)}</span>
+        </div>
+        <div class="gan-row">
+          <span class="gan-row-label" style="font-size:.78rem">⛽ Gastos Operativos</span>
+          <span class="gan-row-val" style="color:var(--r);font-size:.82rem">-$${fmt(tG)}</span>
+        </div>
+        <div class="gan-row">
+          <span class="gan-row-label" style="font-size:.78rem">👷 Nómina</span>
+          <span class="gan-row-val" style="color:var(--r);font-size:.82rem">-$${fmt(tN)}</span>
+        </div>
+        ${gfRowsHTML}
+        <div class="gan-total-row" style="background:${bgResult};margin-top:8px">
+          <div style="font-size:.7rem;font-weight:900;color:${pos?'#a7f3d0':'#fca5a5'};text-transform:uppercase;letter-spacing:.8px">
+            ${pos?'✅ Ganancia':'❌ Pérdida'} Limpia
+          </div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:white;letter-spacing:1px">
+            ${pos?'+':''}$${fmt(Math.abs(ganancia))}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    const washCard = cityCard('🌲','Washington', PW, EW, 'wash', '#065f46', '#047857');
+    const chiCard  = cityCard('🌆','Chicago',    PC, EC, 'chi',  '#1e40af', '#1d4ed8');
+
+    // Totales combinados
+    let tVtot=0, tGtot=0, tNtot=0;
+    [...PW,...PC].forEach(p=>{
+      const d=getDPuestoFiltered(p,from,to);
+      tVtot+=d.totalVentas; tGtot+=d.totalGastos;
+    });
+    ['wash','chi'].forEach(city=>{
+      const emps=city==='wash'?EW:EC;
+      Object.keys(DN).forEach(key=>{
+        if(!key.startsWith(city+'__')) return;
+        const parts=key.split('__');
+        const fecha=parts[1]||'';
+        if(from && fecha<from) return;
+        if(to   && fecha>to)   return;
+        const s=DN[key]||{};
+        emps.forEach((_,i)=>{
+          const row=s[i]||{};
+          tNtot+=parseFloat(row.pago||row.sueldo||0);
+        });
+      });
+    });
+    const ganTotal = tVtot - tGtot - tNtot - totalGF;
+    const posTotal = ganTotal >= 0;
+
+    const gfTotalRow = totalGF>0 ? `<div class="gan-row">
+      <span class="gan-row-label" style="font-size:.78rem">🏠 Gastos Fijos</span>
+      <span class="gan-row-val" style="color:var(--r);font-size:.82rem">-$${fmt(totalGF)}</span>
+    </div>` : '';
+
+    const totalCard = `<div class="card" style="border:2px solid ${posTotal?'var(--v)':'var(--r)'}">
+      <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:12px;padding:12px 14px;margin-bottom:10px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:white;letter-spacing:1px">🌐 Ambas Ciudades</div>
+        <div style="font-size:.68rem;color:rgba(255,255,255,.7);font-weight:700;margin-top:2px">Total combinado del negocio</div>
+      </div>
+      <div class="gan-row" style="background:var(--vs);border-radius:8px;padding:8px 12px;border:none">
+        <span class="gan-row-label" style="font-size:.78rem">💰 Ventas Totales</span>
+        <span class="gan-row-val" style="color:var(--v)">$${fmt(tVtot)}</span>
+      </div>
+      <div class="gan-row">
+        <span class="gan-row-label" style="font-size:.78rem">⛽ Gastos Operativos</span>
+        <span class="gan-row-val" style="color:var(--r);font-size:.82rem">-$${fmt(tGtot)}</span>
+      </div>
+      <div class="gan-row">
+        <span class="gan-row-label" style="font-size:.78rem">👷 Nómina Total</span>
+        <span class="gan-row-val" style="color:var(--r);font-size:.82rem">-$${fmt(tNtot)}</span>
+      </div>
+      ${gfTotalRow}
+      <div class="gan-total-row" style="background:${posTotal?'linear-gradient(135deg,#064e3b,#065f46)':'linear-gradient(135deg,#7f1d1d,#991b1b)'};margin-top:8px">
+        <div>
+          <div style="font-size:.72rem;font-weight:900;color:${posTotal?'#a7f3d0':'#fca5a5'};text-transform:uppercase;letter-spacing:1px">
+            ${posTotal?'✅ Ganancia':'❌ Pérdida'} Neta Total
+          </div>
+          <div style="font-size:.65rem;color:${posTotal?'#6ee7b7':'#fca5a5'};margin-top:2px">Ventas − Op. − Nómina − Fijos</div>
+        </div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:white;letter-spacing:1px">
+          ${posTotal?'+':''}$${fmt(Math.abs(ganTotal))}
+        </div>
+      </div>
+    </div>`;
+
+    const gfNote = totalGF===0 ? `<p style="text-align:center;font-size:.72rem;color:var(--t3);padding:4px 0">
+      💡 Sin gastos fijos configurados — <a onclick="goCfg('gastosfijos')" style="color:var(--az);font-weight:800;cursor:pointer">Configurar →</a>
+    </p>` : '';
+
+    cont.innerHTML = washCard + chiCard + totalCard + gfNote;
+
+  } catch(err){
+    cont.innerHTML = `<div style="background:red;color:white;padding:20px;border-radius:12px;font-weight:900;font-size:1rem">
+      ⚠️ ERROR: ${err.message}
+    </div>`;
+    console.error('renderGananciaReporte error:', err);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  GASTOS FIJOS — Config
+// ══════════════════════════════════════════════
+// Estructura: GF = [{id, emoji, label, monto}]
+// Campos fijos predeterminados (no borrables)
+const GF_DEFAULTS = [
+  {id:'gf-ren', emoji:'🏠', label:'Renta',        monto:0, fixed:true},
+  {id:'gf-uti', emoji:'💡', label:'Utilidades',    monto:0, fixed:true},
+  {id:'gf-cas', emoji:'🛣️', label:'Casetas',       monto:0, fixed:true},
+];
+
+function loadGF(){
+  const raw=LL('GF_CONFIG',null);
+  if(raw&&Array.isArray(raw)) return raw;
+  return JSON.parse(JSON.stringify(GF_DEFAULTS));
+}
+function saveGF(list){SL('GF_CONFIG',list);}
+
+function renderGastosFijos(){
+  const list=loadGF();
+  const cont=document.getElementById('gf-lista');
+  if(!cont) return;
+  cont.innerHTML='';
+  list.forEach((item,i)=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:8px;background:var(--g2);border-radius:12px;padding:10px 12px;border:1.5px solid var(--g3)';
+    row.innerHTML=`
+      <span style="font-size:1.2rem">${item.emoji}</span>
+      <span style="flex:1;font-size:.84rem;font-weight:800;color:var(--t)">${item.label}</span>
+      <span style="font-size:.75rem;color:var(--t3);margin-right:4px">$</span>
+      <input type="number" inputmode="decimal" placeholder="0"
+        value="${item.monto||''}"
+        style="width:90px;padding:6px 10px;border:1.5px solid var(--g3);border-radius:8px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;color:var(--t);background:var(--bg);outline:none;text-align:right"
+        oninput="gfUpdateMonto(${i},this.value)"
+        onfocus="this.style.borderColor='var(--n)'"
+        onblur="this.style.borderColor='var(--g3)'"
+      >
+      ${item.fixed?'<span style="width:28px"></span>':`<button onclick="gfEliminar(${i})" style="background:var(--r);border:none;border-radius:8px;width:28px;height:28px;color:white;font-size:.8rem;cursor:pointer;flex-shrink:0">✕</button>`}
+    `;
+    cont.appendChild(row);
+  });
+}
+
+function gfUpdateMonto(i,val){
+  const list=loadGF();
+  if(list[i]) list[i].monto=parseFloat(val)||0;
+  saveGF(list);
+}
+
+function gfEliminar(i){
+  const list=loadGF();
+  if(list[i]&&!list[i].fixed){
+    list.splice(i,1);
+    saveGF(list);
+    renderGastosFijos();
+  }
+}
+
+function gfAgregar(){
+  const list=loadGF();
+  const nuevo={id:'gf-c'+Date.now(), emoji:'📌', label:'Nuevo gasto', monto:0, fixed:false};
+  list.push(nuevo);
+  saveGF(list);
+  renderGastosFijos();
+  // Hacer scroll al fondo y dar foco al último campo
+  setTimeout(()=>{
+    const rows=document.querySelectorAll('#gf-lista > div');
+    const last=rows[rows.length-1];
+    if(last){
+      last.scrollIntoView({behavior:'smooth',block:'nearest'});
+      // Permitir editar el label
+      const span=last.querySelector('span[style*="flex:1"]');
+      if(span) gfEditarLabel(list.length-1, span);
+    }
+  },100);
+}
+
+function gfEditarLabel(i,spanEl){
+  const list=loadGF();
+  if(!list[i]||list[i].fixed) return;
+  const inp=document.createElement('input');
+  inp.type='text';
+  inp.value=list[i].label;
+  inp.style.cssText='flex:1;padding:4px 8px;border:1.5px solid var(--n);border-radius:6px;font-family:"Nunito",sans-serif;font-size:.84rem;font-weight:800;color:var(--t);background:var(--bg);outline:none';
+  spanEl.replaceWith(inp);
+  inp.focus();
+  inp.select();
+  function commit(){
+    list[i].label=inp.value.trim()||list[i].label;
+    saveGF(list);
+    renderGastosFijos();
+  }
+  inp.addEventListener('blur',commit);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')inp.blur();});
+}
+
+function guardarGastosFijos(){
+  // Ya se guarda en tiempo real por gfUpdateMonto; esto es confirmación
+  showToast('✅ Gastos fijos guardados');
+  goCfgHome();
+}
+
+// Obtener total de gastos fijos configurados
+function getTotalGF(){
+  return loadGF().reduce((a,x)=>a+(parseFloat(x.monto)||0),0);
+}
+
 const MANUAL_SECTIONS=[
   {
     id:'login', icon:'🔐', title:'Cómo entrar a la app',

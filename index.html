@@ -43,8 +43,9 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
 .lc{background:white;border-radius:24px;padding:24px;width:100%;max-width:380px;box-shadow:var(--sh2)}
 .lerr{background:var(--rs);color:var(--r);padding:10px 14px;border-radius:var(--Rs);font-size:.85rem;font-weight:700;margin-bottom:12px;display:none;text-align:center;animation:popIn .2s ease}
 .ll2{font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:6px;display:block}
-.li{width:100%;border:2px solid var(--g3);border-radius:var(--Rs);padding:14px 16px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;color:var(--t);outline:none;transition:all .15s;margin-bottom:14px;background:var(--g2)}
-.li:focus{border-color:var(--n);background:white;box-shadow:0 0 0 3px rgba(234,88,12,.1)}
+.li{width:100%;border:2px solid rgba(255,255,255,.2);border-radius:var(--Rs);padding:14px 16px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;color:#fff;outline:none;transition:all .15s;margin-bottom:14px;background:rgba(255,255,255,.12)}
+.li:focus{border-color:var(--n);background:rgba(255,255,255,.22);box-shadow:0 0 0 3px rgba(234,88,12,.3)}
+.li::placeholder{color:rgba(255,255,255,.5)}
 .btn-login{width:100%;background:linear-gradient(135deg,var(--n),var(--n2));color:white;border:none;padding:16px;border-radius:var(--R);font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:2px;cursor:pointer;box-shadow:0 6px 20px rgba(234,88,12,.35);transition:all .2s}
 .btn-login:active{transform:scale(.98)}
 
@@ -382,6 +383,8 @@ body.dark .mtitle{color:#f9fafb}
 body.dark .boutl{background:#374151;color:#f9fafb;border-color:#4b5563}
 body.dark .bsave{background:var(--n)}
 body.dark #syncBar{background:#374151}
+body.dark .dash-greeting{color:#f9fafb}
+body.dark .dash-date-lbl{color:#9ca3af}
 /* ALERTA FALTANTES */
 .alerta-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--rs);border-radius:10px;margin-bottom:8px}
 /* CONFIG CARD GRID */
@@ -659,7 +662,7 @@ body.dark #syncBar{background:#374151}
   <!-- Hero header -->
   <div style="background:linear-gradient(135deg,var(--cb),var(--cb2));border-radius:0 0 24px 24px;padding:24px 20px 28px;margin:-12px -12px 0;position:relative;overflow:hidden">
     <div style="position:absolute;right:-20px;top:-20px;font-size:120px;opacity:.06;transform:rotate(-10deg)">🌮</div>
-    <div style="font-size:.75rem;font-weight:700;color:#a16207;text-transform:uppercase;letter-spacing:1px" id="dp-fecha"></div>
+    <div style="font-size:.75rem;font-weight:700;color:#fed7aa;text-transform:uppercase;letter-spacing:1px" id="dp-fecha"></div>
     <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:white;letter-spacing:1px;margin-top:4px" id="dp-saludo"></div>
     <div style="font-size:.85rem;color:#fed7aa;font-weight:600;margin-top:2px" id="dp-puesto"></div>
   </div>
@@ -701,9 +704,9 @@ body.dark #syncBar{background:#374151}
   </div>
 
   <!-- Tip del día -->
-  <div class="card" style="margin-top:12px;background:linear-gradient(135deg,var(--ns),white);border:1.5px solid var(--nm)">
+  <div class="card" style="margin-top:12px;background:linear-gradient(135deg,var(--ns),var(--g));border:1.5px solid var(--nm)">
     <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--n);margin-bottom:8px">💡 Consejo del Día</div>
-    <div id="dp-tip" style="font-size:.9rem;color:var(--t);font-weight:600;line-height:1.5"></div>
+    <div id="dp-tip" style="font-size:.9rem;color:var(--t);font-weight:600;line-height:1.5;min-height:1.5em"></div>
     <button onclick="renderPersonalDash()" style="margin-top:10px;background:none;border:1px solid var(--nm);border-radius:8px;padding:5px 12px;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:700;color:var(--n);cursor:pointer">🔄 Otro consejo</button>
   </div>
 
@@ -1152,7 +1155,7 @@ body.dark #syncBar{background:#374151}
         <input type="date" id="gan-to" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(110,231,183,.4);border-radius:8px;padding:7px 10px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;color:white;outline:none;color-scheme:dark">
       </div>
       <div id="gan-period-label" style="font-size:.72rem;color:#a7f3d0;margin-top:6px">Esta semana</div>
-      <button onclick="renderGananciaReporte()" style="margin-top:10px;background:rgba(255,255,255,.15);border:1.5px solid rgba(110,231,183,.4);border-radius:10px;padding:9px 18px;color:white;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;cursor:pointer">🔄 Generar Reporte</button>
+      <button onclick="renderGananciaReporte(this)" style="margin-top:10px;background:rgba(255,255,255,.15);border:1.5px solid rgba(110,231,183,.4);border-radius:10px;padding:9px 18px;color:white;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;cursor:pointer">🔄 Generar Reporte</button>
     </div>
     <div id="gan-content"></div>
   </div>
@@ -2203,6 +2206,27 @@ const DEFAULT_TIPS=[
   '🌶️ La salsa siempre pica más en el segundo mordisco, como la multa por no registrar.',
   '😏 El que cuida su puesto con amor, siempre tiene algo que presumir al jefe.',
   '🌮 Un taco sin registro es como tortilla sin masa — no existe.',
+  // 🌶️🔥 Albures chilangos — nivel: sabroso
+  '😏 El que sabe agarrar bien el taco... nunca lo deja caer.',
+  '🌮 Yo no sé tú, pero yo le meto con ganas al pastor — y al trabajo también.',
+  '🔥 El trompito bien parado es señal de un buen día. En el puesto, claro.',
+  '😂 La longaniza no miente: entre más la aprietas, más sabrosa sale.',
+  '🌶️ Aquí trabajamos duro... y lo que quede pa\'l rato, lo guardamos para después.',
+  '😏 El que sabe meter la mano al molcajete sin quejarse, ese sí sabe trabajar.',
+  '🍑 El taco de canasta tiene lo suyo... y quien lo carga también.',
+  '🌮 Le entré de lleno al puesto — como siempre, con todo lo que traigo.',
+  '😂 Me dijeron que soy muy bueno metiendo... pedidos a la app.',
+  '🔥 La barbacoa hay que trabajarla desde temprano pa\' que esté bien tiernita.',
+  '😏 El que sabe cuándo apretar y cuándo soltar... ese es buen encargado.',
+  '🌶️ Dicen que lo que no pica no sabe. Yo siempre le pongo picante al trabajo.',
+  '🫓 La tortilla bien cargada aguanta todo — igual que el equipo de La Cuadra.',
+  '😂 El chicharrón: crujiente por fuera, jugoso por dentro. Así hay que ser.',
+  '🌮 No importa el tamaño del taco, lo que importa es que esté bien metido.',
+  '🔥 El que le tiene miedo al comal... que no aspire a taquero.',
+  '😏 Bien dicen: más vale taco en mano que cien volando.',
+  '🌶️ Al chile hay que agarrarlo con respeto — y a las ventas también.',
+  '😂 El quesillo estira y estira... igual que mi paciencia cuando no registran.',
+  '🍖 Carnitas al pastor o suadero — lo que importa es meterle con todo.',
 ];
 let TIPS=LL('TIPS',[...DEFAULT_TIPS]);
 let empPosFilter='todos';
@@ -2671,7 +2695,7 @@ function setTab(id,btn){
     if(tabEl){tabEl.style.cssText='display:block';}
     const gc=document.getElementById('gan-content');
     if(gc) gc.innerHTML='<div style="padding:20px;text-align:center;color:white;font-weight:900">⏳ Generando reporte...</div>';
-    setTimeout(renderGananciaReporte,100);
+    setTimeout(()=>renderGananciaReporte(),100);
   }
 }
 const CFG_LABELS={
@@ -6697,15 +6721,26 @@ function ganNominaPeriodo(from, to){
   return total;
 }
 
-function renderGananciaReporte(){
-  const cont = document.getElementById('gan-content');
+function renderGananciaReporte(triggerEl){
+  // Find the right gan-content — walk up from trigger button, or find the visible one
+  let cont = null;
+  if(triggerEl){
+    cont = triggerEl.closest('div[id]')?.querySelector('[id$="gan-content"]')
+        || triggerEl.parentElement?.querySelector('[id$="gan-content"]');
+  }
+  if(!cont){
+    // Prefer the one inside cfg-tab if it exists and is visible
+    const cfgCont = document.getElementById('cfg-tab-ganancia')?.querySelector('[id$="gan-content"]');
+    cont = (cfgCont && cfgCont.offsetParent !== null) ? cfgCont : document.getElementById('gan-content');
+  }
   if(!cont){ console.warn('gan-content not found'); return; }
+  cont.innerHTML='<div style="padding:20px;text-align:center;color:white;font-weight:900;font-size:1rem">⏳ Calculando...</div>';
 
   try{
     const {from, to} = ganGetRango();
 
     // Update label
-    const lbl = document.getElementById('gan-period-label');
+    const lbl = cont.closest('[id^="tab-ganancia"],[id^="cfg-tab-ganancia"]')?.querySelector('#gan-period-label') || document.getElementById('gan-period-label');
     if(lbl){
       const labels = {semana:'Esta semana',quincena:'Esta quincena',mes:'Este mes',personalizado:'Período personalizado'};
       lbl.textContent = (labels[_ganPeriodo]||'') + ' · '+fmtFecha(from)+' → '+fmtFecha(to);
@@ -6860,8 +6895,8 @@ function renderGananciaReporte(){
     cont.innerHTML = washCard + chiCard + totalCard + gfNote;
 
   } catch(err){
-    cont.innerHTML = `<div style="background:red;color:white;padding:20px;border-radius:12px;font-weight:900;font-size:1rem">
-      ⚠️ ERROR: ${err.message}
+    cont.innerHTML = `<div style="background:#dc2626;color:white;padding:20px;border-radius:12px;font-weight:900;font-size:1rem;margin:10px 0">
+      ⚠️ ERROR: ${err.message}<br><small style="font-weight:400;font-size:.75rem">${err.stack?.split('\n')[1]||''}</small>
     </div>`;
     console.error('renderGananciaReporte error:', err);
   }

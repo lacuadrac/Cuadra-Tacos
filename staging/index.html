@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cuadra Tacos">
+<meta name="theme-color" content="#EA580C">
+<meta name="description" content="Sistema de administración La Cuadra Tacos">
+  <meta name="build-date" content="2026-03-18-staging">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
+<title>🌮 La Cuadra Tacos - Staging</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="sl"><img class="logo-img" src="" style="width:90px;height:90px;border-radius:22px;object-fit:cover"></div>
+  <div class="sh1">La Cuadra Tacos</div>
+  <div class="sp">Sistema de Administración</div>
+  <div class="sb"><div class="sbf"></div></div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="ll"><img class="logo-img" src="" style="width:80px;height:80px;border-radius:20px;object-fit:cover"></div>
+  <div class="lt">La Cuadra Tacos</div>
+  <div class="ls">Ingresa con tu nombre y contraseña</div>
+  <!-- Face ID / Touch ID button — solo aparece si está registrado -->
+  <div id="faceid-wrap" style="display:none;width:100%;max-width:340px;margin-bottom:16px">
+    <button onclick="loginConFaceID()" id="faceid-btn"
+      style="width:100%;background:linear-gradient(135deg,#1a1a1a,#333);border:none;border-radius:16px;padding:16px;color:white;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:.5px">
+      <span style="font-size:1.6rem">🔒</span>
+      <div style="text-align:left">
+        <div>Entrar con Face ID / Touch ID</div>
+        <div id="faceid-user-label" style="font-size:.72rem;opacity:.7;font-weight:600"></div>
+      </div>
+    </button>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+      <div style="flex:1;height:1px;background:rgba(255,255,255,.15)"></div>
+      <span style="font-size:.72rem;color:#a16207;font-weight:700">o ingresa con contraseña</span>
+      <div style="flex:1;height:1px;background:rgba(255,255,255,.15)"></div>
+    </div>
+  </div>
+  <div class="lc">
+    <div class="lerr" id="loginErr">❌ Nombre o contraseña incorrectos</div>
+    <label class="ll2">Tu Nombre</label>
+    <input class="li" id="liUser" placeholder="Ej: dagoberto, jose..." autocapitalize="none" autocomplete="username">
+    <label class="ll2">Contraseña</label>
+    <input class="li" id="liPass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn-login" id="btn-login" onclick="doLoginBtn()">🔐 ENTRAR</button>
+  </div>
+</div>
+
+<!-- PUESTO SELECTOR SCREEN — shown when encargado has no puesto assigned -->
+<div id="puestoScreen" style="position:fixed;inset:0;background:var(--cb);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:490;padding:24px">
+  <div style="font-size:48px;margin-bottom:8px">📍</div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--n);letter-spacing:2px;margin-bottom:6px">¿En qué puesto estás?</div>
+  <div style="color:#a16207;font-size:.85rem;margin-bottom:28px;text-align:center">Selecciona el puesto donde trabajas hoy</div>
+  <div style="background:white;border-radius:20px;padding:20px;width:100%;max-width:380px;box-shadow:var(--sh2)">
+    <label class="mlbl">Selecciona tu puesto</label>
+    <select class="msel" id="puestoScreenSel" style="font-size:1rem;margin-bottom:16px"></select>
+    <button class="btn-login" onclick="confirmarPuesto()">✅ CONFIRMAR</button>
+  </div>
+</div>
+
+<!-- SYNC BAR -->
+<div id="syncBar"><div id="syncBarFill"></div></div>
+
+<!-- NOTIFICATION -->
+<div id="notif"></div>
+
+<!-- HEADER -->
+<div class="hdr" id="mainHdr" style="display:none">
+  <div class="hdr-top">
+    <div class="hdr-brand">
+      <div class="hdr-logo" style="padding:0;overflow:hidden;background:none;box-shadow:none">
+        <img class="logo-img" src="" style="width:42px;height:42px;border-radius:12px;object-fit:cover;display:block">
+      </div>
+      <div><div class="hdr-name">La Cuadra Tacos</div><div class="hdr-sub" id="hdrSub">—</div></div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-date" id="hdrDate"></div>
+      <div id="syncStatus" onclick="syncNow()" title="Tocar para cargar datos de la nube"><span class="sdot green" id="sdot"></span><span id="stxt">🔄 Actualizar</span></div>
+      <div class="ubadge" onclick="doLogout()"><span id="ubName">—</span><span id="ubRole"></span><span>↩</span></div>
+    </div>
+  </div>
+  <div class="psel" id="puestoSel"></div>
+</div>
+
+<!-- APP -->
+<div id="appContent" style="display:none">
+
+<!-- DASHBOARD -->
+<div class="view active" id="view-dashboard">
+
+  <!-- ① HERO HEADER — saludo + fecha + periodo -->
+  <div class="dash-hero">
+    <div style="position:absolute;right:-15px;top:-15px;font-size:110px;opacity:.05;transform:rotate(-8deg)">🌮</div>
+    <div class="dash-hero-left" style="flex:1">
+      <div class="dash-greeting" id="tipG">¡Bienvenido!</div>
+      <div class="dash-date-lbl" id="dash-period-label">Todos los registros</div>
+    </div>
+    <div class="dash-hero-right" style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;max-width:175px">
+      <p id="tipT" style="font-size:.72rem;color:rgba(255,255,255,.75);margin:0;text-align:right;line-height:1.5;font-weight:600"></p>
+      <div style="display:flex;align-items:center;gap:5px;margin-top:4px">
+        <button onclick="tipAnterior()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:4px 10px;font-family:'Nunito',sans-serif;font-size:.62rem;font-weight:800;color:rgba(255,255,255,.8);cursor:pointer">◀</button>
+        <span id="tip-countdown-admin" style="font-size:.58rem;font-weight:900;color:rgba(255,255,255,.5);min-width:34px;text-align:center">15:00</span>
+        <button onclick="tipSiguiente()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:4px 10px;font-family:'Nunito',sans-serif;font-size:.62rem;font-weight:800;color:rgba(255,255,255,.8);cursor:pointer">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② FILTRO DE PERIODO — compacto, una sola fila -->
+  <div class="dash-filter-row">
+    <button class="dfilter-btn active" onclick="setDashPeriod('all',this)">Todo</button>
+    <button class="dfilter-btn" onclick="setDashPeriod('today',this)">Hoy</button>
+    <button class="dfilter-btn" onclick="setDashPeriod('week',this)">Semana</button>
+    <button class="dfilter-btn" onclick="setDashPeriod('month',this)">Mes</button>
+    <button class="dfilter-btn" onclick="setDashPeriod('custom',this)">🗓️</button>
+  </div>
+  <div id="dash-custom-wrap" style="display:none;padding:10px 16px 0">
+    <div style="display:flex;gap:6px;align-items:center">
+      <input type="date" id="dash-date-from" class="dash-date-inp" onchange="renderDash()">
+      <span style="color:var(--t3)">→</span>
+      <input type="date" id="dash-date-to" class="dash-date-inp" onchange="renderDash()">
+    </div>
+  </div>
+
+  <!-- ③ KPIs — 2×2 hero cards -->
+  <div class="dash-kpi-grid">
+    <div class="dash-kpi dash-kpi-ventas">
+      <div class="dash-kpi-icon">💰</div>
+      <div class="dash-kpi-val" id="kv">$0</div>
+      <div class="dash-kpi-lbl">Ventas</div>
+    </div>
+    <div class="dash-kpi dash-kpi-util">
+      <div class="dash-kpi-icon">📈</div>
+      <div class="dash-kpi-val" id="ku">$0</div>
+      <div class="dash-kpi-lbl">Utilidad</div>
+    </div>
+    <div class="dash-kpi dash-kpi-gastos">
+      <div class="dash-kpi-icon">📤</div>
+      <div class="dash-kpi-val" id="kg">$0</div>
+      <div class="dash-kpi-lbl">Gastos</div>
+    </div>
+    <div class="dash-kpi dash-kpi-nom">
+      <div class="dash-kpi-icon">👷</div>
+      <div class="dash-kpi-val" id="kn">$0</div>
+      <div class="dash-kpi-lbl">Nómina</div>
+    </div>
+  </div>
+
+  <!-- ④ ALERTAS (solo si hay) -->
+  <div id="dash-alertas-banner"></div>
+
+  <!-- ⑤ CIUDADES — tabs en una sola card -->
+  <div class="card dash-city-card" id="dash-city-card">
+    <div class="dash-city-tabs">
+      <button class="dash-ctab active" id="dash-ctab-wash" onclick="switchCityTab('wash',this)">
+        <span>🌲</span> Washington
+        <span class="dash-ctab-total" id="wash-total-badge">$0</span>
+      </button>
+      <button class="dash-ctab" id="dash-ctab-chi" onclick="switchCityTab('chi',this)">
+        <span>🌆</span> Chicago
+        <span class="dash-ctab-total" id="chi-total-badge">$0</span>
+      </button>
+      <button class="dash-ctab" id="dash-ctab-comp" onclick="switchCityTab('comp',this)">
+        🏆 Total
+      </button>
+    </div>
+
+    <!-- Washington panel -->
+    <div id="dash-panel-wash">
+      <div class="dash-city-stats">
+        <div class="dash-cstat">
+          <div class="dash-cstat-val" id="wash-kv" style="color:var(--n)">$0</div>
+          <div class="dash-cstat-lbl">Ventas</div>
+        </div>
+        <div class="dash-cstat">
+          <div class="dash-cstat-val" id="wash-kg" style="color:var(--r)">$0</div>
+          <div class="dash-cstat-lbl">Gastos</div>
+        </div>
+        <div class="dash-cstat">
+          <div class="dash-cstat-val" id="wash-ku" style="color:var(--v)">$0</div>
+          <div class="dash-cstat-lbl">Utilidad</div>
+        </div>
+      </div>
+      <div id="dash-wash-bars" style="margin-top:10px;padding:0 14px 4px"></div>
+      <!-- Collapsible puestos list -->
+      <button id="lwash-toggle" onclick="toggleDashList('wash')"
+        style="width:100%;background:none;border:none;border-top:1px solid var(--g3);margin-top:10px;padding:10px 14px;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;color:var(--t3);cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+        <span>📋 Ver detalle de puestos</span><span id="lwash-icon">▼</span>
+      </button>
+      <div id="lwash" style="display:none;margin-top:2px"></div>
+    </div>
+
+    <!-- Chicago panel -->
+    <div id="dash-panel-chi" style="display:none">
+      <div class="dash-city-stats">
+        <div class="dash-cstat">
+          <div class="dash-cstat-val" id="chi-kv" style="color:var(--az)">$0</div>
+          <div class="dash-cstat-lbl">Ventas</div>
+        </div>
+        <div class="dash-cstat">
+          <div class="dash-cstat-val" id="chi-kg" style="color:var(--r)">$0</div>
+          <div class="dash-cstat-lbl">Gastos</div>
+        </div>
+        <div class="dash-cstat">
+          <div class="dash-cstat-val" id="chi-ku" style="color:var(--v)">$0</div>
+          <div class="dash-cstat-lbl">Utilidad</div>
+        </div>
+      </div>
+      <div id="dash-chi-bars" style="margin-top:10px;padding:0 14px 4px"></div>
+      <!-- Collapsible puestos list -->
+      <button id="lchi-toggle" onclick="toggleDashList('chi')"
+        style="width:100%;background:none;border:none;border-top:1px solid var(--g3);margin-top:10px;padding:10px 14px;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;color:var(--t3);cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+        <span>📋 Ver detalle de puestos</span><span id="lchi-icon">▼</span>
+      </button>
+      <div id="lchi" style="display:none;margin-top:2px"></div>
+    </div>
+
+    <!-- Comparativa panel -->
+    <div id="dash-panel-comp" style="display:none">
+      <div id="dash-compare-bars"></div>
+    </div>
+  </div>
+
+  <!-- ⑥ CALENDARIO — compacto al final -->
+  <button onclick="toggleCalendar()" id="cal-toggle-btn"
+    style="width:100%;background:var(--g2);border:1.5px solid var(--g3);border-radius:var(--Rs);padding:11px 16px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:800;color:var(--t3);cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
+    <span>🗓️ Calendario de Ventas</span>
+    <span id="cal-toggle-icon" style="font-size:.72rem">▼</span>
+  </button>
+  <div id="dash-calendar-card" style="display:none">
+    <div class="card" style="border-top-left-radius:0;border-top-right-radius:0;margin-top:0;border-top:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <button onclick="calNavMonth(-1)" style="background:var(--g2);border:none;border-radius:8px;padding:6px 14px;font-size:.9rem;cursor:pointer;font-weight:900">◀</button>
+        <div id="cal-title" style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--t);letter-spacing:1px"></div>
+        <button onclick="calNavMonth(1)" style="background:var(--g2);border:none;border-radius:8px;padding:6px 14px;font-size:.9rem;cursor:pointer;font-weight:900">▶</button>
+      </div>
+      <div id="cal-headers" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px"></div>
+      <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px"></div>
+      <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:3px;background:var(--n)"></div><span style="font-size:.65rem;color:var(--t3)">Con ventas</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:3px;background:var(--g3)"></div><span style="font-size:.65rem;color:var(--t3)">Sin registro</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:3px;background:transparent;border:2px solid var(--am)"></div><span style="font-size:.65rem;color:var(--t3)">Hoy</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PERSONAL DASHBOARD -->
+<div class="view" id="view-dashboard-personal" style="padding-bottom:20px">
+
+  <!-- Hero header -->
+  <div style="background:linear-gradient(135deg,var(--cb),var(--cb2));border-radius:0 0 24px 24px;padding:24px 20px 28px;margin:-12px -12px 0;position:relative;overflow:hidden">
+    <div style="position:absolute;right:-20px;top:-20px;font-size:120px;opacity:.06;transform:rotate(-10deg)">🌮</div>
+    <div style="font-size:.75rem;font-weight:700;color:#fed7aa;text-transform:uppercase;letter-spacing:1px" id="dp-fecha"></div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:white;letter-spacing:1px;margin-top:4px" id="dp-saludo"></div>
+    <div style="font-size:.85rem;color:#fed7aa;font-weight:600;margin-top:2px" id="dp-puesto"></div>
+  </div>
+
+  <!-- Meta del día -->
+  <div id="dp-meta-wrap" style="margin-top:16px">
+    <div class="card" style="border-left:4px solid var(--n)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="font-size:.7rem;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--t3)">🎯 Tu Meta de Hoy</div>
+          <div id="dp-meta-puesto" style="font-size:.78rem;font-weight:700;color:var(--t3);margin-top:1px"></div>
+        </div>
+        <div style="text-align:right">
+          <div id="dp-meta-nums" style="font-size:.85rem;font-weight:900;color:var(--n)"></div>
+          <div id="dp-meta-tipo" style="font-size:.65rem;color:var(--t3)"></div>
+        </div>
+      </div>
+      <!-- Progress bar -->
+      <div style="height:12px;background:var(--g3);border-radius:6px;overflow:hidden">
+        <div id="dp-meta-bar" style="height:100%;border-radius:6px;width:0%;transition:width .8s cubic-bezier(.34,1.2,.64,1);background:linear-gradient(90deg,var(--n),var(--n2))"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px">
+        <div id="dp-meta-pct" style="font-size:.82rem;font-weight:900;color:var(--n)">—</div>
+        <div id="dp-meta-falta" style="font-size:.72rem;color:var(--t3)"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ventas del día -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+    <div class="card" style="text-align:center;padding:14px">
+      <div style="font-size:.65rem;font-weight:800;color:var(--t3);text-transform:uppercase;margin-bottom:6px">💰 Ventas Hoy</div>
+      <div id="dp-ventas-hoy" style="font-size:1.4rem;font-weight:900;color:var(--v)">—</div>
+    </div>
+    <div class="card" style="text-align:center;padding:14px">
+      <div style="font-size:.65rem;font-weight:800;color:var(--t3);text-transform:uppercase;margin-bottom:6px">📅 Esta Semana</div>
+      <div id="dp-ventas-semana" style="font-size:1.4rem;font-weight:900;color:var(--az)">—</div>
+    </div>
+  </div>
+
+  <!-- Tip del día -->
+  <div class="card" style="margin-top:12px;background:linear-gradient(135deg,var(--ns),var(--g));border:1.5px solid var(--nm)">
+    <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--n);margin-bottom:8px">💡 Consejo del Día</div>
+    <div id="dp-tip" style="font-size:.9rem;color:var(--t);font-weight:600;line-height:1.5;min-height:1.5em"></div>
+    <div style="display:flex;align-items:center;gap:6px;margin-top:10px">
+      <button onclick="tipAnterior()" style="flex:1;background:none;border:1px solid var(--nm);border-radius:8px;padding:6px;font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:900;color:var(--n);cursor:pointer">◀ Anterior</button>
+      <span id="tip-countdown-dp" style="font-size:.7rem;font-weight:900;color:var(--t3);min-width:38px;text-align:center">15:00</span>
+      <button onclick="tipSiguiente()" style="flex:1;background:none;border:1px solid var(--nm);border-radius:8px;padding:6px;font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:900;color:var(--n);cursor:pointer">Siguiente ▶</button>
+    </div>
+  </div>
+
+  <!-- Asistencia semana -->
+  <div class="card" style="margin-top:12px">
+    <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);margin-bottom:10px">📋 Tu Asistencia Esta Semana</div>
+    <div id="dp-asist-semana" style="display:flex;gap:8px;justify-content:center"></div>
+  </div>
+
+</div>
+<div class="view" id="view-ventas">
+
+  <!-- HEADER HERO con fecha y puesto -->
+  <div style="background:linear-gradient(135deg,#ea580c,#c2410c);border-radius:18px;padding:16px;margin-bottom:14px;position:relative;overflow:hidden">
+    <div style="position:absolute;right:-10px;top:-10px;font-size:90px;opacity:.08">💰</div>
+    <!-- Fecha -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div>
+        <div style="font-size:.62rem;font-weight:900;letter-spacing:1px;color:#fed7aa;text-transform:uppercase">📅 Fecha</div>
+        <input type="date" id="fechaVentas"
+          style="background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);border-radius:10px;padding:7px 12px;font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:800;color:white;outline:none;color-scheme:dark;margin-top:3px"
+          onchange="onFechaChange()">
+      </div>
+      <div style="text-align:right">
+        <div id="fechaVentasLabel" style="font-size:.78rem;color:#fed7aa;font-weight:700"></div>
+        <div id="fechaVentasStatus" style="font-size:.62rem;color:rgba(255,255,255,.6);margin-top:2px"></div>
+      </div>
+    </div>
+    <!-- Meta bar -->
+    <div id="venta-meta-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:.72rem;font-weight:900;color:white">🎯 Meta</span>
+          <span id="venta-meta-tipo" style="font-size:.6rem;font-weight:800;color:#ea580c;background:white;padding:2px 7px;border-radius:20px"></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="venta-meta-nums" style="font-size:.7rem;color:#fed7aa;font-weight:700"></span>
+          <span id="venta-meta-pct" style="font-size:.82rem;font-weight:900;color:white">—</span>
+        </div>
+      </div>
+      <div style="height:8px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden">
+        <div id="venta-meta-fill" style="height:100%;border-radius:4px;width:0%;transition:width .6s ease;background:white"></div>
+      </div>
+      <div id="venta-meta-falta" style="font-size:.65rem;color:rgba(255,255,255,.7);font-weight:600;margin-top:4px;text-align:right"></div>
+    </div>
+  </div>
+
+  <!-- STEP PROGRESS BAR -->
+  <div style="display:flex;align-items:center;gap:0;margin-bottom:16px;padding:0 4px" id="venta-steps-bar">
+    <div class="vstep active" id="vstep-0" onclick="goVStep(0)">
+      <div class="vstep-num">1</div>
+      <div class="vstep-lbl">Extra</div>
+    </div>
+    <div class="vstep-line" id="vstep-line-0"></div>
+    <div class="vstep" id="vstep-1" onclick="goVStep(1)">
+      <div class="vstep-num">2</div>
+      <div class="vstep-lbl">Gastos</div>
+    </div>
+    <div class="vstep-line" id="vstep-line-1"></div>
+    <div class="vstep" id="vstep-2" onclick="goVStep(2)">
+      <div class="vstep-num">3</div>
+      <div class="vstep-lbl">Ventas</div>
+    </div>
+    <div class="vstep-line" id="vstep-line-2"></div>
+    <div class="vstep" id="vstep-3" onclick="goVStep(3)">
+      <div class="vstep-num">4</div>
+      <div class="vstep-lbl">Guardar</div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 1: EXTRAS (Caja + MP) ══ -->
+  <!-- Banner puesto inactivo -->
+  <div id="puesto-inactivo-banner" style="display:none;background:#fee2e2;border:1.5px solid #fca5a5;border-radius:12px;padding:12px 16px;margin-bottom:12px;align-items:center;gap:10px">
+    <span style="font-size:1.2rem">⛔</span>
+    <div>
+      <div style="font-size:.82rem;font-weight:900;color:#dc2626">Puesto pausado temporalmente</div>
+      <div style="font-size:.72rem;color:#b91c1c;margin-top:2px">No se pueden registrar ventas. Contacta al admin para reactivarlo.</div>
+    </div>
+  </div>
+  <div class="vstep-panel" id="vpanel-0">
+    <!-- Caja chica -->
+    <div class="card" style="border-left:4px solid var(--am)">
+      <div class="ctit">💵 Fondo de Caja</div>
+      <p style="font-size:.75rem;color:var(--t3);margin-bottom:12px">Dinero para dar cambio a los clientes</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div>
+          <div style="font-size:.68rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:5px">🌅 Fondo inicial</div>
+          <input class="gasto-inp" type="number" id="caja-inicio" placeholder="$0" inputmode="decimal" style="width:100%;box-sizing:border-box" oninput="calcCaja()">
+        </div>
+        <div>
+          <div style="font-size:.68rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:5px">🌙 Cierre de caja</div>
+          <input class="gasto-inp" type="number" id="caja-cierre" placeholder="$0" inputmode="decimal" style="width:100%;box-sizing:border-box" oninput="calcCaja()">
+        </div>
+      </div>
+      <input type="text" id="caja-notas" placeholder="Notas opcionales..."
+        style="width:100%;padding:9px 14px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.84rem;font-weight:600;color:var(--t);background:var(--g2);outline:none;box-sizing:border-box;margin-bottom:8px"
+        onfocus="this.style.borderColor='var(--am)'" onblur="this.style.borderColor='var(--g3)'">
+      <div id="caja-resultado" style="display:none">
+        <div id="caja-r-dif-wrap" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:var(--Rs);border:1px solid var(--g3);background:var(--g2)">
+          <span id="caja-r-dif-lbl" style="font-size:.82rem;font-weight:800">—</span>
+          <span id="caja-r-dif" style="font-size:.88rem;font-weight:900">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Productos — diseño compacto -->
+    <div class="prod-section">
+      <button onclick="toggleMPSection()" class="prod-toggle-btn">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:1rem">📦</span>
+          <div style="text-align:left">
+            <div style="font-size:.82rem;font-weight:900;color:var(--t)">Productos</div>
+            <div style="font-size:.63rem;color:var(--t3)">Salidas y desperdicios · opcional</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="mp-resumen-badge" class="prod-badge" style="display:none"></span>
+          <span id="mp-toggle-icon" style="font-size:.8rem;color:var(--t3);transition:transform .3s">▼</span>
+        </div>
+      </button>
+      <div id="mp-section-body" style="display:none;padding:0 2px 10px">
+        <div class="prod-search-wrap">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.75rem;opacity:.35;pointer-events:none">🔍</span>
+          <input id="mp-search" type="text" placeholder="Buscar producto..." oninput="filterMPRows()" class="prod-search-inp">
+        </div>
+        <div class="prod-col-headers">
+          <div style="flex:1;font-size:.58rem;font-weight:900;color:var(--t3);text-transform:uppercase;padding-left:2px">Producto</div>
+          <div class="prod-col-hdr" style="color:var(--az)">📦<br>Sale</div>
+          <div class="prod-col-hdr" style="color:var(--v)">📥<br>Reg.</div>
+          <div class="prod-col-hdr" style="color:var(--r)">🗑️<br>Daño</div>
+          <div class="prod-col-hdr" style="color:var(--n)">✅<br>Usó</div>
+        </div>
+        <div id="mp-rows"></div>
+        <div id="mp-totales" style="display:none;margin-top:10px;border-radius:12px;overflow:hidden;border:1.5px solid var(--n)">
+          <div style="background:linear-gradient(135deg,var(--n),var(--n2));padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:.72rem;font-weight:900;color:white;opacity:.9">💰 TOTAL EN VENTAS</span>
+            <span id="mp-total-val" style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:white;letter-spacing:.5px">$0</span>
+          </div>
+          <div style="background:var(--ns);padding:7px 14px;display:flex;justify-content:space-between">
+            <span style="font-size:.65rem;color:var(--n2);font-weight:800">✅ Vendido: <span id="mp-costo-val" style="font-weight:900">$0</span></span>
+            <span style="font-size:.65rem;color:var(--r);font-weight:800">🗑️ Daños: <span id="mp-desp-val" style="font-weight:900">$0</span></span>
+          </div>
+        </div>
+        <button class="prod-add-btn" onclick="openM('addMP')">＋ Agregar producto</button>
+      </div>
+    </div>
+
+    <button class="venta-next-btn" onclick="goVStep(1)">Siguiente: Gastos →</button>
+  </div>
+
+  <!-- ══ STEP 2: GASTOS ══ -->
+  <div class="vstep-panel" id="vpanel-1">
+    <div class="card">
+      <div class="ctit">📤 Gastos del Puesto</div>
+      <p style="font-size:.75rem;color:var(--t3);margin-bottom:16px">Solo llena los que apliquen hoy</p>
+
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="gasto-row">
+          <span class="gasto-icon">⛽</span>
+          <span class="gasto-lbl">Gasolina</span>
+          <input class="gasto-inp" type="number" id="g-gas" oninput="calcV()" placeholder="$0" inputmode="decimal">
+        </div>
+        <div class="gasto-row">
+          <span class="gasto-icon">🧊</span>
+          <span class="gasto-lbl">Hielo</span>
+          <input class="gasto-inp" type="number" id="g-hie" oninput="calcV()" placeholder="$0" inputmode="decimal">
+        </div>
+        <div class="gasto-row">
+          <span class="gasto-icon">🔧</span>
+          <span class="gasto-lbl">Reparación</span>
+          <input class="gasto-inp" type="number" id="g-rep" oninput="calcV()" placeholder="$0" inputmode="decimal">
+        </div>
+        <div class="gasto-row">
+          <span class="gasto-icon">📦</span>
+          <span class="gasto-lbl">Otros</span>
+          <input class="gasto-inp" type="number" id="g-otr" oninput="calcV()" placeholder="$0" inputmode="decimal">
+        </div>
+        <input type="text" id="g-otr-desc" placeholder="¿Qué compraron? ej: bolsas, servilletas..."
+          style="width:100%;padding:10px 14px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.84rem;font-weight:600;color:var(--t);background:var(--g2);outline:none;box-sizing:border-box"
+          onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
+      </div>
+
+      <!-- Total gastos pill -->
+      <div style="background:linear-gradient(135deg,var(--r),#b91c1c);border-radius:14px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+        <div style="font-size:.8rem;font-weight:900;color:white;opacity:.85">💸 TOTAL GASTOS</div>
+        <div id="gtot" style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:1px">$0</div>
+      </div>
+
+      <button class="boutl" style="width:100%;margin-top:10px;font-size:.8rem" onclick="openM('foto')">📸 Adjuntar foto de comprobante</button>
+    </div>
+
+    <div style="display:flex;gap:8px">
+      <button class="venta-back-btn" onclick="goVStep(0)">← Volver</button>
+      <button class="venta-next-btn" style="flex:1" onclick="goVStep(2)">Siguiente: Ventas →</button>
+    </div>
+  </div>
+
+  <!-- ══ STEP 3: VENTAS ══ -->
+  <div class="vstep-panel" id="vpanel-2">
+    <div class="card">
+      <div class="ctit">💰 Ventas del Día</div>
+      <p style="font-size:.75rem;color:var(--t3);margin-bottom:16px" id="ventas-dia-lbl">Registra el total cobrado por tipo de pago</p>
+
+      <!-- Big input buttons -->
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+        <div class="venta-inp-row" id="row-ef">
+          <div class="venta-inp-icon" style="background:linear-gradient(135deg,#16a34a,#15803d)">💵</div>
+          <div style="flex:1">
+            <div style="font-size:.7rem;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Efectivo</div>
+            <input class="venta-big-inp" type="number" min="0" id="ve-dia-ef" oninput="calcV()" placeholder="Si no hay efectivo pon 0" inputmode="decimal">
+          </div>
+          <div style="font-size:.9rem;font-weight:900;color:var(--v)" id="tef-inline">$0</div>
+        </div>
+        <div class="venta-inp-row" id="row-tj">
+          <div class="venta-inp-icon" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)">💳</div>
+          <div style="flex:1">
+            <div style="font-size:.7rem;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Tarjeta</div>
+            <input class="venta-big-inp" type="number" min="0" id="ve-dia-tj" oninput="calcV()" placeholder="Si no hay tarjeta pon 0" inputmode="decimal">
+          </div>
+          <div style="font-size:.9rem;font-weight:900;color:var(--az)" id="ttj-inline">$0</div>
+        </div>
+        <div class="venta-inp-row" id="row-ot">
+          <div class="venta-inp-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">📱</div>
+          <div style="flex:1">
+            <div style="font-size:.7rem;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Otros pagos</div>
+            <input class="venta-big-inp" type="number" min="0" id="ve-dia-ot" oninput="calcV()" placeholder="Si no hay otros pagos pon 0" inputmode="decimal">
+          </div>
+          <div style="font-size:.9rem;font-weight:900;color:#7c3aed" id="tot-inline">$0</div>
+        </div>
+      </div>
+
+      <!-- Total bruto pill -->
+      <div style="background:linear-gradient(135deg,var(--n),var(--n2));border-radius:14px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:.8rem;font-weight:900;color:white;opacity:.85">🏆 VENTAS BRUTAS</div>
+        <div id="tbruto" style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:1px">$0</div>
+      </div>
+    </div>
+
+        <div style="display:flex;gap:8px">
+      <button class="venta-back-btn" onclick="goVStep(1)">← Volver</button>
+      <button class="venta-next-btn" style="flex:1" onclick="goVStep(3)">Siguiente: Guardar →</button>
+    </div>
+  </div>
+
+  <!-- ══ STEP 4: RESUMEN Y GUARDAR ══ -->
+  <div class="vstep-panel" id="vpanel-3">
+    <!-- Resumen visual -->
+    <div class="card">
+      <div class="ctit">📋 Resumen del Día</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--ns);border-radius:12px;padding:12px;text-align:center;border:1.5px solid var(--n)">
+          <div style="font-size:.65rem;font-weight:900;color:var(--n2);text-transform:uppercase;margin-bottom:3px">💵 Efectivo</div>
+          <div id="res-ef" style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--n)">$0</div>
+        </div>
+        <div style="background:#eff6ff;border-radius:12px;padding:12px;text-align:center;border:1.5px solid var(--az)">
+          <div style="font-size:.65rem;font-weight:900;color:#1d4ed8;text-transform:uppercase;margin-bottom:3px">💳 Tarjeta+Otros</div>
+          <div id="res-tj" style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--az)">$0</div>
+        </div>
+        <div style="background:var(--rs);border-radius:12px;padding:12px;text-align:center;border:1.5px solid #fca5a5">
+          <div style="font-size:.65rem;font-weight:900;color:var(--r);text-transform:uppercase;margin-bottom:3px">📤 Gastos</div>
+          <div id="res-gas" style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--r)">$0</div>
+        </div>
+        <div style="background:var(--vs);border-radius:12px;padding:12px;text-align:center;border:1.5px solid var(--v)">
+          <div style="font-size:.65rem;font-weight:900;color:var(--v);text-transform:uppercase;margin-bottom:3px">💚 Utilidad</div>
+          <div id="res-util" style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--v)">$0</div>
+        </div>
+      </div>
+      <!-- Total grande -->
+      <div style="background:linear-gradient(135deg,var(--n),var(--n2));border-radius:14px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:.8rem;font-weight:900;color:white;opacity:.85">🏆 VENTAS BRUTAS</div>
+        <div id="res-bruto" style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:white;letter-spacing:1px">$0</div>
+      </div>
+    </div>
+
+    <!-- Validación cruzada Productos vs Ventas -->
+    <div id="vx-panel" class="card" style="display:none"></div>
+
+    <!-- Checklist de productos dañados -->
+    <div class="card" style="border-left:4px solid var(--am)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:1.1rem">📋</span>
+        <div style="font-size:.78rem;font-weight:900;color:var(--t2)">Checklist antes de guardar</div>
+      </div>
+      <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--g2);border-radius:10px;cursor:pointer;border:1.5px solid var(--g3);transition:all .2s" id="check-danos-wrap">
+        <input type="checkbox" id="check-danos" style="width:18px;height:18px;accent-color:var(--n);flex-shrink:0">
+        <div>
+          <div style="font-size:.8rem;font-weight:800;color:var(--t)">✅ Registré todos los productos dañados</div>
+          <div style="font-size:.65rem;color:var(--t3);margin-top:2px">Confirma que llenaste la columna 🗑️ Daño en Productos</div>
+        </div>
+      </label>
+      <div id="check-danos-warn" style="display:none;font-size:.7rem;color:var(--r);font-weight:800;margin-top:6px;padding:0 4px">
+        ⚠️ Debes confirmar que revisaste los productos dañados antes de guardar
+      </div>
+    </div>
+
+    <!-- Firma -->
+    <div class="card" style="border-left:4px solid var(--az)">
+      <div style="font-size:.78rem;font-weight:900;color:var(--t2);margin-bottom:10px">✍️ Firma del Encargado</div>
+      <input type="text" id="ve-encargado" placeholder="Tu nombre completo..."
+        autocomplete="name" autocorrect="off" autocapitalize="words" spellcheck="false"
+        style="width:100%;padding:14px 16px;border:2px solid var(--g3);border-radius:12px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;color:var(--t);background:var(--bg);outline:none;box-sizing:border-box;-webkit-user-select:text;user-select:text"
+        onfocus="this.style.borderColor='var(--az)'" onblur="this.style.borderColor='var(--g3)'">
+      <div style="font-size:.68rem;color:var(--t3);margin-top:6px">👆 Requerido antes de guardar</div>
+    </div>
+
+    <!-- Botones finales -->
+    <button class="bsave" style="font-size:1rem;padding:16px" onclick="guardarVentas()">💾 GUARDAR REGISTRO</button>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="venta-back-btn" onclick="goVStep(2)">← Volver</button>
+      <button class="boutl" style="flex:1" onclick="limpiarV()">🗑️ Limpiar</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ASISTENCIA -->
+<!-- ASISTENCIA -->
+<div class="view" id="view-asist">
+
+  <!-- Selector de semana ARRIBA -->
+  <div class="card" style="background:linear-gradient(135deg,var(--cb),var(--cb2));border:none">
+    <div style="font-size:.68rem;font-weight:900;letter-spacing:1px;color:#a16207;text-transform:uppercase;margin-bottom:8px">📅 Semana de Asistencia</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onclick="cambiarSemanaAsist(-1)" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:36px;height:36px;color:white;font-size:1.2rem;cursor:pointer;flex-shrink:0">‹</button>
+      <div style="flex:1;text-align:center">
+        <div id="asistSemanaLabel" style="font-size:.95rem;font-weight:900;color:white">—</div>
+        <div id="asistSemanaRango" style="font-size:.7rem;color:#fed7aa;font-weight:700;margin-top:2px">—</div>
+      </div>
+      <button onclick="cambiarSemanaAsist(1)" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:36px;height:36px;color:white;font-size:1.2rem;cursor:pointer;flex-shrink:0">›</button>
+    </div>
+    <div id="asistFechaStatus" style="font-size:.65rem;color:#a16207;font-weight:700;text-align:center;margin-top:6px"></div>
+  </div>
+
+  <!-- Selector de ciudad -->
+  <div class="cchips">
+    <button class="cchip w active" id="asist-btn-wash" onclick="setAsistCity('wash',this)">🌲 Washington</button>
+    <button class="cchip c" id="asist-btn-chi" onclick="setAsistCity('chi',this)">🌆 Chicago</button>
+  </div>
+  <!-- Filtros por posición -->
+  <div id="asist-pos-filters" style="display:flex;flex-wrap:wrap;gap:6px;padding:0 0 4px"></div>
+  <!-- Búsqueda -->
+  <div style="position:relative;margin-bottom:8px">
+    <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.4">🔍</span>
+    <input id="asist-search" type="text" placeholder="Buscar empleado..." oninput="renderAsist()"
+      style="width:100%;padding:9px 12px 9px 32px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;color:var(--t);background:var(--g2);outline:none;box-sizing:border-box"
+      onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
+  </div>
+
+  <div class="card">
+    <!-- Leyenda -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;background:var(--vs);padding:8px 10px;border-radius:10px">
+        <span style="font-size:16px">✅</span>
+        <div><div style="font-size:.78rem;font-weight:900;color:var(--v)">P — Presente</div><div style="font-size:.62rem;color:var(--v);opacity:.8">Día completo</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:var(--ams);padding:8px 10px;border-radius:10px">
+        <span style="font-size:16px">🌗</span>
+        <div><div style="font-size:.78rem;font-weight:900;color:#92400E">MD — Medio Día</div><div style="font-size:.62rem;color:#92400E;opacity:.8">Pago 50%</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:var(--rs);padding:8px 10px;border-radius:10px">
+        <span style="font-size:16px">❌</span>
+        <div><div style="font-size:.78rem;font-weight:900;color:var(--r)">A — Ausente</div><div style="font-size:.62rem;color:var(--r);opacity:.8">No se presentó</div></div>
+      </div>
+    </div>
+    <div class="agrid" style="margin-bottom:8px">
+      <div></div><div class="ach">Mar</div><div class="ach">Mié</div><div class="ach">Jue</div><div class="ach">Vie</div><div class="ach">Sáb</div><div class="ach">Dom</div>
+    </div>
+    <div id="arows"></div>
+    <div style="margin-top:12px"><div class="badge n" id="ares">—</div></div>
+  </div>
+  <button class="bsave" onclick="guardarAsist()">💾 GUARDAR ASISTENCIA</button>
+</div>
+
+<!-- NOMINA -->
+<div class="view" id="view-nomina">
+  <!-- Selector de semana ARRIBA -->
+  <div class="card" style="background:linear-gradient(135deg,var(--cb),var(--cb2));border:none">
+    <div style="font-size:.68rem;font-weight:900;letter-spacing:1px;color:#a16207;text-transform:uppercase;margin-bottom:8px">📅 Semana de Nómina</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onclick="cambiarSemanaNomina(-1)" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:36px;height:36px;color:white;font-size:1.2rem;cursor:pointer;flex-shrink:0">‹</button>
+      <div style="flex:1;text-align:center">
+        <div id="nomSemanaLabel" style="font-size:.95rem;font-weight:900;color:white">—</div>
+        <div id="nomSemanaRango" style="font-size:.7rem;color:#fed7aa;font-weight:700;margin-top:2px">—</div>
+      </div>
+      <button onclick="cambiarSemanaNomina(1)" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;width:36px;height:36px;color:white;font-size:1.2rem;cursor:pointer;flex-shrink:0">›</button>
+    </div>
+    <div id="nomSemanaStatus" style="font-size:.65rem;color:#a16207;font-weight:700;text-align:center;margin-top:6px"></div>
+    <input type="hidden" id="fechaNomina">
+  </div>
+  <div class="cchips">
+    <button class="cchip w active" onclick="setNC('wash',this)">🌲 Washington</button>
+    <button class="cchip c" onclick="setNC('chi',this)">🌆 Chicago</button>
+  </div>
+  <!-- Filtros por posición -->
+  <div id="nom-pos-filters" style="display:flex;flex-wrap:wrap;gap:6px;padding:0 0 4px"></div>
+  <!-- Búsqueda -->
+  <div style="position:relative;margin-bottom:8px">
+    <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.4">🔍</span>
+    <input id="nom-search" type="text" placeholder="Buscar empleado..." oninput="renderNomina()"
+      style="width:100%;padding:9px 12px 9px 32px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;color:var(--t);background:var(--g2);outline:none;box-sizing:border-box"
+      onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
+  </div>
+  <div id="nomcontent"></div>
+  <button class="bsave" onclick="guardarNomina()">💾 GUARDAR NÓMINA</button>
+</div>
+
+<!-- REPORTES -->
+<div class="view" id="view-reportes">
+  <div class="tabs" style="overflow-x:auto;flex-wrap:nowrap">
+    <button class="tab active" onclick="setTab('mensual',this)">📅 Mensual</button>
+    <button class="tab" onclick="setTab('flujo',this)">💸 Flujo</button>
+    <button class="tab" onclick="setTab('gasgen',this)">💰 Gastos</button>
+    <button class="tab" onclick="setTab('nomina-rep',this)">👷 Nómina</button>
+    <button class="tab" onclick="setTab('ganancia',this);document.getElementById('tab-ganancia').style.display='block'">🌟 Ganancia</button>
+    <button class="tab" onclick="setTab('exportar',this)">📤 Exportar</button>
+  </div>
+  <div id="tab-mensual">
+    <div class="card"><div class="ctit">🌲 Washington</div><div class="rstats"><div class="rstat"><div class="val" id="rwv">$0</div><div class="lbl">Ventas</div></div><div class="rstat"><div class="val" id="rwg">$0</div><div class="lbl">Gastos</div></div><div class="rstat"><div class="val" id="rwu">$0</div><div class="lbl">Utilidad</div></div></div></div>
+    <div class="card"><div class="ctit">🌆 Chicago</div><div class="rstats"><div class="rstat"><div class="val" id="rcv">$0</div><div class="lbl">Ventas</div></div><div class="rstat"><div class="val" id="rcg">$0</div><div class="lbl">Gastos</div></div><div class="rstat"><div class="val" id="rcu">$0</div><div class="lbl">Utilidad</div></div></div></div>
+    <div class="card"><div class="ctit">🏆 Ranking</div><div id="rpuestos"></div></div>
+  </div>
+  <div id="tab-flujo" style="display:none">
+    <div class="card">
+      <div class="ctit">📥 Entradas</div>
+      <div class="grow"><span class="gico">💵</span><span class="glbl">Ventas Efectivo</span><input class="ginp" type="number" id="fl-ef" oninput="calcFlujo()"></div>
+      <div class="grow"><span class="gico">💳</span><span class="glbl">Ventas Tarjeta</span><input class="ginp" type="number" id="fl-tj" oninput="calcFlujo()"></div>
+      <div class="grow"><span class="gico">🏦</span><span class="glbl">Préstamos/Capital</span><input class="ginp" type="number" id="fl-pre" oninput="calcFlujo()"></div>
+      <div class="ftot"><span>Total Entradas</span><span id="fle">$0</span></div>
+    </div>
+    <div class="card">
+      <div class="ctit">📤 Salidas</div>
+      <div class="grow"><span class="gico">🛒</span><span class="glbl">Ingredientes</span><input class="ginp" type="number" id="fl-ing" oninput="calcFlujo()"></div>
+      <div class="grow"><span class="gico">⚡</span><span class="glbl">Gas/Electricidad</span><input class="ginp" type="number" id="fl-gas" oninput="calcFlujo()"></div>
+      <div class="grow"><span class="gico">🏠</span><span class="glbl">Rentas</span><input class="ginp" type="number" id="fl-ren" oninput="calcFlujo()"></div>
+      <div class="grow"><span class="gico">👷</span><span class="glbl">Nómina</span><input class="ginp" type="number" id="fl-nom" oninput="calcFlujo()"></div>
+      <div class="grow"><span class="gico">🚗</span><span class="glbl">Transporte</span><input class="ginp" type="number" id="fl-tra" oninput="calcFlujo()"></div>
+      <div class="ftot d"><span>Total Salidas</span><span id="fls">$0</span></div>
+      <div class="ftot b" style="margin-top:6px"><span>💰 Saldo Neto</span><span id="flneto">$0</span></div>
+    </div>
+    <button class="bsave" onclick="guardarFlujo()">💾 GUARDAR FLUJO</button>
+  </div>
+  <div id="tab-gasgen" style="display:none">
+    <div class="card">
+      <div class="ctit">🏢 Administrativos</div>
+      <div class="grow"><span class="gico">📋</span><span class="glbl">Contabilidad/CPA</span><input class="ginp" type="number" id="gg-cpa"></div>
+      <div class="grow"><span class="gico">📄</span><span class="glbl">Permisos y Licencias</span><input class="ginp" type="number" id="gg-per"></div>
+      <div class="grow"><span class="gico">⚖️</span><span class="glbl">Asesoría Legal</span><input class="ginp" type="number" id="gg-leg"></div>
+      <div class="grow"><span class="gico">📱</span><span class="glbl">Teléfono/Internet</span><input class="ginp" type="number" id="gg-tel"></div>
+      <div class="grow"><span class="gico">💳</span><span class="glbl">Comisiones Bancarias</span><input class="ginp" type="number" id="gg-ban"></div>
+    </div>
+    <div class="card">
+      <div class="ctit">🔧 Operativos</div>
+      <div class="grow"><span class="gico">🚗</span><span class="glbl">Vehículos</span><input class="ginp" type="number" id="gg-veh"></div>
+      <div class="grow"><span class="gico">🛠️</span><span class="glbl">Equipo/Trailers</span><input class="ginp" type="number" id="gg-equ"></div>
+      <div class="grow"><span class="gico">🚛</span><span class="glbl">Fletes</span><input class="ginp" type="number" id="gg-fle"></div>
+      <div class="grow"><span class="gico">📣</span><span class="glbl">Publicidad</span><input class="ginp" type="number" id="gg-pub"></div>
+      <div class="grow"><span class="gico">❓</span><span class="glbl">Otros</span><input class="ginp" type="number" id="gg-otr"></div>
+    </div>
+    <button class="bsave" onclick="guardarGG()">💾 GUARDAR GASTOS</button>
+  </div>
+
+  <!-- NÓMINA POR PERIODO -->
+  <div id="tab-nomina-rep" style="display:none">
+    <div class="card" style="background:linear-gradient(135deg,var(--cb),var(--cb2));border:none;padding:14px 16px;margin-bottom:14px">
+      <div style="font-size:.68rem;font-weight:900;color:#a16207;text-transform:uppercase;margin-bottom:8px">📅 Seleccionar Periodo</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="date" id="nom-rep-from" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(234,88,12,.4);border-radius:8px;padding:7px 10px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;color:white;outline:none;color-scheme:dark">
+        <span style="color:#a16207;align-self:center">→</span>
+        <input type="date" id="nom-rep-to" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(234,88,12,.4);border-radius:8px;padding:7px 10px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;color:white;outline:none;color-scheme:dark">
+        <button onclick="renderNominaReporte()" style="background:var(--n);border:none;border-radius:8px;padding:7px 14px;color:white;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:800;cursor:pointer">Ver</button>
+      </div>
+    </div>
+    <div id="nom-rep-content"></div>
+  </div>
+
+  <!-- GANANCIA LIMPIA -->
+  <div id="tab-ganancia" style="display:none">
+    <!-- Selector de período -->
+    <div class="card" style="background:linear-gradient(135deg,#064e3b,#065f46);border:none;padding:14px 16px;margin-bottom:14px">
+      <div style="font-size:.68rem;font-weight:900;color:#6ee7b7;text-transform:uppercase;margin-bottom:10px;letter-spacing:1px">📅 Período del Reporte</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        <button class="gan-period-btn active" onclick="ganSetPeriodo('semana',this)">Semana</button>
+        <button class="gan-period-btn" onclick="ganSetPeriodo('quincena',this)">Quincena</button>
+        <button class="gan-period-btn" onclick="ganSetPeriodo('mes',this)">Mes</button>
+        <button class="gan-period-btn" onclick="ganSetPeriodo('personalizado',this)">Personalizado</button>
+      </div>
+      <div id="gan-custom-range" style="display:none;gap:8px;flex-wrap:wrap">
+        <input type="date" id="gan-from" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(110,231,183,.4);border-radius:8px;padding:7px 10px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;color:white;outline:none;color-scheme:dark">
+        <span style="color:#6ee7b7;align-self:center">→</span>
+        <input type="date" id="gan-to" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(110,231,183,.4);border-radius:8px;padding:7px 10px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;color:white;outline:none;color-scheme:dark">
+      </div>
+      <div id="gan-period-label" style="font-size:.72rem;color:#a7f3d0;margin-top:6px">Esta semana</div>
+      <button onclick="renderGananciaReporte(this)" style="margin-top:10px;background:rgba(255,255,255,.15);border:1.5px solid rgba(110,231,183,.4);border-radius:10px;padding:9px 18px;color:white;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;cursor:pointer">🔄 Generar Reporte</button>
+    </div>
+    <div id="gan-content"></div>
+  </div>
+
+  <!-- EXPORTAR -->
+  <div id="tab-exportar" style="display:none">
+    <div class="card">
+      <div class="ctit">📅 Período a exportar</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div>
+          <div style="font-size:.68rem;font-weight:900;color:var(--t3);margin-bottom:4px;text-transform:uppercase">Desde</div>
+          <input type="date" id="exp-from" style="width:100%;border:2px solid var(--g3);border-radius:8px;padding:9px 10px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;color:var(--t);outline:none;background:var(--g2)">
+        </div>
+        <div>
+          <div style="font-size:.68rem;font-weight:900;color:var(--t3);margin-bottom:4px;text-transform:uppercase">Hasta</div>
+          <input type="date" id="exp-to" style="width:100%;border:2px solid var(--g3);border-radius:8px;padding:9px 10px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;color:var(--t);outline:none;background:var(--g2)">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="bedit" style="flex:1;padding:12px;font-size:.85rem;border-radius:var(--Rs)" onclick="exportExcel()">📊 Excel (.xlsx)</button>
+        <button class="bedit" style="flex:1;padding:12px;font-size:.85rem;border-radius:var(--Rs);background:var(--rs);color:var(--r)" onclick="exportPDF()">📄 PDF</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button class="bedit" style="flex:1;padding:12px;font-size:.85rem;border-radius:var(--Rs);background:#dcfce7;color:#16a34a" onclick="exportWhatsApp()">💬 WhatsApp</button>
+        <button class="bedit" style="flex:1;padding:12px;font-size:.85rem;border-radius:var(--Rs);background:var(--azs);color:var(--az)" onclick="exportEmail()">📧 Email</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctit">💾 Backup de Datos</div>
+      <p style="font-size:.78rem;color:var(--t3);margin-bottom:12px">Descarga una copia completa de todos los datos de la app.</p>
+      <button class="bsave" onclick="crearBackup()">💾 CREAR BACKUP AHORA</button>
+      <div id="backup-list" style="margin-top:12px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROVEEDORES VIEW -->
+<div class="view" id="view-prov">
+
+  <!-- ═══ EGRESOS HERO ═══ -->
+  <div class="egr-hero">
+    <div class="egr-hero-bg">💼</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:white;letter-spacing:1.5px;line-height:1">💼 EGRESOS</div>
+        <div id="egr-subtitle" style="font-size:.72rem;color:rgba(255,255,255,.7);font-weight:700;margin-top:3px">Proveedores · Gastos · Fijos</div>
+      </div>
+      <button id="egr-add-btn" onclick="egrAddAction()" class="egr-add-btn">+ Agregar</button>
+    </div>
+    <!-- KPI strip -->
+    <div class="egr-kpi-strip">
+      <div class="egr-kpi">
+        <div class="egr-kpi-val" id="egr-kpi-prov">$0</div>
+        <div class="egr-kpi-lbl">Proveedores</div>
+      </div>
+      <div class="egr-kpi-div"></div>
+      <div class="egr-kpi">
+        <div class="egr-kpi-val" id="egr-kpi-gg">$0</div>
+        <div class="egr-kpi-lbl">Gastos Grales</div>
+      </div>
+      <div class="egr-kpi-div"></div>
+      <div class="egr-kpi">
+        <div class="egr-kpi-val" id="egr-kpi-gf">$0</div>
+        <div class="egr-kpi-lbl">Gastos Fijos</div>
+      </div>
+      <div class="egr-kpi-div"></div>
+      <div class="egr-kpi">
+        <div class="egr-kpi-val egr-kpi-total" id="egr-kpi-total">$0</div>
+        <div class="egr-kpi-lbl">Total Egresos</div>
+      </div>
+    </div>
+    <!-- City tabs -->
+    <div style="display:flex;gap:6px;margin-top:12px">
+      <button id="prov-tab-wash" onclick="setProvCity('wash',this)" class="egr-city-btn egr-city-active">🌲 Washington</button>
+      <button id="prov-tab-chi" onclick="setProvCity('chi',this)" class="egr-city-btn">🌆 Chicago</button>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN TABS ═══ -->
+  <div class="egr-tabs-bar">
+    <button class="egr-tab active" id="egr-tab-prov" onclick="setEgrTab('prov',this)">
+      <span class="egr-tab-icon">📦</span>
+      <span>Proveedores</span>
+      <span class="egr-tab-badge" id="egr-badge-prov">0</span>
+    </button>
+    <button class="egr-tab" id="egr-tab-gg" onclick="setEgrTab('gg',this)">
+      <span class="egr-tab-icon">💸</span>
+      <span>Gastos Grales</span>
+      <span class="egr-tab-badge" id="egr-badge-gg">0</span>
+    </button>
+    <button class="egr-tab" id="egr-tab-gf" onclick="setEgrTab('gf',this)">
+      <span class="egr-tab-icon">🏠</span>
+      <span>Gastos Fijos</span>
+    </button>
+  </div>
+
+  <!-- ═══ PANEL: PROVEEDORES ═══ -->
+  <div id="egr-panel-prov" class="egr-panel">
+    <div class="egr-search-wrap">
+      <span class="egr-search-icon">🔍</span>
+      <input id="prov-search" type="text" placeholder="Buscar proveedor o producto..." oninput="renderProvView()" class="egr-search-inp">
+    </div>
+    <div id="prov-view-list"></div>
+  </div>
+
+  <!-- ═══ PANEL: GASTOS GENERALES ═══ -->
+  <div id="egr-panel-gg" class="egr-panel" style="display:none">
+    <div class="egr-search-wrap">
+      <span class="egr-search-icon">🔍</span>
+      <input id="gg-search" type="text" placeholder="Buscar gasto..." oninput="renderGastosGen()" class="egr-search-inp">
+    </div>
+    <div id="gg-list"></div>
+  </div>
+
+  <!-- ═══ PANEL: GASTOS FIJOS ═══ -->
+  <div id="egr-panel-gf" class="egr-panel" style="display:none">
+    <div style="background:var(--g2);border-radius:14px;padding:14px;margin-bottom:12px;border:1.5px solid var(--g3)">
+      <div style="font-size:.65rem;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">ℹ️ Gastos Recurrentes</div>
+      <div style="font-size:.78rem;color:var(--t3)">Configurados una sola vez. Se descuentan del reporte de Ganancia Limpia.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px" id="gf-lista"></div>
+    <button onclick="gfAgregar()" style="width:100%;margin-top:14px;padding:12px;border:2px dashed var(--n);border-radius:12px;background:none;color:var(--n);font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;cursor:pointer">➕ Agregar gasto fijo</button>
+    <button onclick="guardarGastosFijos()" style="width:100%;margin-top:10px;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--n),var(--n2));color:white;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:900;cursor:pointer">💾 Guardar Gastos Fijos</button>
+  </div>
+
+</div>
+
+<!-- MODAL EDITAR VENTA -->
+<div class="moverlay" id="m-editVenta">
+  <div class="modal"><div class="modal-scroll">
+    <div id="edit-venta-header" style="background:linear-gradient(135deg,#1e3a5f,#1d4ed8);margin:-20px -20px 16px;padding:18px 20px;border-radius:16px 16px 0 0">
+      <div id="edit-venta-title" style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:white;letter-spacing:.5px"></div>
+      <div id="edit-venta-subtitle" style="font-size:.7rem;color:#93c5fd;font-weight:700;margin-top:3px"></div>
+    </div>
+    <input type="hidden" id="edit-venta-key">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div>
+        <div style="font-size:.65rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:4px">💵 Efectivo</div>
+        <input class="minput" type="number" id="ev-ef" inputmode="decimal" placeholder="$0">
+      </div>
+      <div>
+        <div style="font-size:.65rem;font-weight:900;color:var(--az);text-transform:uppercase;margin-bottom:4px">💳 Tarjeta</div>
+        <input class="minput" type="number" id="ev-tj" inputmode="decimal" placeholder="$0">
+      </div>
+    </div>
+    <div style="font-size:.72rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:8px">📤 Gastos del puesto</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <div>
+        <div style="font-size:.62rem;color:var(--t3);margin-bottom:3px">⛽ Gasolina</div>
+        <input class="minput" type="number" id="ev-gas" inputmode="decimal" placeholder="$0" style="padding:8px 12px">
+      </div>
+      <div>
+        <div style="font-size:.62rem;color:var(--t3);margin-bottom:3px">🧊 Hielo</div>
+        <input class="minput" type="number" id="ev-hie" inputmode="decimal" placeholder="$0" style="padding:8px 12px">
+      </div>
+      <div>
+        <div style="font-size:.62rem;color:var(--t3);margin-bottom:3px">🔧 Reparación</div>
+        <input class="minput" type="number" id="ev-rep" inputmode="decimal" placeholder="$0" style="padding:8px 12px">
+      </div>
+      <div>
+        <div style="font-size:.62rem;color:var(--t3);margin-bottom:3px">📦 Otros</div>
+        <input class="minput" type="number" id="ev-otr" inputmode="decimal" placeholder="$0" style="padding:8px 12px">
+      </div>
+    </div>
+    <!-- Sección de productos — visible para todos, editable solo admin -->
+    <div id="ev-productos-wrap" style="margin-bottom:14px;display:none">
+      <div style="font-size:.72rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:8px">📦 Productos</div>
+      <div id="ev-productos-list" style="background:var(--g2);border-radius:10px;padding:10px 12px"></div>
+    </div>
+    <div style="font-size:.65rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:4px">📝 Motivo de edición</div>
+    <input class="minput" id="ev-motivo" placeholder="¿Por qué se está editando este registro?" style="margin-bottom:14px">
+    <div id="ev-totales" style="background:var(--g2);border-radius:10px;padding:10px 12px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:.72rem;font-weight:800;color:var(--t3)">💰 Total ventas</span>
+      <span id="ev-total-val" style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--n)">$0</span>
+    </div>
+    </div>
+</div>
+<div class="macts">
+      <button class="bmcancel" onclick="closeM('editVenta')">Cancelar</button>
+      <button class="bsave" onclick="guardarEdicionModal()">💾 GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AGREGAR GASTO GENERAL -->
+<div class="moverlay" id="m-addGG">
+  <div class="modal"><div class="modal-scroll">
+    <div class="mtitle">💸 Registrar Gasto General</div>
+    <input type="hidden" id="gg-edit-idx" value="-1">
+    <label class="mlbl">Descripción *</label>
+    <input class="minput" id="gg-desc" placeholder="Ej: Renta local, Servicio gas...">
+    <label class="mlbl">Categoría</label>
+    <select class="msel" id="gg-cat">
+      <option value="servicios">🔌 Servicios (luz, gas, agua)</option>
+      <option value="renta">🏠 Renta / Arrendamiento</option>
+      <option value="manten">🔧 Mantenimiento / Reparación</option>
+      <option value="equipo">📦 Equipo / Herramientas</option>
+      <option value="transporte">🚗 Transporte / Casetas</option>
+      <option value="publicidad">📢 Publicidad / Marketing</option>
+      <option value="otros">📌 Otros</option>
+    </select>
+    <label class="mlbl">Monto *</label>
+    <input class="minput" type="number" id="gg-monto" placeholder="$0.00" inputmode="decimal">
+    <label class="mlbl">Ciudad</label>
+    <select class="msel" id="gg-ciudad">
+      <option value="wash">🌲 Washington</option>
+      <option value="chi">🌆 Chicago</option>
+      <option value="ambas">🌐 Ambas ciudades</option>
+    </select>
+    <label class="mlbl">Fecha</label>
+    <input class="minput" type="date" id="gg-fecha">
+    <label class="mlbl">Notas (opcional)</label>
+    <input class="minput" id="gg-notas" placeholder="Descripción adicional...">
+    </div>
+</div>
+<div class="macts">
+      <button class="bmcancel" onclick="closeM('addGG')">Cancelar</button>
+      <button class="bsave" onclick="saveGG()">💾 GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIG -->
+<div class="view" id="view-config">
+
+  <!-- CONFIG HOME — grid of category cards -->
+  <div id="cfg-home">
+    <div style="padding:16px 16px 10px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--t);letter-spacing:.5px">⚙️ Configuración</div>
+      <div style="font-size:.75rem;color:var(--t3);margin-top:2px;margin-bottom:10px">Gestiona tu negocio desde aquí</div>
+      <div style="position:relative">
+        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.4;pointer-events:none">🔍</span>
+        <input id="cfg-search" type="text" placeholder="Buscar en configuración..."
+          oninput="filterCfgSearch(this.value)"
+          style="width:100%;padding:10px 12px 10px 32px;border:1.5px solid var(--g3);border-radius:12px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;color:var(--t);background:var(--g2);outline:none;box-sizing:border-box;transition:border-color .15s"
+          onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
+      </div>
+    </div>
+
+    <!-- Negocio -->
+    <div style="padding:0 16px;margin-bottom:4px">
+      <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:8px">🏢 Negocio</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="cfg-card" onclick="goCfg('puestos')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,var(--n),var(--n2))">📍</span>
+          <span class="cfg-card-lbl">Puestos</span>
+          <span class="cfg-card-sub">Washington y Chicago</span>
+        </button>
+        <button class="cfg-card" onclick="goCfg('empleados')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,var(--az),#1d4ed8)">👷</span>
+          <span class="cfg-card-lbl">Empleados</span>
+          <span class="cfg-card-sub">Sueldos y acceso</span>
+        </button>
+        <button class="cfg-card" onclick="goCfg('mp')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,var(--v),#15803d)">🧅</span>
+          <span class="cfg-card-lbl">Productos</span>
+          <span class="cfg-card-sub">Precios del catálogo</span>
+        </button>
+        <button class="cfg-card" onclick="goCfg('metas')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,var(--am),#d97706)">🎯</span>
+          <span class="cfg-card-lbl">Metas</span>
+          <span class="cfg-card-sub">Objetivos de venta</span>
+        </button>
+        <button class="cfg-card" onclick="showV('prov',document.querySelector('.nbtn[onclick*=prov]'));setEgrTab('gf',document.getElementById('egr-tab-gf'))" data-cfg-id="gastosfijos">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,#be185d,#9d174d)">🏠</span>
+          <span class="cfg-card-lbl">Gastos Fijos</span>
+          <span class="cfg-card-sub">Renta, utilidades y más</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Registros -->
+    <div style="padding:0 16px;margin-bottom:4px;margin-top:14px">
+      <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:8px">📋 Registros</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="cfg-card" onclick="goCfg('editar')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">✏️</span>
+          <span class="cfg-card-lbl">Editar Ventas</span>
+          <span class="cfg-card-sub">Corregir registros</span>
+        </button>
+        <button class="cfg-card" onclick="goCfg('historial')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,#0891b2,#0e7490)">📋</span>
+          <span class="cfg-card-lbl">Historial</span>
+          <span class="cfg-card-sub">Cambios y auditoría</span>
+        </button>
+        <button class="cfg-card" onclick="goCfg('reportes')" style="grid-column:span 2">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,#db2777,#be185d)">📊</span>
+          <span class="cfg-card-lbl">Reportes</span>
+          <span class="cfg-card-sub">Ventas, nómina y exportar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sistema -->
+    <div style="padding:0 16px;margin-bottom:4px;margin-top:14px">
+      <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:8px">🔐 Sistema</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="cfg-card" onclick="goCfg('ajustes')">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,#374151,#1f2937)">⚙️</span>
+          <span class="cfg-card-lbl">Ajustes</span>
+          <span class="cfg-card-sub">PIN, Face ID, tema</span>
+        </button>
+        <button class="cfg-card" onclick="irMiCuentaDesdeConfig()" data-cfg-id="micuenta">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,#be123c,#9f1239)">🔐</span>
+          <span class="cfg-card-lbl">Mi Cuenta</span>
+          <span class="cfg-card-sub">PIN, biometría</span>
+        </button>
+        <button class="cfg-card" style="grid-column:span 2" onclick="irAyudaDesdeConfig()" data-cfg-id="manual">
+          <span class="cfg-card-icon" style="background:linear-gradient(135deg,#0369a1,#075985)">📖</span>
+          <span class="cfg-card-lbl">Ayuda</span>
+          <span class="cfg-card-sub">Manual de uso y preguntas frecuentes</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back button + section content -->
+  <div id="cfg-section" style="display:none">
+    <button id="cfg-back-btn" onclick="goCfgHome()"
+      style="display:flex;align-items:center;gap:8px;background:none;border:none;padding:14px 16px 6px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:800;color:var(--n);cursor:pointer;width:100%">
+      ‹ <span id="cfg-back-lbl">Volver</span>
+    </button>
+    <div id="cfg-section-content">
+      <div id="cfg-puestos" style="display:none">
+    <div id="cfg-puestos-resumen" style="margin-bottom:12px"></div>
+    <div class="sh" id="cfg-pw-hdr"><span>🌲 Washington</span><button class="shbtn" onclick="openM('addP','wash')">+ Agregar</button></div>
+    <div class="card" id="cfg-pw"></div>
+    <div class="sh" id="cfg-pc-hdr"><span>🌆 Chicago</span><button class="shbtn" onclick="openM('addP','chi')">+ Agregar</button></div>
+    <div class="card" id="cfg-pc"></div>
+  </div>
+  <div id="cfg-empleados" style="display:none">
+
+    <!-- HEADER HERO -->
+    <div style="background:linear-gradient(135deg,var(--cb),var(--cb2));border-radius:16px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-10px;top:-10px;font-size:80px;opacity:.08;transform:rotate(-10deg)">👷</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:white;letter-spacing:1px" id="cet">Washington</div>
+          <div id="emp-count-label" style="font-size:.72rem;color:#fed7aa;font-weight:700"></div>
+        </div>
+        <button onclick="openM('addE')" style="background:var(--n);border:none;border-radius:12px;padding:10px 16px;color:white;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px">
+          <span style="font-size:1rem">+</span> Empleado
+        </button>
+      </div>
+      <!-- Ciudad tabs -->
+      <div style="display:flex;gap:6px">
+        <button class="emp-city-tab active" id="emp-tab-wash" onclick="setCEC('wash',this)" 
+          style="flex:1;padding:8px;border:none;border-radius:10px;background:rgba(255,255,255,.2);color:white;font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:800;cursor:pointer;transition:all .2s">
+          🌲 Washington
+        </button>
+        <button class="emp-city-tab" id="emp-tab-chi" onclick="setCEC('chi',this)"
+          style="flex:1;padding:8px;border:none;border-radius:10px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:800;cursor:pointer;transition:all .2s">
+          🌆 Chicago
+        </button>
+      </div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div id="emp-stats-row" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"></div>
+
+    <!-- TOOLBAR: filtros + posiciones -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--t3)">Filtrar por posición</div>
+      <button onclick="openM('addPos')" style="background:none;border:1px solid var(--g3);border-radius:8px;padding:4px 10px;font-family:'Nunito',sans-serif;font-size:.65rem;font-weight:800;color:var(--t3);cursor:pointer">🏷️ Gestionar</button>
+    </div>
+    <div id="emp-pos-filters" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+    <!-- Búsqueda -->
+    <div style="position:relative;margin-bottom:12px">
+      <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.4">🔍</span>
+      <input id="emp-search" type="text" placeholder="Buscar empleado..." oninput="renderCfgE()"
+        style="width:100%;padding:9px 12px 9px 32px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;color:var(--t);background:var(--g2);outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
+    </div>
+
+    <!-- EMPLOYEE LIST -->
+    <div id="cfg-el"></div>
+  </div>
+  <div id="cfg-editar" style="display:none">
+
+    <!-- HERO -->
+    <div style="background:linear-gradient(135deg,#1e3a5f,#1d4ed8);border-radius:16px;padding:16px;margin-bottom:14px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-10px;top:-10px;font-size:80px;opacity:.07;transform:rotate(-8deg)">📋</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:white;letter-spacing:1px">📋 Registros de Ventas</div>
+      <div id="editar-count-lbl" style="font-size:.72rem;color:#93c5fd;font-weight:700;margin-top:3px">Cargando registros...</div>
+    </div>
+
+    <!-- BARRA DE BÚSQUEDA -->
+    <div style="position:relative;margin-bottom:10px">
+      <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.4;pointer-events:none">🔍</span>
+      <input id="edit-search" type="text" placeholder="Buscar por puesto, encargado o fecha..."
+        oninput="renderRegistrosVentas()"
+        style="width:100%;padding:11px 12px 11px 34px;border:1.5px solid var(--g3);border-radius:12px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;color:var(--t);background:var(--g2);outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='var(--az)'" onblur="this.style.borderColor='var(--g3)'">
+    </div>
+
+    <!-- FILTROS -->
+    <div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px">
+      <select id="edit-filter-ciudad" onchange="renderRegistrosVentas()"
+        style="flex-shrink:0;padding:7px 10px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;color:var(--t);background:var(--g2);outline:none">
+        <option value="">🌎 Todas</option>
+        <option value="wash">🌲 Washington</option>
+        <option value="chi">🌆 Chicago</option>
+      </select>
+      <select id="edit-filter-orden" onchange="renderRegistrosVentas()"
+        style="flex-shrink:0;padding:7px 10px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;color:var(--t);background:var(--g2);outline:none">
+        <option value="fecha-desc">📅 Más reciente</option>
+        <option value="fecha-asc">📅 Más antiguo</option>
+        <option value="venta-desc">💰 Mayor venta</option>
+        <option value="venta-asc">💰 Menor venta</option>
+        <option value="puesto">📍 Por puesto</option>
+      </select>
+      <input type="date" id="edit-filter-fecha"
+        onchange="renderRegistrosVentas()"
+        style="flex-shrink:0;padding:7px 10px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;color:var(--t);background:var(--g2);outline:none">
+      <button onclick="limpiarFiltrosEditar()"
+        style="flex-shrink:0;padding:7px 12px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;color:var(--t3);background:var(--g2);cursor:pointer">
+        ✕ Limpiar
+      </button>
+    </div>
+
+    <!-- LISTA DE REGISTROS -->
+    <div id="edit-registros-list"></div>
+
+    <!-- Hidden fields for legacy compatibility -->
+    <input type="hidden" id="editPsel">
+    <input type="hidden" id="editFechaSel">
+    <div id="editForm" style="display:none">
+      <input type="hidden" id="ed-ef">
+      <input type="hidden" id="ed-tj">
+      <input type="hidden" id="ed-gas">
+      <input type="hidden" id="ed-hie">
+      <input type="hidden" id="ed-rep">
+      <input type="hidden" id="ed-otr">
+    </div>
+  </div>
+  <div id="cfg-historial" style="display:none">
+
+    <!-- HERO -->
+    <div style="background:linear-gradient(135deg,#0c4a6e,#0369a1);border-radius:16px;padding:14px 16px;margin-bottom:14px;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-10px;top:-10px;font-size:70px;opacity:.07;transform:rotate(-8deg)">📋</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:white;letter-spacing:1px">📋 Actividad</div>
+          <div id="hist-count-lbl" style="font-size:.7rem;color:#7dd3fc;font-weight:700;margin-top:2px">Cargando...</div>
+        </div>
+        <button onclick="limpiarHistorial()" style="background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:10px;padding:7px 12px;color:white;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;cursor:pointer">🗑️ Limpiar</button>
+      </div>
+    </div>
+
+    <!-- BÚSQUEDA -->
+    <div style="position:relative;margin-bottom:10px">
+      <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:.85rem;opacity:.4;pointer-events:none">🔍</span>
+      <input id="hist-search" type="text" placeholder="Buscar por usuario, acción o detalle..."
+        oninput="renderHistorial()"
+        style="width:100%;padding:11px 12px 11px 34px;border:1.5px solid var(--g3);border-radius:12px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;color:var(--t);background:var(--g2);outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='var(--az)'" onblur="this.style.borderColor='var(--g3)'">
+    </div>
+
+    <!-- FILTROS CHIPS -->
+    <div id="hist-filter-chips" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;-webkit-overflow-scrolling:touch"></div>
+
+    <!-- FILTROS AVANZADOS -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <select id="hist-filter-user" onchange="renderHistorial()"
+        style="padding:8px 10px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;color:var(--t);background:var(--g2);outline:none">
+        <option value="">👤 Todos</option>
+      </select>
+      <input type="date" id="hist-filter-date" onchange="renderHistorial()"
+        style="padding:8px 10px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:700;color:var(--t);background:var(--g2);outline:none">
+    </div>
+
+    <!-- LISTA DE ACTIVIDAD -->
+    <div id="hist-list"></div>
+    <div id="hist-empty" style="text-align:center;padding:40px 16px;color:var(--t3);display:none">
+      <div style="font-size:2.5rem;margin-bottom:10px">📋</div>
+      <div style="font-weight:800;font-size:.9rem">Sin actividad registrada</div>
+      <div style="font-size:.78rem;margin-top:6px">Cada acción que se realice aparecerá aquí</div>
+    </div>
+  </div>
+
+  <!-- MATERIA PRIMA CATALOG — admin only -->
+  <div id="cfg-mp" style="display:none">
+    <!-- Tabs ciudad -->
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <button id="mp-tab-wash" onclick="setMPCiudad('wash',this)"
+        style="flex:1;padding:9px;border:none;border-radius:10px;background:var(--n);color:white;font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:800;cursor:pointer">
+        🌲 Washington
+      </button>
+      <button id="mp-tab-chi" onclick="setMPCiudad('chi',this)"
+        style="flex:1;padding:9px;border:none;border-radius:10px;background:var(--g3);color:var(--t3);font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:800;cursor:pointer">
+        🌆 Chicago
+      </button>
+    </div>
+    <div style="font-size:.65rem;color:var(--t3);margin-bottom:10px;padding:8px 10px;background:var(--g2);border-radius:8px">
+      ⚠️ Los precios solo se editan aquí. Los encargados no pueden cambiarlos.
+    </div>
+    <div style="position:relative;margin-bottom:12px">
+      <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.8rem;opacity:.4;pointer-events:none">🔍</span>
+      <input id="cfg-mp-search" type="text" placeholder="Buscar producto..."
+        oninput="renderCfgMP()"
+        style="width:100%;padding:9px 12px 9px 30px;border:1.5px solid var(--g3);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;color:var(--t);background:var(--g2);outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
+    </div>
+    <div id="cfg-mp-list"></div>
+    <button class="shbtn" style="margin-top:10px;width:100%;padding:10px" onclick="openM('addMP')">+ Agregar Producto</button>
+  </div>
+
+  <!-- METAS DE VENTA -->
+  <div id="cfg-metas" style="display:none">
+    <div class="sh"><span>🎯 Metas de Venta Semanal</span></div>
+    <div class="infobox"><p>Define cuánto debe vender cada puesto por semana. El dashboard mostrará el % de cumplimiento.</p></div>
+    <div class="card" id="cfg-metas-list"></div>
+    <button class="bsave" onclick="guardarMetas()" style="margin-top:8px">💾 GUARDAR METAS</button>
+  </div>
+
+  <!-- PROVEEDORES -->
+  <!-- REPORTES dentro de Config -->
+  <div id="cfg-reportes" style="display:none">
+    <div class="tabs" style="margin-bottom:0" id="cfg-rep-tabs">
+      <button class="tab active" onclick="setRepTab('mensual',this)">📅 Mensual</button>
+      <button class="tab" onclick="setRepTab('flujo',this)">💸 Flujo</button>
+      <button class="tab" onclick="setRepTab('gasgen',this)">💰 Gastos</button>
+      <button class="tab" onclick="setRepTab('nomina-rep',this)">👷 Nómina</button>
+      <button class="tab" onclick="setRepTab('ganancia',this)">🌟 Ganancia</button>
+      <button class="tab" onclick="setRepTab('exportar',this)">📤 Exportar</button>
+    </div>
+    <div id="cfg-rep-content"></div>
+  </div>
+
+  <!-- AJUSTES -->
+  <div id="cfg-ajustes" style="display:none">
+    <!-- USUARIOS CON ACCESO -->
+    <div class="card" style="border-left:4px solid var(--az)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="ctit" style="margin:0">🔐 Usuarios con Acceso</div>
+        <button onclick="openBulkPerms()" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);border:none;border-radius:10px;padding:8px 12px;color:white;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px">
+          👥 Permisos en Masa
+        </button>
+      </div>
+      <div id="cfg-ul" style="margin-bottom:10px"></div>
+      <button onclick="openM('addU')" style="width:100%;background:var(--ns);border:1.5px dashed var(--n);border-radius:10px;padding:10px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:800;color:var(--n);cursor:pointer">+ Activar acceso a empleado</button>
+    </div>
+    <!-- Borrar todos usuarios -->
+    <div class="card" style="border-left:4px solid var(--r)">
+      <div class="ctit">🗑️ Borrar todos los accesos</div>
+      <p style="font-size:.78rem;color:var(--t3);margin-bottom:10px">Elimina el acceso de todos los empleados. Solo queda el admin.</p>
+      <button onclick="eliminarTodosUsuarios()" style="width:100%;background:var(--r);border:none;border-radius:10px;padding:10px;color:white;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:800;cursor:pointer">🗑️ Borrar todos los accesos</button>
+    </div>
+    <!-- Dark Mode -->
+    <div class="card">
+      <div class="ctit">🌙 Apariencia</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
+        <div><div style="font-size:.88rem;font-weight:800">Modo Oscuro</div><div style="font-size:.7rem;color:var(--t3)" id="dark-mode-sub">Sigue el modo del sistema</div></div>
+        <label style="position:relative;display:inline-block;width:48px;height:26px;cursor:pointer">
+          <input type="checkbox" id="toggle-dark" onchange="toggleDarkMode()" style="opacity:0;width:0;height:0">
+          <span id="dark-slider" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--g3);transition:.3s;border-radius:26px"></span>
+          <span id="dark-knob" style="position:absolute;content:'';height:20px;width:20px;left:3px;bottom:3px;background:white;transition:.3s;border-radius:50%"></span>
+        </label>
+      </div>
+      <div id="dark-auto-row" style="display:none;margin-top:4px">
+        <button onclick="resetDarkMode()" style="font-size:.72rem;color:var(--az);font-weight:800;background:none;border:none;cursor:pointer;padding:2px 0">↩ Volver a automático (seguir el sistema)</button>
+      </div>
+    </div>
+    <!-- Notificaciones Push -->
+    <div class="card">
+      <div class="ctit">🔔 Notificaciones</div>
+      <p style="font-size:.78rem;color:var(--t3);margin-bottom:12px">Recibe alertas cuando un encargado guarda ventas o hay un puesto sin registrar.</p>
+      <div id="push-status" style="font-size:.8rem;color:var(--t3);margin-bottom:10px">Estado: verificando...</div>
+      <button class="bsave" id="push-btn" onclick="togglePush()">🔔 ACTIVAR NOTIFICACIONES</button>
+    </div>
+    <!-- Tips / Consejos -->
+    <div class="card">
+      <div class="ctit">💡 Consejos del Día</div>
+      <p style="font-size:.78rem;color:var(--t3);margin-bottom:12px">Estos consejos aparecen en la pantalla personal de los empleados.</p>
+      <div id="tips-list" style="max-height:200px;overflow-y:auto;margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px">
+        <input id="new-tip-inp" class="minput" placeholder="Escribe un nuevo consejo..." style="margin:0;flex:1" onkeydown="if(event.key==='Enter')agregarTip()">
+        <button class="bsave" style="margin:0;padding:10px 14px;white-space:nowrap" onclick="agregarTip()">+ Agregar</button>
+      </div>
+      <button onclick="restaurarTipsDefault()" style="margin-top:8px;background:none;border:1px solid var(--g3);border-radius:8px;padding:6px 12px;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:700;color:var(--t3);cursor:pointer;width:100%">🔄 Restaurar consejos predeterminados</button>
+    </div>
+    <!-- Admin -->
+    <div class="card" style="border-left:4px solid var(--n)">
+      <div class="ctit">👑 Cuenta Admin</div>
+      <p style="font-size:.78rem;color:var(--t3);margin-bottom:12px">Cambia la contraseña del administrador del sistema.</p>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="password" id="admin-pass-new" placeholder="Nueva contraseña..."
+          style="flex:1;border:2px solid var(--g3);border-radius:10px;padding:10px 12px;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:700;outline:none;background:var(--g2)">
+        <button class="bsave" style="margin:0;padding:10px 16px" onclick="cambiarPassAdmin()">💾 Cambiar</button>
+      </div>
+      <div style="font-size:.7rem;color:var(--t3);margin-top:8px">Usuario: <strong>${ADMIN?.user||'admin'}</strong></div>
+    </div>
+    <!-- PIN Rápido -->
+    <div class="card">
+      <div class="ctit">🔢 PIN Rápido</div>
+      <p style="font-size:.78rem;color:var(--t3);margin-bottom:12px">Configura un PIN de 4 dígitos para entrar más rápido.</p>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="password" id="pin-input" maxlength="4" placeholder="••••"
+          style="width:100px;text-align:center;border:2px solid var(--g3);border-radius:10px;padding:12px;font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:900;letter-spacing:8px;outline:none;background:var(--g2)">
+        <button class="bsave" onclick="guardarPIN()" style="flex:1;margin:0">💾 GUARDAR PIN</button>
+        <button class="bdang" onclick="borrarPIN()">🗑️</button>
+      </div>
+      <div id="pin-status" style="font-size:.72rem;color:var(--t3);margin-top:8px"></div>
+    </div>
+    <!-- Face ID / Touch ID -->
+    <div class="card">
+      <div class="ctit">🔒 Face ID / Touch ID</div>
+      <p style="font-size:.78rem;color:var(--t3);margin-bottom:12px">Registra tu cara o huella para entrar sin contraseña. Solo funciona en iPhone/iPad con Safari.</p>
+      <div id="faceid-status" style="font-size:.8rem;color:var(--t3);margin-bottom:12px;padding:8px 10px;background:var(--g2);border-radius:8px">Estado: verificando...</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="bsave" style="flex:1" onclick="registrarFaceID()">🔒 REGISTRAR FACE ID</button>
+        <button class="bdang" onclick="borrarFaceID()">🗑️ Borrar</button>
+      </div>
+    </div>
+    <!-- Alertas -->
+    <div class="card">
+      <div class="ctit">⚠️ Alertas de Faltantes</div>
+      <p style="font-size:.78rem;color:var(--t3);margin-bottom:12px">El dashboard mostrará una alerta si un puesto lleva 1 día sin registrar ventas.</p>
+      <div id="alertas-faltantes" style="margin-top:4px"></div>
+      <button class="bsave" onclick="checkFaltantes()" style="margin-top:8px">🔍 REVISAR AHORA</button>
+    </div>
+    <!-- BORRAR TODO -->
+    <div class="card" style="border:2px solid var(--r);background:var(--rs)">
+      <div class="ctit" style="color:var(--r)">☢️ Zona de Peligro</div>
+      <p style="font-size:.78rem;color:var(--r);margin-bottom:12px;font-weight:700">Elimina <strong>absolutamente todos los datos</strong> ingresados — ventas, nómina, asistencia, empleados, puestos, usuarios, historial. Esta acción es <strong>irreversible</strong>.</p>
+      <button onclick="iniciarBorradoTotal()" style="width:100%;background:var(--r);border:none;border-radius:10px;padding:14px;color:white;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:900;cursor:pointer;letter-spacing:.5px">
+        🗑️ ELIMINAR TODOS LOS DATOS
+      </button>
+    </div>
+  </div>
+  <div id="cfg-gastosfijos" style="display:none">
+    <div style="padding:0 16px">
+      <div style="font-size:.75rem;color:var(--t3);margin-bottom:16px">
+        Gastos recurrentes del negocio. Se registran una vez, no diario.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px" id="gf-lista"></div>
+      <button onclick="gfAgregar()" style="width:100%;margin-top:14px;padding:12px;border:2px dashed var(--n);border-radius:12px;background:none;color:var(--n);font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:800;cursor:pointer">
+        ➕ Agregar gasto fijo
+      </button>
+      <button onclick="guardarGastosFijos()" style="width:100%;margin-top:10px;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--n),var(--n2));color:white;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:900;cursor:pointer">
+        💾 Guardar Gastos Fijos
+      </button>
+    </div>
+  </div>
+    </div><!-- end cfg-section-content -->
+  </div><!-- end cfg-section -->
+</div><!-- end view-config -->
+<!-- MI CUENTA — acceso rápido a PIN y biometría para todos los usuarios -->
+<div class="view" id="view-mi-cuenta">
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,var(--cb),var(--cb2));border-radius:16px;padding:18px 16px;margin-bottom:14px;position:relative;overflow:hidden">
+    <div style="position:absolute;right:-10px;top:-10px;font-size:80px;opacity:.07">🔐</div>
+    <div style="font-size:.68rem;font-weight:700;color:#a16207;text-transform:uppercase;letter-spacing:1px">Mi Cuenta</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:white;letter-spacing:1px;margin-top:2px" id="mc-nombre">—</div>
+    <div style="font-size:.75rem;color:#fed7aa;font-weight:600;margin-top:2px" id="mc-puesto">—</div>
+  </div>
+
+  <!-- PIN Rápido -->
+  <div class="card">
+    <div class="ctit">🔢 PIN Rápido</div>
+    <p style="font-size:.78rem;color:var(--t3);margin-bottom:12px">Configura un PIN de 4 dígitos para entrar sin escribir tu contraseña.</p>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="password" inputmode="numeric" id="mc-pin-input" maxlength="4" placeholder="••••"
+        style="width:90px;text-align:center;border:2px solid var(--g3);border-radius:10px;padding:12px;font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:900;letter-spacing:8px;outline:none;background:var(--g2)"
+        onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
+      <button class="bsave" onclick="mcGuardarPIN()" style="flex:1;margin:0">💾 GUARDAR PIN</button>
+      <button class="bdang" onclick="mcBorrarPIN()">🗑️</button>
+    </div>
+    <div id="mc-pin-status" style="font-size:.72rem;color:var(--t3);margin-top:8px"></div>
+  </div>
+
+  <!-- Face ID / Touch ID / Biometría -->
+  <div class="card" style="margin-top:10px">
+    <div class="ctit">🔒 Biometría</div>
+    <p style="font-size:.78rem;color:var(--t3);margin-bottom:4px">Usa tu cara o huella para entrar sin contraseña.</p>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+      <span style="font-size:.68rem;background:var(--ns);color:var(--n);padding:3px 8px;border-radius:20px;font-weight:700">📱 Face ID (iPhone/iPad)</span>
+      <span style="font-size:.68rem;background:var(--azs);color:var(--az);padding:3px 8px;border-radius:20px;font-weight:700">🤖 Face ID (Android)</span>
+      <span style="font-size:.68rem;background:var(--vs);color:var(--v);padding:3px 8px;border-radius:20px;font-weight:700">👆 Touch ID / Huella</span>
+    </div>
+    <div id="mc-faceid-status" style="font-size:.78rem;color:var(--t3);margin-bottom:12px;padding:10px 12px;background:var(--g2);border-radius:10px;line-height:1.4">Estado: verificando...</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="bsave" style="flex:1" onclick="mcRegistrarBiometria()">🔒 REGISTRAR BIOMETRÍA</button>
+      <button class="bdang" onclick="mcBorrarBiometria()">🗑️ Borrar</button>
+    </div>
+    <p style="font-size:.68rem;color:var(--t3);margin-top:10px;line-height:1.5">
+      💡 <strong>iOS/macOS:</strong> Abre en Safari para Face ID o Touch ID.<br>
+      💡 <strong>Android:</strong> Abre en Chrome para Face ID o huella dactilar.<br>
+      💡 El registro es por dispositivo — regístralo en cada celular que uses.
+    </p>
+  </div>
+</div>
+
+<!-- FIREWORKS -->
+<div id="fireworks-overlay"></div>
+<div id="meta-celebracion" style="display:none;position:fixed;inset:0;z-index:9997;align-items:center;justify-content:center;pointer-events:none">
+  <div class="meta-msg">
+    <div style="font-size:3rem;margin-bottom:8px">🎉</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:2px">¡META CUMPLIDA!</div>
+    <div id="meta-cel-nombre" style="font-size:1rem;font-weight:800;margin-top:4px;opacity:.9"></div>
+    <div id="meta-cel-monto" style="font-size:1.3rem;font-weight:900;margin-top:6px"></div>
+  </div>
+</div>
+
+
+<!-- MANUAL DE USUARIO -->
+<div class="view" id="view-manual">
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#7c3aed,#a855f7);border-radius:16px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden;text-align:center">
+    <div style="position:absolute;right:-15px;top:-15px;font-size:90px;opacity:.08">📖</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:white;letter-spacing:2px">📖 Manual</div>
+    <div style="font-size:.85rem;color:#e9d5ff;font-weight:700;margin-top:4px">Guía rápida de La Cuadra Tacos App</div>
+    <div style="font-size:.72rem;color:rgba(255,255,255,.6);margin-top:4px">Toca cada sección para aprender cómo usarla</div>
+  </div>
+
+  <!-- Secciones del manual -->
+  <div id="manual-sections"></div>
+</div>
+</div><!-- end appContent -->
+
+<!-- BOTTOM NAV -->
+<div class="bnav" id="mainNav" style="display:none">
+  <button class="nbtn active" onclick="irInicio(this)"><span class="ni">🏠</span><span class="nl">Inicio</span></button>
+  <button class="nbtn" onclick="showV('ventas',this)"><span class="ni">💰</span><span class="nl">Ventas</span></button>
+  <button class="nbtn" onclick="showV('asist',this)"><span class="ni">✅</span><span class="nl">Asist.</span></button>
+  <button class="nbtn ao" onclick="showV('nomina',this)"><span class="ni">👷</span><span class="nl">Nómina</span></button>
+  <button class="nbtn ao" onclick="showV('prov',this);renderEgresosView()"><span class="ni">💼</span><span class="nl">Egresos</span></button>
+  <button class="nbtn ao" onclick="showV('config',this);renderCfg()"><span class="ni">⚙️</span><span class="nl">Config</span></button>
+</div>
+
+<!-- MODALS -->
+<div class="moverlay" id="m-addP">
+  <div class="modal"><div class="modal-scroll"><div class="mhandle"></div><div class="mtitle">➕ Agregar Puesto</div>
+    <label class="mlbl">Nombre del Puesto</label><input class="minput" id="np-nom" placeholder="Ej: Lynnwood...">
+    <label class="mlbl">Ciudad</label><select class="msel" id="np-ciu"><option value="wash">🌲 Washington</option><option value="chi">🌆 Chicago</option></select>
+    </div>
+
+<div class="macts"><button class="bmcancel" onclick="closeM('addP')">Cancelar</button><button class="bsave" onclick="addPuesto()">✅ AGREGAR</button></div>
+  </div>
+</div>
+
+<!-- MANAGE POSITIONS MODAL -->
+<div class="moverlay" id="m-addPos">
+  <div class="modal"><div class="modal-scroll"><div class="mhandle"></div>
+    <div class="mtitle">🏷️ Posiciones de Trabajo</div>
+    <p style="font-size:.78rem;color:var(--t3);margin-bottom:12px">Agrega o elimina posiciones para organizar a tus empleados.</p>
+    <div id="pos-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px"></div>
+    <div style="display:flex;gap:8px">
+      <input class="minput" id="new-pos-inp" placeholder="Nueva posición..." style="margin:0;flex:1" onkeydown="if(event.key==='Enter')agregarPosicion()">
+      <button class="bsave" style="margin:0;padding:10px 16px" onclick="agregarPosicion()">+ Agregar</button>
+    </div>
+    </div>
+
+<div class="macts"><button class="bmcancel" onclick="closeM('addPos')">Cerrar</button></div>
+  </div>
+</div>
+
+<div class="moverlay" id="m-addE">
+  <div class="modal"><div class="modal-scroll"><div class="mhandle"></div><div class="mtitle">👷 Agregar Empleado</div>
+    <label class="mlbl">Nombre Completo</label><input class="minput" id="ne-nom" placeholder="Nombre del empleado">
+    <label class="mlbl">Posición</label>
+    <select class="msel" id="ne-pos"></select>
+    <label class="mlbl">Ciudad</label><select class="msel" id="ne-ciu"><option value="wash">🌲 Washington</option><option value="chi">🌆 Chicago</option></select>
+    </div>
+
+<div class="macts"><button class="bmcancel" onclick="closeM('addE')">Cancelar</button><button class="bsave" onclick="addEmpleado()">✅ AGREGAR</button></div>
+  </div>
+</div>
+
+<!-- ADD / EDIT USER MODAL -->
+<div class="moverlay" id="m-addMP">
+  <div class="modal"><div class="modal-scroll"><div class="mhandle"></div>
+    <div class="mtitle" id="mp-modal-title">🧅 Agregar Productos</div>
+    <input type="hidden" id="mp-edit-idx" value="-1">
+    <label class="mlbl">Emoji / Ícono</label>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px">
+      <div id="mp-icon-preview" style="width:60px;height:60px;border-radius:12px;background:var(--g2);border:1.5px solid var(--g3);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;overflow:hidden;cursor:pointer" onclick="document.getElementById('mp-img-input').click()">🧅</div>
+      <div style="flex:1">
+        <input class="minput" id="mp-emoji" placeholder="🧅" maxlength="4"
+          style="font-size:1.4rem;text-align:center;margin-bottom:6px"
+          inputmode="text" oninput="updateMPIconPreview()">
+        <label style="display:flex;align-items:center;gap:6px;background:var(--azs);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:.75rem;font-weight:800;color:var(--az)">
+          <input type="file" id="mp-img-input" accept="image/*" style="display:none" onchange="loadMPImage(this)">
+          📷 Subir imagen / Genmoji
+        </label>
+      </div>
+    </div>
+    <input type="hidden" id="mp-img-data" value="">
+    <div id="mp-emoji-picker" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;background:var(--g2);padding:10px;border-radius:10px"></div>
+    <label class="mlbl">Nombre del Producto</label>
+    <input class="minput" id="mp-nombre" placeholder="Ej: Cilantro, Cebolla...">
+    <label class="mlbl">Precio Unitario ($)</label>
+    <input class="minput" type="number" min="0" step="0.001" id="mp-precio" placeholder="0.00">
+    <label class="mlbl">Unidad</label>
+    <select class="msel" id="mp-unidad">
+      <option value="pza">pza (pieza)</option>
+      <option value="kg">kg (kilogramo)</option>
+      <option value="lb">lb (libra)</option>
+      <option value="lata">lata</option>
+      <option value="botella">botella</option>
+      <option value="bolsa">bolsa</option>
+      <option value="caja">caja</option>
+      <option value="lt">lt (litro)</option>
+    </select>
+    </div>
+
+</div>
+<div class="macts">
+      <button class="bmcancel" onclick="closeM('addMP')">Cancelar</button>
+      <button class="bsave" id="mp-savebtn" onclick="saveMP()">✅ GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<div class="moverlay" id="m-addU">
+  <div class="modal"><div class="modal-scroll"><div class="mhandle"></div>
+    <div class="mtitle" id="mu-title">👷 Nuevo Empleado</div>
+    <input type="hidden" id="mu-idx" value="-1">
+    <label class="mlbl">Posición de Trabajo</label>
+    <select class="msel" id="mu-posicion"></select>
+    <label class="mlbl">Nombre del Empleado</label>
+    <input class="minput" id="mu-user" placeholder="Ej: dagoberto, jose..." autocapitalize="none" autocomplete="off">
+    <label class="mlbl">Nombre de usuario <span style="font-size:.7rem;color:var(--t3);font-weight:400">(para iniciar sesión)</span></label>
+    <input class="minput" id="mu-username" placeholder="Ej: dagoberto" autocapitalize="none" autocomplete="off" style="font-family:monospace">
+    <label class="mlbl">Contraseña</label>
+    <label class="mlbl" style="display:none" id="mu-pass-hint"><span style="font-size:.7rem;color:var(--t3);font-weight:400;text-transform:none">(dejar vacío = no cambiar)</span></label>
+    <input class="minput" type="password" id="mu-pass" placeholder="••••••••">
+    <label class="mlbl">Rol</label>
+    <select class="msel" id="mu-rol" onchange="togglePuestoField()">
+      <option value="admin">👑 Admin — Acceso total</option>
+      <option value="encargado">👷 Encargado — Solo su puesto</option>
+    </select>
+    <div id="mu-puesto-wrap">
+      <label class="mlbl">Puesto Asignado</label>
+      <select class="msel" id="mu-puesto">
+        <option value="">— El empleado elige al entrar —</option>
+      </select>
+      <p style="font-size:.72rem;color:var(--t3);margin-top:-8px;margin-bottom:12px">💡 Si lo dejas vacío, el empleado podrá elegir su puesto cuando inicie sesión</p>
+    </div>
+    <div id="mu-permisos-wrap" style="background:var(--g2);border-radius:var(--Rs);padding:14px;margin-bottom:12px">
+
+      <!-- CIUDAD ACCESS -->
+      <label class="mlbl" style="margin-bottom:10px">🌎 Acceso por Ciudad</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:white;padding:10px;border-radius:10px;border:1.5px solid var(--g3)" id="ciudad-wash-label">
+          <input type="checkbox" id="perm-ciudad-wash" style="width:17px;height:17px;accent-color:var(--n)" onchange="onCiudadPermChange()">
+          <div><div style="font-size:.82rem;font-weight:800">🌲 Washington</div><div style="font-size:.62rem;color:var(--t3)">Ver todos sus puestos</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:white;padding:10px;border-radius:10px;border:1.5px solid var(--g3)" id="ciudad-chi-label">
+          <input type="checkbox" id="perm-ciudad-chi" style="width:17px;height:17px;accent-color:var(--az)" onchange="onCiudadPermChange()">
+          <div><div style="font-size:.82rem;font-weight:800">🌆 Chicago</div><div style="font-size:.62rem;color:var(--t3)">Ver todos sus puestos</div></div>
+        </label>
+      </div>
+
+      <!-- PUESTO ESPECIFICO (solo visible si NO es manager de ciudad) -->
+      <div id="mu-puesto-especifico-wrap">
+        <label class="mlbl" style="margin-bottom:6px">📍 O un puesto específico</label>
+        <p style="font-size:.68rem;color:var(--t3);margin-bottom:8px">Si marcas una ciudad arriba, verá todos sus puestos. Si no, selecciona uno específico.</p>
+      </div>
+
+      <!-- PERMISOS DE SECCIONES CON CIUDAD -->
+      <label class="mlbl" style="margin-bottom:10px;margin-top:4px">🔑 Permisos de Secciones</label>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="perm-section-row" id="perm-row-ventas">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--g);padding:10px 12px;border-radius:10px;border:1.5px solid var(--g3);transition:border-color .15s" id="perm-ventas-label">
+            <input type="checkbox" id="perm-ventas" style="width:17px;height:17px;accent-color:var(--n);flex-shrink:0" onchange="toggleSeccionCiudad('ventas')">
+            <span style="font-size:.82rem;font-weight:800;flex:1">💰 Ventas</span>
+            <span id="perm-ventas-ciudad-badge" style="font-size:.6rem;font-weight:900;color:var(--n);display:none"></span>
+          </label>
+          <div id="perm-ventas-ciudad-wrap" style="display:none;margin-top:4px;padding:8px 12px;background:#f8fafc;border:1.5px solid var(--g3);border-radius:8px;border-top:none;border-radius:0 0 10px 10px;margin-top:-4px">
+            <div style="font-size:.6rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:6px">Ciudad</div>
+            <div style="display:flex;gap:6px">
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:white;padding:6px 10px;border-radius:8px;border:1.5px solid var(--g3);flex:1">
+                <input type="checkbox" id="perm-ventas-wash" style="width:13px;height:13px;accent-color:var(--n)">
+                <span style="font-size:.72rem;font-weight:800">🌲 Wash</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:white;padding:6px 10px;border-radius:8px;border:1.5px solid var(--g3);flex:1">
+                <input type="checkbox" id="perm-ventas-chi" style="width:13px;height:13px;accent-color:var(--az)">
+                <span style="font-size:.72rem;font-weight:800">🌆 Chicago</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="perm-section-row" id="perm-row-asist">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--g);padding:10px 12px;border-radius:10px;border:1.5px solid var(--g3);transition:border-color .15s" id="perm-asist-label">
+            <input type="checkbox" id="perm-asist" style="width:17px;height:17px;accent-color:var(--v);flex-shrink:0" onchange="toggleSeccionCiudad('asist')">
+            <span style="font-size:.82rem;font-weight:800;flex:1">✅ Asistencia</span>
+            <span id="perm-asist-ciudad-badge" style="font-size:.6rem;font-weight:900;color:var(--v);display:none"></span>
+          </label>
+          <div id="perm-asist-ciudad-wrap" style="display:none;margin-top:4px;padding:8px 12px;background:#f8fafc;border:1.5px solid var(--g3);border-radius:8px;border-top:none;border-radius:0 0 10px 10px;margin-top:-4px">
+            <div style="font-size:.6rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:6px">Ciudad</div>
+            <div style="display:flex;gap:6px">
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:white;padding:6px 10px;border-radius:8px;border:1.5px solid var(--g3);flex:1">
+                <input type="checkbox" id="perm-asist-wash" style="width:13px;height:13px;accent-color:var(--n)">
+                <span style="font-size:.72rem;font-weight:800">🌲 Wash</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:white;padding:6px 10px;border-radius:8px;border:1.5px solid var(--g3);flex:1">
+                <input type="checkbox" id="perm-asist-chi" style="width:13px;height:13px;accent-color:var(--az)">
+                <span style="font-size:.72rem;font-weight:800">🌆 Chicago</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="perm-section-row" id="perm-row-nomina">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--g);padding:10px 12px;border-radius:10px;border:1.5px solid var(--g3);transition:border-color .15s" id="perm-nomina-label">
+            <input type="checkbox" id="perm-nomina" style="width:17px;height:17px;accent-color:var(--am);flex-shrink:0" onchange="toggleSeccionCiudad('nomina')">
+            <span style="font-size:.82rem;font-weight:800;flex:1">👷 Nómina</span>
+            <span id="perm-nomina-ciudad-badge" style="font-size:.6rem;font-weight:900;color:var(--am);display:none"></span>
+          </label>
+          <div id="perm-nomina-ciudad-wrap" style="display:none;margin-top:4px;padding:8px 12px;background:#f8fafc;border:1.5px solid var(--g3);border-radius:8px;border-top:none;border-radius:0 0 10px 10px;margin-top:-4px">
+            <div style="font-size:.6rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:6px">Ciudad</div>
+            <div style="display:flex;gap:6px">
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:white;padding:6px 10px;border-radius:8px;border:1.5px solid var(--g3);flex:1">
+                <input type="checkbox" id="perm-nomina-wash" style="width:13px;height:13px;accent-color:var(--n)">
+                <span style="font-size:.72rem;font-weight:800">🌲 Wash</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:white;padding:6px 10px;border-radius:8px;border:1.5px solid var(--g3);flex:1">
+                <input type="checkbox" id="perm-nomina-chi" style="width:13px;height:13px;accent-color:var(--az)">
+                <span style="font-size:.72rem;font-weight:800">🌆 Chicago</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="perm-section-row" id="perm-row-reportes">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--g);padding:10px 12px;border-radius:10px;border:1.5px solid var(--g3);transition:border-color .15s" id="perm-reportes-label">
+            <input type="checkbox" id="perm-reportes" style="width:17px;height:17px;accent-color:var(--az);flex-shrink:0" onchange="toggleSeccionCiudad('reportes')">
+            <span style="font-size:.82rem;font-weight:800;flex:1">📊 Reportes</span>
+            <span id="perm-reportes-ciudad-badge" style="font-size:.6rem;font-weight:900;color:var(--az);display:none"></span>
+          </label>
+          <div id="perm-reportes-ciudad-wrap" style="display:none;margin-top:4px;padding:8px 12px;background:#f8fafc;border:1.5px solid var(--g3);border-radius:8px;border-top:none;border-radius:0 0 10px 10px;margin-top:-4px">
+            <div style="font-size:.6rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:6px">Ciudad</div>
+            <div style="display:flex;gap:6px">
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:white;padding:6px 10px;border-radius:8px;border:1.5px solid var(--g3);flex:1">
+                <input type="checkbox" id="perm-reportes-wash" style="width:13px;height:13px;accent-color:var(--n)">
+                <span style="font-size:.72rem;font-weight:800">🌲 Wash</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:white;padding:6px 10px;border-radius:8px;border:1.5px solid var(--g3);flex:1">
+                <input type="checkbox" id="perm-reportes-chi" style="width:13px;height:13px;accent-color:var(--az)">
+                <span style="font-size:.72rem;font-weight:800">🌆 Chicago</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="perm-section-row" id="perm-row-egresos">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:var(--g);padding:10px 12px;border-radius:10px;border:1.5px solid var(--g3);transition:border-color .15s" id="perm-egresos-label">
+            <input type="checkbox" id="perm-egresos" style="width:17px;height:17px;accent-color:#4338ca;flex-shrink:0" onchange="toggleSeccionCiudad('egresos')">
+            <span style="font-size:.82rem;font-weight:800;flex:1">💼 Egresos</span>
+            <span id="perm-egresos-ciudad-badge" style="font-size:.6rem;font-weight:900;color:#4338ca;display:none"></span>
+          </label>
+          <div id="perm-egresos-ciudad-wrap" style="display:none;margin-top:4px;padding:8px 12px;background:#f8fafc;border:1.5px solid var(--g3);border-radius:8px;border-top:none;border-radius:0 0 10px 10px;margin-top:-4px">
+            <div style="font-size:.6rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:6px">Ciudad</div>
+            <div style="display:flex;gap:6px">
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:white;padding:6px 10px;border-radius:8px;border:1.5px solid var(--g3);flex:1">
+                <input type="checkbox" id="perm-egresos-wash" style="width:13px;height:13px;accent-color:var(--n)">
+                <span style="font-size:.72rem;font-weight:800">🌲 Wash</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:white;padding:6px 10px;border-radius:8px;border:1.5px solid var(--g3);flex:1">
+                <input type="checkbox" id="perm-egresos-chi" style="width:13px;height:13px;accent-color:var(--az)">
+                <span style="font-size:.72rem;font-weight:800">🌆 Chicago</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--g);padding:10px 12px;border-radius:10px;border:1.5px solid var(--g3)" id="perm-config-label">
+          <input type="checkbox" id="perm-config" style="width:17px;height:17px;accent-color:var(--n);flex-shrink:0" onchange="toggleCfgSubPerms()">
+          <div style="flex:1">
+            <div style="font-size:.82rem;font-weight:800">⚙️ Config</div>
+            <div style="font-size:.65rem;color:var(--t3)">Acceso a Configuración</div>
+          </div>
+        </label>
+        <!-- SUB-PERMISOS DE CONFIG -->
+        <div id="cfg-sub-perms-wrap" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:0 0 10px 10px;margin-top:-4px;padding:12px">
+          <!-- Ciudad para Config -->
+          <div style="margin-bottom:10px">
+            <div style="font-size:.62rem;font-weight:900;text-transform:uppercase;color:#374151;margin-bottom:6px">🌎 Ciudad para Config</div>
+            <div style="display:flex;gap:6px">
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:white;padding:7px 10px;border-radius:8px;border:1.5px solid var(--g3);flex:1">
+                <input type="checkbox" id="perm-config-wash" style="width:13px;height:13px;accent-color:var(--n)" checked>
+                <span style="font-size:.72rem;font-weight:800">🌲 Washington</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;background:white;padding:7px 10px;border-radius:8px;border:1.5px solid var(--g3);flex:1">
+                <input type="checkbox" id="perm-config-chi" style="width:13px;height:13px;accent-color:var(--az)" checked>
+                <span style="font-size:.72rem;font-weight:800">🌆 Chicago</span>
+              </label>
+            </div>
+            <div style="font-size:.6rem;color:var(--t3);margin-top:5px">Solo ve empleados, puestos y datos de esa ciudad en Config</div>
+          </div>
+          <div style="border-top:1px solid #e2e8f0;padding-top:10px">
+            <div style="font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin-bottom:8px">📂 Módulos visibles</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+                <input type="checkbox" id="perm-cfg-puestos" style="width:15px;height:15px;accent-color:var(--n)">
+                <span style="font-size:.78rem;font-weight:800">📍 Puestos</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+                <input type="checkbox" id="perm-cfg-empleados" style="width:15px;height:15px;accent-color:var(--az)">
+                <span style="font-size:.78rem;font-weight:800">👷 Empleados</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+                <input type="checkbox" id="perm-cfg-mp" style="width:15px;height:15px;accent-color:var(--v)">
+                <span style="font-size:.78rem;font-weight:800">📦 Productos</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+                <input type="checkbox" id="perm-cfg-metas" style="width:15px;height:15px;accent-color:var(--am)">
+                <span style="font-size:.78rem;font-weight:800">🎯 Metas</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+                <input type="checkbox" id="perm-cfg-historial" style="width:15px;height:15px;accent-color:#0891b2">
+                <span style="font-size:.78rem;font-weight:800">📋 Historial</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+                <input type="checkbox" id="perm-cfg-ajustes" style="width:15px;height:15px;accent-color:#374151">
+                <span style="font-size:.78rem;font-weight:800">⚙️ Ajustes</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+                <input type="checkbox" id="perm-cfg-micuenta" style="width:15px;height:15px;accent-color:#be123c">
+                <span style="font-size:.78rem;font-weight:800">🔐 Mi Cuenta</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+                <input type="checkbox" id="perm-cfg-manual" style="width:15px;height:15px;accent-color:#0369a1">
+                <span style="font-size:.78rem;font-weight:800">📖 Ayuda</span>
+              </label>
+              <!-- Estos antes se repetían — ahora son exclusivos de Config -->
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+                <input type="checkbox" id="perm-cfg-editar" style="width:15px;height:15px;accent-color:#7c3aed">
+                <span style="font-size:.78rem;font-weight:800">✏️ Editar Ventas</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+                <input type="checkbox" id="perm-cfg-reportes" style="width:15px;height:15px;accent-color:#db2777">
+                <span style="font-size:.78rem;font-weight:800">📊 Rep. en Config</span>
+              </label>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button onclick="toggleAllCfgSubs(true)" style="flex:1;background:var(--ns);border:none;border-radius:7px;padding:6px;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;color:var(--n);cursor:pointer">✅ Todos</button>
+              <button onclick="toggleAllCfgSubs(false)" style="flex:1;background:var(--g3);border:none;border-radius:7px;padding:6px;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;color:var(--t2);cursor:pointer">❌ Ninguno</button>
+            </div>
+          </div>
+        </div>
+        <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;background:var(--g);padding:10px 12px;border-radius:10px;border:1.5px solid var(--g3)">
+          <input type="checkbox" id="perm-dashboard" style="width:17px;height:17px;accent-color:var(--n);margin-top:2px;flex-shrink:0" onchange="toggleDashTipoSelect()">
+          <div style="flex:1">
+            <div style="font-size:.82rem;font-weight:800">🏠 Pantalla de Inicio</div>
+            <div style="font-size:.65rem;color:var(--t3);margin-top:1px">Ver ventas, totales y estadísticas generales</div>
+            <div id="dash-tipo-wrap" style="display:none;margin-top:8px">
+              <div style="font-size:.65rem;font-weight:900;text-transform:uppercase;color:var(--t3);margin-bottom:4px">Tipo de pantalla</div>
+              <div style="display:flex;gap:6px">
+                <label style="flex:1;display:flex;align-items:center;gap:6px;background:var(--g2);padding:8px 10px;border-radius:8px;cursor:pointer;border:1.5px solid transparent" id="dash-opt-completo">
+                  <input type="radio" name="dash-tipo" value="completo" id="dash-radio-completo" style="accent-color:var(--n)" onchange="updateDashTipoStyle()">
+                  <div>
+                    <div style="font-size:.72rem;font-weight:800">📊 Completo</div>
+                    <div style="font-size:.6rem;color:var(--t3)">KPIs y estadísticas</div>
+                  </div>
+                </label>
+                <label style="flex:1;display:flex;align-items:center;gap:6px;background:var(--g2);padding:8px 10px;border-radius:8px;cursor:pointer;border:1.5px solid transparent" id="dash-opt-personal">
+                  <input type="radio" name="dash-tipo" value="personal" id="dash-radio-personal" style="accent-color:var(--n)" onchange="updateDashTipoStyle()">
+                  <div>
+                    <div style="font-size:.72rem;font-weight:800">🎯 Personal</div>
+                    <div style="font-size:.6rem;color:var(--t3)">Meta, tips y asistencia</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </label>
+      </div>
+      <p style="font-size:.68rem;color:var(--t3);margin-top:10px">💡 Un manager de ciudad ve todos los puestos de esa ciudad en el selector de puestos</p>
+    </div>
+<div class="macts"><button class="bmcancel" onclick="closeM('addU')">Cancelar</button><button class="bsave" id="mu-savebtn" onclick="saveUsuario()">✅ GUARDAR</button></div>
+</div>
+
+<!-- PERMISOS EN MASA MODAL -->
+<div class="moverlay" id="m-bulkPerms">
+  <div class="modal"><div class="modal-scroll"><div class="mhandle"></div>
+    <div class="mtitle">👥 Permisos en Masa</div>
+    <p style="font-size:.78rem;color:var(--t3);margin:-4px 0 14px;line-height:1.5">Selecciona empleados y asígnales los mismos permisos de una vez.</p>
+
+    <!-- Selección de empleados -->
+    <label class="mlbl" style="margin-bottom:8px">1️⃣ Selecciona empleados</label>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <button onclick="bulkSelectAll(true)" style="flex:1;background:var(--ns);border:none;border-radius:8px;padding:6px;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;color:var(--n);cursor:pointer">✅ Todos</button>
+      <button onclick="bulkSelectAll(false)" style="flex:1;background:var(--g3);border:none;border-radius:8px;padding:6px;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;color:var(--t2);cursor:pointer">❌ Ninguno</button>
+    </div>
+    <div id="bulk-emp-list" style="background:var(--g2);border-radius:10px;padding:8px;max-height:180px;overflow-y:auto;margin-bottom:14px"></div>
+
+    <!-- Permisos a aplicar -->
+    <label class="mlbl" style="margin-bottom:8px">2️⃣ Permisos a aplicar</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
+      <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+        <input type="checkbox" id="bulk-perm-ventas" style="width:15px;height:15px;accent-color:var(--n)">
+        <span style="font-size:.78rem;font-weight:800">💰 Ventas</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+        <input type="checkbox" id="bulk-perm-asist" style="width:15px;height:15px;accent-color:var(--n)">
+        <span style="font-size:.78rem;font-weight:800">✅ Asistencia</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+        <input type="checkbox" id="bulk-perm-nomina" style="width:15px;height:15px;accent-color:var(--n)">
+        <span style="font-size:.78rem;font-weight:800">👷 Nómina</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+        <input type="checkbox" id="bulk-perm-reportes" style="width:15px;height:15px;accent-color:var(--n)">
+        <span style="font-size:.78rem;font-weight:800">📊 Reportes</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)">
+        <input type="checkbox" id="bulk-perm-dashboard" style="width:15px;height:15px;accent-color:var(--n)">
+        <span style="font-size:.78rem;font-weight:800">🏠 Inicio</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:7px;cursor:pointer;background:white;padding:8px 10px;border-radius:8px;border:1.5px solid var(--g3)" id="bulk-config-label">
+        <input type="checkbox" id="bulk-perm-config" style="width:15px;height:15px;accent-color:var(--n)" onchange="toggleBulkCfgSubs()">
+        <span style="font-size:.78rem;font-weight:800">⚙️ Config</span>
+      </label>
+    </div>
+    <!-- Sub-permisos config (bulk) -->
+    <div id="bulk-cfg-sub-wrap" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 12px;margin-bottom:10px">
+      <div style="font-size:.63rem;font-weight:900;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin-bottom:8px">📂 Módulos de Config</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:white;padding:7px 9px;border-radius:7px;border:1.5px solid var(--g3)"><input type="checkbox" id="bulk-cfg-puestos" style="width:13px;height:13px;accent-color:var(--n)"><span style="font-size:.74rem;font-weight:800">📍 Puestos</span></label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:white;padding:7px 9px;border-radius:7px;border:1.5px solid var(--g3)"><input type="checkbox" id="bulk-cfg-empleados" style="width:13px;height:13px;accent-color:var(--az)"><span style="font-size:.74rem;font-weight:800">👷 Empleados</span></label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:white;padding:7px 9px;border-radius:7px;border:1.5px solid var(--g3)"><input type="checkbox" id="bulk-cfg-mp" style="width:13px;height:13px;accent-color:var(--v)"><span style="font-size:.74rem;font-weight:800">📦 Productos</span></label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:white;padding:7px 9px;border-radius:7px;border:1.5px solid var(--g3)"><input type="checkbox" id="bulk-cfg-metas" style="width:13px;height:13px;accent-color:var(--am)"><span style="font-size:.74rem;font-weight:800">🎯 Metas</span></label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:white;padding:7px 9px;border-radius:7px;border:1.5px solid var(--g3)"><input type="checkbox" id="bulk-cfg-editar" style="width:13px;height:13px;accent-color:#7c3aed"><span style="font-size:.74rem;font-weight:800">✏️ Editar Ventas</span></label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:white;padding:7px 9px;border-radius:7px;border:1.5px solid var(--g3)"><input type="checkbox" id="bulk-cfg-historial" style="width:13px;height:13px;accent-color:#0891b2"><span style="font-size:.74rem;font-weight:800">📋 Historial</span></label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:white;padding:7px 9px;border-radius:7px;border:1.5px solid var(--g3)"><input type="checkbox" id="bulk-cfg-reportes" style="width:13px;height:13px;accent-color:#db2777"><span style="font-size:.74rem;font-weight:800">📊 Reportes</span></label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:white;padding:7px 9px;border-radius:7px;border:1.5px solid var(--g3)"><input type="checkbox" id="bulk-cfg-ajustes" style="width:13px;height:13px;accent-color:#374151"><span style="font-size:.74rem;font-weight:800">⚙️ Ajustes</span></label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:white;padding:7px 9px;border-radius:7px;border:1.5px solid var(--g3)"><input type="checkbox" id="bulk-cfg-micuenta" style="width:13px;height:13px;accent-color:#be123c"><span style="font-size:.74rem;font-weight:800">🔐 Mi Cuenta</span></label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:white;padding:7px 9px;border-radius:7px;border:1.5px solid var(--g3)"><input type="checkbox" id="bulk-cfg-manual" style="width:13px;height:13px;accent-color:#0369a1"><span style="font-size:.74rem;font-weight:800">📖 Ayuda</span></label>
+      </div>
+    </div>
+
+    <!-- Nota de modo -->
+    <div style="background:#fffbeb;border:1.5px solid #fcd34d;border-radius:8px;padding:10px 12px;margin-bottom:14px">
+      <div style="font-size:.72rem;font-weight:800;color:#92400e;margin-bottom:4px">⚠️ Modo de aplicación</div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px">
+        <input type="radio" name="bulk-mode" value="replace" id="bulk-mode-replace" checked style="accent-color:var(--n)">
+        <div><div style="font-size:.76rem;font-weight:800">Reemplazar</div><div style="font-size:.65rem;color:var(--t3)">Sobreescribe todos los permisos actuales</div></div>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="radio" name="bulk-mode" value="add" id="bulk-mode-add" style="accent-color:var(--n)">
+        <div><div style="font-size:.76rem;font-weight:800">Agregar</div><div style="font-size:.65rem;color:var(--t3)">Solo activa los seleccionados, no quita nada</div></div>
+      </label>
+    </div>
+
+    </div>
+</div>
+<div class="macts">
+      <button class="bmcancel" onclick="closeM('bulkPerms')">Cancelar</button>
+      <button class="bsave" onclick="applyBulkPerms()">💾 APLICAR A SELECCIONADOS</button>
+    </div>
+  </div>
+</div>
+
+<div class="moverlay" id="m-confirm">
+  <div class="modal"><div class="modal-scroll"><div class="mhandle"></div>
+    <div class="mtitle" id="cf-title">⚠️ Confirmar</div>
+    <p id="cf-msg" style="font-size:.9rem;color:var(--t2);margin-bottom:20px;line-height:1.5"></p>
+    </div>
+
+<div class="macts"><button class="bmcancel" onclick="closeM('confirm')">Cancelar</button><button class="bsave" style="background:linear-gradient(135deg,var(--r),#b91c1c)" id="cf-ok">🗑️ ELIMINAR</button></div>
+  </div>
+</div>
+
+<!-- PROVEEDOR MODAL -->
+<div class="moverlay" id="m-addProv">
+  <div class="modal"><div class="modal-scroll"><div class="mhandle"></div>
+    <div class="mtitle" id="prov-modal-title">🏪 Agregar Proveedor</div>
+    <input type="hidden" id="prov-edit-idx" value="-1">
+    <label class="mlbl">🏙️ Ciudad</label>
+    <select class="msel" id="prov-ciudad">
+      <option value="wash">🌲 Washington</option>
+      <option value="chi">🌆 Chicago</option>
+      <option value="ambas">🌐 Ambas ciudades</option>
+    </select>
+    <label class="mlbl">Nombre del Proveedor</label>
+    <input class="minput" id="prov-nombre" placeholder="Ej: Tortillería La Esperanza">
+    <label class="mlbl">📦 Producto que vende</label>
+    <input class="minput" id="prov-producto" placeholder="Ej: Tortillas, Carnes, Sodas">
+    <label class="mlbl">📱 Teléfono / WhatsApp</label>
+    <input class="minput" id="prov-tel" placeholder="Ej: 555-123-4567" type="tel">
+    <label class="mlbl">💰 Precio / Condición</label>
+    <input class="minput" id="prov-precio" placeholder="Ej: $0.025/pza, crédito 7 días">
+    <label class="mlbl">📝 Notas</label>
+    <input class="minput" id="prov-notas" placeholder="Ej: Solo entrega martes y jueves">
+    </div>
+
+<div class="macts"><button class="bmcancel" onclick="closeM('addProv')">Cancelar</button><button class="bsave" id="prov-savebtn" onclick="saveProv()">✅ GUARDAR</button></div>
+  </div>
+</div>
+
+<!-- FOTO COMPROBANTE MODAL -->
+<div class="moverlay" id="m-foto">
+  <div class="modal"><div class="modal-scroll"><div class="mhandle"></div>
+    <div class="mtitle">📸 Foto de Comprobante</div>
+    <p style="font-size:.82rem;color:var(--t3);margin-bottom:14px">Sube una foto del recibo o comprobante del gasto.</p>
+    <div id="foto-preview" style="width:100%;min-height:120px;background:var(--g2);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden">
+      <span style="color:var(--t3);font-size:.85rem">Sin foto</span>
+    </div>
+    <input type="file" id="foto-input" accept="image/*" capture="environment" style="display:none" onchange="previewFoto(this)">
+    <button class="boutl" style="width:100%;margin-bottom:8px" onclick="document.getElementById('foto-input').click()">📷 Tomar / Seleccionar Foto</button>
+    </div>
+
+<div class="macts"><button class="bmcancel" onclick="closeM('foto')">Cancelar</button><button class="bsave" id="foto-savebtn" onclick="guardarFoto()">💾 GUARDAR</button></div>
+  </div>
+</div>
+
+<!-- MODAL FOTO INVOICE PROVEEDOR -->
+<div class="moverlay" id="m-provFoto">
+  <div class="modal"><div class="modal-scroll"><div class="mhandle"></div>
+    <div class="mtitle">📄 Invoice del Proveedor</div>
+    <div id="prov-foto-nombre" style="text-align:center;font-size:.82rem;color:var(--t3);font-weight:700;margin-bottom:10px"></div>
+    <div id="prov-foto-preview" style="width:100%;min-height:140px;background:var(--g2);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden;position:relative">
+      <span id="prov-foto-placeholder" style="color:var(--t3);font-size:.85rem">Sin foto de invoice</span>
+    </div>
+    <input type="file" id="prov-foto-input" accept="image/*" capture="environment" style="display:none" onchange="previewProvFoto(this)">
+    <button class="boutl" style="width:100%;margin-bottom:8px" onclick="document.getElementById('prov-foto-input').click()">📷 Tomar / Seleccionar Foto</button>
+    <button class="boutl" id="prov-foto-del-btn" style="width:100%;margin-bottom:8px;background:var(--r);color:#fff;display:none" onclick="eliminarProvFoto()">🗑️ Eliminar Foto</button>
+    </div>
+
+</div>
+<div class="macts">
+      <button class="bmcancel" onclick="closeM('provFoto')">Cancelar</button>
+      <button class="bsave" id="prov-foto-savebtn" onclick="guardarProvFoto()">💾 GUARDAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- PIN LOGIN OVERLAY -->
+<div id="pin-login-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+  <div style="font-size:2rem">🌮</div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--n)">La Cuadra Tacos</div>
+  <div id="pin-login-user" style="font-size:.85rem;color:var(--t3);font-weight:700"></div>
+  <div style="display:flex;gap:10px;margin:8px 0" id="pin-dots">
+    <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+  </div>
+  <div id="pin-keypad" style="display:grid;grid-template-columns:repeat(3,64px);gap:10px"></div>
+  <button onclick="pinCancelar()" style="background:none;border:none;color:var(--t3);font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;margin-top:8px">Usar contraseña →</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

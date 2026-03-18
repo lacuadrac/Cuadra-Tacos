@@ -314,8 +314,9 @@ body{font-family:'Nunito',sans-serif;background:var(--g);color:var(--t);min-heig
 .prov-card{background:white;border-radius:var(--Rs);padding:14px;box-shadow:var(--sh);margin-bottom:10px;border-left:4px solid var(--v)}
 
 /* VENTAS WIZARD */
+.ao{} /* admin-only nav marker — visibility controlled by JS */
 .vstep-panel{display:none}
-.vstep-panel.active{display:block}
+#view-ventas .vstep-panel.active{display:block}
 .vstep-steps{display:flex;align-items:center;gap:0;margin-bottom:16px;padding:0 4px}
 .vstep{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;flex:1}
 .vstep-num{width:30px;height:30px;border-radius:50%;background:var(--g3);color:var(--t3);font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:900;display:flex;align-items:center;justify-content:center;transition:all .25s}
@@ -736,7 +737,7 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
   </div>
 
   <!-- ══ STEP 1: VENTAS ══ -->
-  <div class="vstep-panel active" id="vpanel-0">
+  <div class="vstep-panel" id="vpanel-0">
     <div class="card">
       <div class="ctit">💰 Ventas del Día</div>
       <p style="font-size:.75rem;color:var(--t3);margin-bottom:16px" id="ventas-dia-lbl">Registra el total cobrado por tipo de pago</p>
@@ -939,128 +940,6 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
     </div>
   </div>
 
-</div>
-
-  <div class="card" style="background:linear-gradient(135deg,var(--cb),var(--cb2));border:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-      <div>
-        <div style="font-size:.68rem;font-weight:900;letter-spacing:1px;color:#a16207;text-transform:uppercase;margin-bottom:4px">📅 Fecha del Registro</div>
-        <input type="date" id="fechaVentas" style="background:rgba(255,255,255,.1);border:1.5px solid rgba(234,88,12,.4);border-radius:10px;padding:8px 12px;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;color:white;outline:none;color-scheme:dark" onchange="onFechaChange()">
-      </div>
-      <div style="text-align:right">
-        <div id="fechaVentasLabel" style="font-size:.75rem;color:#fed7aa;font-weight:700"></div>
-        <div id="fechaVentasStatus" style="font-size:.65rem;color:#a16207;margin-top:2px"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- META DEL PUESTO -->
-  <div id="venta-meta-card">
-    <div class="card" style="border-left:4px solid var(--v);padding:12px 14px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div style="display:flex;align-items:center;gap:6px">
-          <div style="font-size:.75rem;font-weight:900;color:var(--t2)">🎯 Meta</div>
-          <div id="venta-meta-tipo" style="font-size:.65rem;font-weight:800;color:var(--n);background:var(--ns);padding:2px 7px;border-radius:20px"></div>
-        </div>
-        <div id="venta-meta-nums" style="font-size:.72rem;color:var(--t3);font-weight:700"></div>
-      </div>
-      <div style="height:10px;background:var(--g3);border-radius:5px;overflow:hidden">
-        <div id="venta-meta-fill" style="height:100%;border-radius:5px;width:0%;transition:width .6s ease;background:var(--v)"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-top:5px">
-        <div id="venta-meta-pct" style="font-size:.78rem;font-weight:900;color:var(--v)">—</div>
-        <div id="venta-meta-falta" style="font-size:.72rem;color:var(--t3);font-weight:600"></div>
-      </div>
-    </div>
-  </div>
-  <!-- CAJA CHICA -->
-  <div class="card" style="border-left:4px solid var(--am)">
-    <div class="ctit">💵 Fondo de Caja (Cambio)</div>
-    <p style="font-size:.72rem;color:var(--t3);margin-bottom:12px">Dinero que llevas para dar cambio a los clientes.</p>
-    <div class="crow">
-      <span class="clbl">
-        🌅 Fondo inicial
-        <span style="font-size:.65rem;color:var(--t3);display:block;font-weight:600">Cuánto llevas al salir</span>
-      </span>
-      <input class="cinp" type="number" min="0" id="caja-inicio" placeholder="$0.00" style="border-color:var(--am)">
-    </div>
-    <div class="crow" style="border-bottom:none">
-      <span class="clbl">
-        📝 Notas
-        <span style="font-size:.65rem;color:var(--t3);display:block;font-weight:600">Ej: llevé $200 en billetes de $20</span>
-      </span>
-      <input type="text" id="caja-notas" placeholder="Opcional..."
-        style="width:140px;border:1.5px solid var(--g3);border-radius:8px;padding:8px 10px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:600;color:var(--t);background:var(--g2);outline:none"
-        onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'">
-    </div>
-  </div>
-  <div class="card">
-    <div class="ctit">💰 Ventas del Día</div>
-    <p style="font-size:.72rem;color:var(--t3);margin-bottom:12px" id="ventas-dia-lbl">Registrando para la fecha seleccionada arriba</p>
-    <div class="crow"><span class="clbl">💵 Efectivo</span><input class="cinp" type="number" min="0" id="ve-dia-ef" oninput="calcV()" placeholder="$0.00"></div>
-    <div class="crow"><span class="clbl">💳 Tarjeta</span><input class="cinp" type="number" min="0" id="ve-dia-tj" oninput="calcV()" placeholder="$0.00"></div>
-    <div class="crow"><span class="clbl">📱 Otros pagos</span><input class="cinp" type="number" min="0" id="ve-dia-ot" oninput="calcV()" placeholder="$0.00"></div>
-    <div class="ftot"><span>💵 Efectivo</span><span id="tef">$0</span></div>
-    <div class="ftot" style="margin-top:4px"><span>💳 Tarjeta + Otros</span><span id="ttj">$0</span></div>
-    <div class="ftot b" style="margin-top:6px"><span>🏆 VENTAS BRUTAS</span><span id="tbruto">$0</span></div>
-  </div>
-  <div class="card">
-    <div class="ctit">📤 Gastos del Puesto</div>
-    <div class="crow"><span class="clbl">⛽ Gasolina</span><input class="cinp" type="number" id="g-gas" oninput="calcV()"></div>
-    <div class="crow"><span class="clbl">🧊 Hielo</span><input class="cinp" type="number" id="g-hie" oninput="calcV()"></div>
-    <div class="crow"><span class="clbl">🔧 Reparación</span><input class="cinp" type="number" id="g-rep" oninput="calcV()"></div>
-    <div class="crow"><span class="clbl">🛣️ Casetas</span><input class="cinp" type="number" id="g-cas" oninput="calcV()"></div>
-    <!-- Otros con descripción -->
-    <div style="padding:10px 0;border-bottom:1px solid var(--g2)">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-        <span class="clbl" style="flex:1">📦 Otros</span>
-        <input class="cinp" type="number" id="g-otr" oninput="calcV()" style="width:100px">
-      </div>
-      <input type="text" id="g-otr-desc" placeholder="¿Qué compraron? Ej: bolsas, servilletas, limpieza..."
-        style="width:100%;border:1.5px solid var(--g3);border-radius:8px;padding:8px 10px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:600;color:var(--t);background:var(--g2);outline:none;transition:all .15s"
-        onfocus="this.style.borderColor='var(--n)';this.style.background='white'"
-        onblur="this.style.borderColor='var(--g3)';this.style.background='var(--g2)'">
-    </div>
-    <div class="ftot d"><span>Total Gastos</span><span id="gtot">$0</span></div>
-    <button class="boutl" style="width:100%;margin-top:8px;font-size:.8rem" onclick="openM('foto')">📸 Adjuntar foto de comprobante</button>
-  </div>
-  <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <div class="ctit" style="margin-bottom:0">🧅 Control de Materia Prima</div>
-      <button class="shbtn" onclick="openM('addMP')">+ Producto</button>
-    </div>
-    <p style="font-size:.72rem;color:var(--t3);margin-bottom:12px">Registra salida, regreso y desperdicios — el sistema calcula lo consumido y su costo.</p>
-    <!-- Column headers -->
-    <div style="display:grid;grid-template-columns:1fr 56px 56px 56px 56px;gap:3px;align-items:center;margin-bottom:6px;padding:0 2px">
-      <div style="font-size:.58rem;font-weight:900;color:var(--t3);text-transform:uppercase">Producto</div>
-      <div style="font-size:.58rem;font-weight:900;color:var(--az);text-align:center;text-transform:uppercase">📦 Sale</div>
-      <div style="font-size:.58rem;font-weight:900;color:var(--v);text-align:center;text-transform:uppercase">📥 Regresa</div>
-      <div style="font-size:.58rem;font-weight:900;color:var(--r);text-align:center;text-transform:uppercase">🗑️ Daño</div>
-      <div style="font-size:.58rem;font-weight:900;color:var(--n);text-align:center;text-transform:uppercase">🔥 Usó</div>
-    </div>
-    <div id="mp-rows"></div>
-    <!-- Resumen totales -->
-    <div id="mp-totales" style="display:none;margin-top:10px;border-top:1px solid var(--g3);padding-top:10px">
-      <div class="ftot" style="margin-top:0"><span>🔥 Costo consumido</span><span id="mp-costo-val">$0</span></div>
-      <div class="ftot d" style="margin-top:6px"><span>🗑️ Costo desperdicios</span><span id="mp-desp-val">$0</span></div>
-      <div class="ftot b" style="margin-top:6px"><span>💸 Costo total MP</span><span id="mp-total-val">$0</span></div>
-    </div>
-  </div>
-  <!-- Firma del encargado -->
-  <div class="card" style="border-left:4px solid var(--az)">
-    <div style="font-size:.75rem;font-weight:900;color:var(--t2);margin-bottom:8px">✍️ Firma del Encargado</div>
-    <div class="crow" style="border-bottom:none">
-      <span class="clbl">
-        Nombre
-        <span style="font-size:.65rem;color:var(--t3);display:block;font-weight:600">Quien registra este reporte</span>
-      </span>
-      <input type="text" id="ve-encargado" placeholder="Tu nombre..."
-        style="width:140px;border:1.5px solid var(--g3);border-radius:8px;padding:8px 10px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;color:var(--t);background:var(--g2);outline:none"
-        onfocus="this.style.borderColor='var(--az)'" onblur="this.style.borderColor='var(--g3)'">
-    </div>
-  </div>
-  <button class="bsave" onclick="guardarVentas()">💾 GUARDAR REGISTRO</button>
-  <button class="boutl" style="width:100%;margin-top:8px" onclick="limpiarV()">🗑️ Limpiar formulario</button>
 </div>
 
 <!-- ASISTENCIA -->
@@ -2059,6 +1938,24 @@ body.dark input,body.dark select{background:#374151;color:#f9fafb;border-color:#
     <input type="file" id="foto-input" accept="image/*" capture="environment" style="display:none" onchange="previewFoto(this)">
     <button class="boutl" style="width:100%;margin-bottom:8px" onclick="document.getElementById('foto-input').click()">📷 Tomar / Seleccionar Foto</button>
     <div class="macts"><button class="bmcancel" onclick="closeM('foto')">Cancelar</button><button class="bsave" id="foto-savebtn" onclick="guardarFoto()">💾 GUARDAR</button></div>
+  </div>
+</div>
+
+<!-- MODAL FOTO INVOICE PROVEEDOR -->
+<div class="moverlay" id="m-provFoto">
+  <div class="modal"><div class="mhandle"></div>
+    <div class="mtitle">📄 Invoice del Proveedor</div>
+    <div id="prov-foto-nombre" style="text-align:center;font-size:.82rem;color:var(--t3);font-weight:700;margin-bottom:10px"></div>
+    <div id="prov-foto-preview" style="width:100%;min-height:140px;background:var(--g2);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden;position:relative">
+      <span id="prov-foto-placeholder" style="color:var(--t3);font-size:.85rem">Sin foto de invoice</span>
+    </div>
+    <input type="file" id="prov-foto-input" accept="image/*" capture="environment" style="display:none" onchange="previewProvFoto(this)">
+    <button class="boutl" style="width:100%;margin-bottom:8px" onclick="document.getElementById('prov-foto-input').click()">📷 Tomar / Seleccionar Foto</button>
+    <button class="boutl" id="prov-foto-del-btn" style="width:100%;margin-bottom:8px;background:var(--r);color:#fff;display:none" onclick="eliminarProvFoto()">🗑️ Eliminar Foto</button>
+    <div class="macts">
+      <button class="bmcancel" onclick="closeM('provFoto')">Cancelar</button>
+      <button class="bsave" id="prov-foto-savebtn" onclick="guardarProvFoto()">💾 GUARDAR</button>
+    </div>
   </div>
 </div>
 
@@ -5772,7 +5669,7 @@ async function loginConFaceID(){
     showToast(`✅ Bienvenido, ${CU.user}`);
 
   } catch(err){
-    if(btn) btn.innerHTML='<span style="font-size:1.6rem">🔒</span><div style="text-align:left"><div>Entrar con Face ID / Touch ID</div><div id="faceid-user-label" style="font-size:.72rem;opacity:.7;font-weight:600">'+stored.userName+'</div></div>';
+    if(btn) btn.innerHTML='<span style="font-size:1.6rem">🔒</span><div style="text-align:left"><div>Entrar con Face ID / Touch ID</div><div class="faceid-user-label" style="font-size:.72rem;opacity:.7;font-weight:600">'+stored.userName+'</div></div>';
     if(err.name==='NotAllowedError'){
       showToast('Face ID cancelado');
     } else {
@@ -6117,6 +6014,10 @@ function renderProvView(){
       p.ciudad==='chi'?'<span style="background:#fef3c7;color:#92400e;border-radius:6px;padding:2px 7px;font-size:.65rem;font-weight:800">🌆 Chicago</span>':
       '<span style="background:#d1fae5;color:#065f46;border-radius:6px;padding:2px 7px;font-size:.65rem;font-weight:800">🌲 Wash</span>';
     const div=document.createElement('div');div.className='prov-card';
+    const invoiceThumb=p.invoice?`<div style="margin-top:8px;border-top:1px solid var(--g3);padding-top:8px;cursor:pointer" onclick="openProvFoto(${i})">
+      <img src="${p.invoice}" style="width:100%;max-height:120px;object-fit:cover;border-radius:8px;border:2px solid var(--az)">
+      <div style="font-size:.68rem;color:var(--az);font-weight:700;text-align:center;margin-top:3px">📄 Invoice guardado · toca para ver</div>
+    </div>`:'';
     div.innerHTML=`
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
         <div style="flex:1;min-width:0">
@@ -6128,10 +6029,12 @@ function renderProvView(){
           ${p.tel?`<div style="font-size:.75rem;color:var(--t3);margin-top:3px">📱 <a href="https://wa.me/${p.tel.replace(/\D/g,'')}" style="color:var(--az);font-weight:700">${p.tel}</a></div>`:''}
           ${p.precio?`<div style="font-size:.75rem;color:var(--t2);margin-top:3px">💰 ${p.precio}</div>`:''}
           ${p.notas?`<div style="font-size:.72rem;color:var(--t3);margin-top:4px;font-style:italic;border-top:1px solid var(--g3);padding-top:4px">${p.notas}</div>`:''}
+          ${invoiceThumb}
         </div>
         <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
           <button class="bedit" style="padding:6px 10px" onclick="editProv(${i})">✏️</button>
           <button class="bdang" style="padding:6px 10px" onclick="delProv(${i})">🗑️</button>
+          <button class="boutl" style="padding:6px 10px;font-size:.7rem" onclick="openProvFoto(${i})" title="Invoice">${p.invoice?'📄':'📷'}</button>
         </div>
       </div>`;
     c.appendChild(div);
@@ -6239,6 +6142,76 @@ async function delProv(idx){
   const nom=PROV[idx]?.nombre;
   if(!confirm(`¿Eliminar "${nom}"?`))return;
   PROV.splice(idx,1);await SD('PROV',PROV);renderCfgProv();renderProvView();showToast(`🗑️ "${nom}" eliminado`);
+}
+
+// ═══════════════════════════════════════════
+// 📄 FOTO INVOICE PROVEEDOR
+// ═══════════════════════════════════════════
+let provFotoBase64=null;
+let provFotoIdx=-1;
+
+function openProvFoto(idx){
+  provFotoIdx=idx;
+  provFotoBase64=null;
+  const p=PROV[idx];if(!p)return;
+  // Reset input
+  const inp=document.getElementById('prov-foto-input');
+  if(inp) inp.value='';
+  // Set nombre
+  const nom=document.getElementById('prov-foto-nombre');
+  if(nom) nom.textContent=p.nombre;
+  // Preview existing or placeholder
+  const prev=document.getElementById('prov-foto-preview');
+  const placeholder=document.getElementById('prov-foto-placeholder');
+  const delBtn=document.getElementById('prov-foto-del-btn');
+  if(p.invoice){
+    prev.innerHTML=`<img src="${p.invoice}" style="width:100%;border-radius:10px;object-fit:cover;max-height:200px">`;
+    if(delBtn) delBtn.style.display='block';
+  } else {
+    prev.innerHTML='';
+    if(placeholder){ placeholder.textContent='Sin foto de invoice'; prev.appendChild(placeholder);}
+    if(delBtn) delBtn.style.display='none';
+  }
+  document.getElementById('m-provFoto').classList.add('open');
+}
+
+function previewProvFoto(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    provFotoBase64=e.target.result;
+    const prev=document.getElementById('prov-foto-preview');
+    if(prev) prev.innerHTML=`<img src="${provFotoBase64}" style="width:100%;border-radius:10px;object-fit:cover;max-height:200px">`;
+    const delBtn=document.getElementById('prov-foto-del-btn');
+    if(delBtn) delBtn.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function guardarProvFoto(){
+  if(!provFotoBase64&&!PROV[provFotoIdx]?.invoice){
+    showToast('⚠️ Selecciona una foto primero');return;
+  }
+  if(provFotoBase64){
+    PROV[provFotoIdx].invoice=provFotoBase64;
+    PROV[provFotoIdx].invoiceFecha=new Date().toLocaleString('es');
+  }
+  await SD('PROV',PROV);
+  provFotoBase64=null;
+  closeM('provFoto');
+  renderProvView();
+  showToast('📄 Invoice guardado');
+}
+
+async function eliminarProvFoto(){
+  if(provFotoIdx<0||!PROV[provFotoIdx])return;
+  delete PROV[provFotoIdx].invoice;
+  delete PROV[provFotoIdx].invoiceFecha;
+  await SD('PROV',PROV);
+  provFotoBase64=null;
+  closeM('provFoto');
+  renderProvView();
+  showToast('🗑️ Invoice eliminado');
 }
 
 // ═══════════════════════════════════════════

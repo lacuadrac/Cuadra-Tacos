@@ -6559,6 +6559,7 @@ const MANUAL_SECTIONS=[
       {emoji:'3️⃣', text:'Toca <strong>ENTRAR</strong>. ¡Listo!'},
       {emoji:'💡', text:'<em>Tip:</em> Guarda el link en tu pantalla de inicio para abrirla más rápido como si fuera una app normal.'},
       {emoji:'🔑', text:'Desde <strong>⚙️ Config → 🔐 Mi Cuenta</strong> puedes activar un PIN de 4 dígitos o huella/Face ID para entrar más rápido.'},
+      {emoji:'🌙', text:'La app detecta automáticamente si tu iPhone está en <strong>modo oscuro o claro</strong> y se adapta. También puedes cambiarlo manualmente desde <strong>⚙️ Config → Ajustes → 🌙 Apariencia</strong>.'},
     ]
   },
   {
@@ -6566,11 +6567,12 @@ const MANUAL_SECTIONS=[
     color:'#16a34a', bg:'#f0fdf4',
     steps:[
       {emoji:'1️⃣', text:'Toca <strong>💰 Ventas</strong> en el menú de abajo.'},
-      {emoji:'2️⃣', text:'Selecciona el <strong>puesto</strong> (North Gate, Sahara, Renton...) y la <strong>fecha</strong>.'},
-      {emoji:'3️⃣', text:'Llena <strong>Efectivo</strong>, <strong>Tarjeta</strong> y <strong>Otros</strong> con los montos del día.'},
-      {emoji:'4️⃣', text:'Llena los gastos: gasolina, hielo, reparaciones, casetas, otros.'},
-      {emoji:'5️⃣', text:'Escribe tu <strong>nombre</strong> en "Firma del Encargado" (obligatorio).'},
-      {emoji:'6️⃣', text:'Toca <strong>💾 GUARDAR VENTAS</strong>.'},
+      {emoji:'2️⃣', text:'Selecciona el <strong>puesto</strong> y la <strong>fecha</strong>.'},
+      {emoji:'3️⃣', text:'El registro de ventas tiene <strong>4 pasos</strong>: Ventas → Extra → Gastos → Guardar. Navega con los botones "Siguiente" y "Volver".'},
+      {emoji:'💵', text:'<strong>Paso 1 — Ventas:</strong> Llena <strong>Efectivo</strong>, <strong>Tarjeta</strong> y <strong>Otros pagos</strong>. Los tres campos son <strong>obligatorios</strong> — si no tuviste alguno, escribe <strong>0</strong>. No podrás pasar al siguiente paso si alguno está vacío.'},
+      {emoji:'⚡', text:'<strong>Paso 2 — Extra:</strong> Registra el <strong>Fondo de Caja</strong> (inicio y cierre) y la <strong>🧅 Materia Prima</strong> consumida o dañada. La sección de MP se abre automáticamente.'},
+      {emoji:'📤', text:'<strong>Paso 3 — Gastos:</strong> Llena los gastos del día: gasolina, hielo, reparaciones, casetas, otros. Puedes adjuntar 📸 foto del comprobante.'},
+      {emoji:'📋', text:'<strong>Paso 4 — Guardar:</strong> Revisa el resumen, escribe tu <strong>nombre</strong> en Firma del Encargado (obligatorio) y toca <strong>💾 GUARDAR VENTAS</strong>.'},
       {emoji:'✅', text:'Verás un mensaje de confirmación. Los datos se sincronizan automáticamente con Google Sheets.'},
       {emoji:'⚠️', text:'Si no hay internet, <strong>no te preocupes</strong> — los datos se guardan en tu teléfono y se mandan automáticamente cuando tengas señal.'},
     ]
@@ -6607,6 +6609,7 @@ const MANUAL_SECTIONS=[
       {emoji:'2️⃣', text:'Selecciona la ciudad: <strong>🌲 Washington</strong> o <strong>🌆 Chicago</strong>.'},
       {emoji:'3️⃣', text:'Usa el buscador 🔍 para encontrar un proveedor por nombre o producto.'},
       {emoji:'4️⃣', text:'Toca <strong>📱 el teléfono</strong> de un proveedor para abrir WhatsApp directo.'},
+      {emoji:'📄', text:'Cada proveedor tiene un botón 📷 para <strong>adjuntar la foto del invoice</strong> del día. Si ya tiene una foto guardada aparece como 📄. Tócalo para ver, cambiar o eliminar la foto.'},
       {emoji:'➕', text:'Para agregar uno nuevo toca <strong>+ Agregar</strong>, llena el formulario y elige la ciudad.'},
       {emoji:'✏️', text:'Para editar o eliminar toca los botones ✏️ o 🗑️ en la tarjeta del proveedor.'},
     ]
@@ -6620,7 +6623,7 @@ const MANUAL_SECTIONS=[
       {emoji:'🧅', text:'<strong>Materia Prima</strong>: administra el catálogo de ingredientes y sus precios.'},
       {emoji:'🎯', text:'<strong>Metas</strong>: define cuánto debe vender cada puesto por semana.'},
       {emoji:'📊', text:'<strong>Reportes</strong>: ve el resumen mensual, flujo de efectivo, gastos y exporta datos.'},
-      {emoji:'⚙️', text:'<strong>Ajustes</strong>: modo oscuro, notificaciones, mensajes motivacionales y zona de peligro.'},
+      {emoji:'⚙️', text:'<strong>Ajustes</strong>: modo oscuro (automático por sistema o manual), notificaciones, mensajes motivacionales y zona de peligro.'},
       {emoji:'🔐', text:'<strong>Mi Cuenta</strong>: accede desde Config → Mi Cuenta para configurar PIN o Face ID.'},
       {emoji:'📖', text:'<strong>Ayuda</strong>: accede al manual completo desde Config → Ayuda.'},
       {emoji:'📋', text:'<strong>Historial</strong>: ve quién guardó qué y cuándo. Útil para auditorías.'},
@@ -6683,6 +6686,8 @@ const MANUAL_SECTIONS=[
       {emoji:'❓', text:'<strong>¿Qué significa "Solo local"?</strong> — Tus datos están guardados en el teléfono pero aún no llegaron a Google Sheets. Revisa tu conexión y toca 🔄.'},
       {emoji:'❓', text:'<strong>¿Puedo ver las ventas de otro puesto?</strong> — Depende de tus permisos. Si eres admin puedes ver todo. Si eres encargado, solo ves tu puesto o ciudad asignada.'},
       {emoji:'❓', text:'<strong>¿Cómo cambio mi contraseña?</strong> — Solo el administrador puede cambiar contraseñas desde Config → Usuarios.'},
+      {emoji:'❓', text:'<strong>¿Por qué no me deja pasar de Ventas al siguiente paso?</strong> — Los campos de Efectivo, Tarjeta y Otros pagos son obligatorios. Si no tuviste alguno, escribe <strong>0</strong> en ese campo.'},
+      {emoji:'❓', text:'<strong>¿La app detecta si mi iPhone está en modo oscuro?</strong> — Sí. La app sigue automáticamente el modo de tu sistema. También puedes cambiarlo manualmente desde Config → Ajustes → Apariencia.'},
     ]
   },
   {
@@ -6695,6 +6700,7 @@ const MANUAL_SECTIONS=[
       {emoji:'🔐', text:'<strong>No recuerdo mi contraseña:</strong> El administrador la puede resetear desde Config → Usuarios. No hay forma de recuperarla sola.'},
       {emoji:'📱', text:'<strong>El PIN o Face ID no funciona:</strong> Ve a <strong>⚙️ Config → 🔐 Mi Cuenta</strong> y elimina el PIN/biometría. Luego vuelve a configurarlo desde cero.'},
       {emoji:'⚠️', text:'<strong>Se perdieron datos:</strong> Avisa de inmediato al administrador. En Config → Ajustes → Backup puede haber una copia reciente para restaurar.'},
+      {emoji:'🌙', text:'<strong>El modo oscuro/claro no cambia automático en iPhone:</strong> Ve a <strong>Config → Ajustes → Apariencia</strong> y toca <em>"↩ Volver a automático"</em> para que la app vuelva a seguir el modo del sistema.'},
       {emoji:'📞', text:'<strong>Cualquier otro problema:</strong> Manda captura de pantalla al administrador con el error que ves. Entre más detalle des, más rápido se resuelve.'},
     ]
   },

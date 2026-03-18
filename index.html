@@ -6375,8 +6375,8 @@ row.innerHTML=`
 <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.nombre}</span>
 </div>
 <div style="font-size:.62rem;color:var(--n);font-weight:800;margin-top:1px">$${item.precio} / ${item.unidad||'pza'}</div>
-${isAdmin&&(consumido!==null||despVal>0)?`<div style="font-size:.58rem;color:var(--t3);margin-top:1px">
-${consumido!==null?`<span style="color:var(--n);font-weight:800">🔥${consumido}</span> `:''}
+${isAdmin&&(consumido>0||despVal>0)?`<div style="font-size:.58rem;color:var(--t3);margin-top:1px">
+${consumido!==null&&consumido>0?`<span style="color:var(--n);font-weight:800">🔥${consumido}</span> `:''}
 ${despVal>0?`<span style="color:var(--r);font-weight:800">🗑️${despVal}</span>`:''}
 </div>`:''}
 </div>

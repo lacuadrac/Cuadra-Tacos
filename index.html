@@ -349,9 +349,9 @@ body.dark .dash-cstat{background:#111827;border-color:#374151} .alerta-item{disp
 @keyframes fw-star{0%{transform:translate(0,0) scale(0) rotate(0deg);opacity:1}50%{opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(1.2) rotate(var(--rot,360deg));opacity:0}}
 #meta-celebracion{position:fixed;inset:0;z-index:9997;display:none;align-items:center;justify-content:center;pointer-events:none}
 .meta-msg{background:linear-gradient(135deg,#ea580c,#f97316);color:white;border-radius:24px;padding:28px 36px;text-align:center;box-shadow:0 20px 60px rgba(234,88,12,.5);animation:meta-pop .5s cubic-bezier(.34,1.56,.64,1) forwards}
-@keyframes meta-pop{0%{transform:scale(0) rotate(-10deg);opacity:0}100%{transform:scale(1) rotate(0deg);opacity:1}} .toast{position:fixed;bottom:95px;left:50%;transform:translateX(-50%);background:var(--cb);color:white;padding:12px 20px;border-radius:30px;font-size:.85rem;font-weight:700;z-index:9998;display:none;box-shadow:var(--sh2);white-space:nowrap;border:1px solid rgba(234,88,12,.3)} .moverlay{position:fixed;inset:0;background:rgba(26,10,0,.7);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+@keyframes meta-pop{0%{transform:scale(0) rotate(-10deg);opacity:0}100%{transform:scale(1) rotate(0deg);opacity:1}} .toast{position:fixed;bottom:95px;left:50%;transform:translateX(-50%);background:var(--cb);color:white;padding:12px 20px;border-radius:30px;font-size:.85rem;font-weight:700;z-index:9998;display:none;box-shadow:var(--sh2);white-space:nowrap;border:1px solid rgba(234,88,12,.3)} .moverlay{position:fixed;inset:0;background:rgba(26,10,0,.7);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);overflow:hidden}
 .moverlay.open{display:flex}
-.modal{background:white;border-radius:24px 24px 0 0;padding:0;width:100%;max-width:600px;max-height:90vh;display:flex;flex-direction:column;animation:slideModal .3s ease;overflow:hidden}
+.modal{background:white;border-radius:24px 24px 0 0;padding:0;width:100%;max-width:600px;max-height:90vh;display:flex;flex-direction:column;animation:slideModal .3s ease}
 .mhandle{width:40px;height:4px;background:var(--g3);border-radius:4px;margin:0 auto 20px}
 .mtitle{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--t);letter-spacing:1px;margin-bottom:16px}
 .minput{width:100%;border:2px solid var(--g3);border-radius:var(--Rs);padding:12px 14px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--t);outline:none;transition:all .15s;margin-bottom:12px;background:var(--g2)}
@@ -362,8 +362,8 @@ body.dark .dash-cstat{background:#111827;border-color:#374151} .alerta-item{disp
 .macts{display:flex;gap:10px;padding:12px 20px 24px;background:white;border-top:1px solid var(--g3);flex-shrink:0}
 .macts .bsave{flex:1;margin:0;width:auto}
 .bmcancel{flex:1;background:var(--g2);border:none;color:var(--t2);padding:16px;border-radius:var(--R);font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:1px;cursor:pointer}
-.modal-scroll{flex:1;overflow-y:auto;padding:24px 20px 8px}
-body.dark .macts{background:#1f2937;border-top-color:#374151} .live-badge{display:inline-flex;align-items:center;gap:5px;background:var(--vs);color:var(--v);padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:900;margin-bottom:14px}
+.modal-scroll{flex:1;overflow-y:auto;padding:24px 20px 8px;min-height:0}
+body.dark .macts{background:#1f2937;border-top-color:#374151;position:sticky;bottom:0} .live-badge{display:inline-flex;align-items:center;gap:5px;background:var(--vs);color:var(--v);padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:900;margin-bottom:14px}
 .live-dot{width:6px;height:6px;background:var(--v);border-radius:50%;animation:pulse .8s infinite} .infobox{background:var(--ns);border:1px solid var(--nm);border-radius:var(--Rs);padding:14px;margin-bottom:12px}
 .infobox p{font-size:.82rem;color:var(--t2);line-height:1.5}
 .infobox strong{color:var(--n2)}</style>
@@ -796,14 +796,14 @@ body.dark .macts{background:#1f2937;border-top-color:#374151} .live-badge{displa
           <div class="prod-col-hdr" style="color:var(--n)">✅<br>Usó</div>
         </div>
         <div id="mp-rows"></div>
-        <div id="mp-totales" style="display:none;margin-top:8px;padding:8px 10px;background:var(--g2);border-radius:10px;border:1px solid var(--g3)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <span style="font-size:.7rem;font-weight:800;color:var(--t3)">💸 Costo total</span>
-            <span id="mp-total-val" style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--n)">$0</span>
+        <div id="mp-totales" style="display:none;margin-top:10px;border-radius:12px;overflow:hidden;border:1.5px solid var(--n)">
+          <div style="background:linear-gradient(135deg,var(--n),var(--n2));padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:.72rem;font-weight:900;color:white;opacity:.9">💰 TOTAL EN VENTAS</span>
+            <span id="mp-total-val" style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:white;letter-spacing:.5px">$0</span>
           </div>
-          <div style="display:flex;gap:12px">
-            <span style="font-size:.63rem;color:var(--t3)">🔥 <span id="mp-costo-val" style="color:var(--n);font-weight:800">$0</span></span>
-            <span style="font-size:.63rem;color:var(--t3)">🗑️ <span id="mp-desp-val" style="color:var(--r);font-weight:800">$0</span></span>
+          <div style="background:var(--ns);padding:7px 14px;display:flex;justify-content:space-between">
+            <span style="font-size:.65rem;color:var(--n2);font-weight:800">✅ Vendido: <span id="mp-costo-val" style="font-weight:900">$0</span></span>
+            <span style="font-size:.65rem;color:var(--r);font-weight:800">🗑️ Daños: <span id="mp-desp-val" style="font-weight:900">$0</span></span>
           </div>
         </div>
         <button class="prod-add-btn" onclick="openM('addMP')">＋ Agregar producto</button>
@@ -1327,7 +1327,6 @@ body.dark .macts{background:#1f2937;border-top-color:#374151} .live-badge{displa
       <span id="ev-total-val" style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--n)">$0</span>
     </div>
     </div>
-</div>
 <div class="macts">
       <button class="bmcancel" onclick="closeM('editVenta')">Cancelar</button>
       <button class="bsave" onclick="guardarEdicionModal()">💾 GUARDAR</button>
@@ -1365,7 +1364,6 @@ body.dark .macts{background:#1f2937;border-top-color:#374151} .live-badge{displa
     <label class="mlbl">Notas (opcional)</label>
     <input class="minput" id="gg-notas" placeholder="Descripción adicional...">
     </div>
-</div>
 <div class="macts">
       <button class="bmcancel" onclick="closeM('addGG')">Cancelar</button>
       <button class="bsave" onclick="saveGG()">💾 GUARDAR</button>
@@ -1887,7 +1885,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151} .live-badge{displa
     <label class="mlbl">Nombre del Puesto</label><input class="minput" id="np-nom" placeholder="Ej: Lynnwood...">
     <label class="mlbl">Ciudad</label><select class="msel" id="np-ciu"><option value="wash">🌲 Washington</option><option value="chi">🌆 Chicago</option></select>
     </div>
-</div>
+
 <div class="macts"><button class="bmcancel" onclick="closeM('addP')">Cancelar</button><button class="bsave" onclick="addPuesto()">✅ AGREGAR</button></div>
   </div>
 </div>
@@ -1903,7 +1901,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151} .live-badge{displa
       <button class="bsave" style="margin:0;padding:10px 16px" onclick="agregarPosicion()">+ Agregar</button>
     </div>
     </div>
-</div>
+
 <div class="macts"><button class="bmcancel" onclick="closeM('addPos')">Cerrar</button></div>
   </div>
 </div>
@@ -1915,7 +1913,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151} .live-badge{displa
     <select class="msel" id="ne-pos"></select>
     <label class="mlbl">Ciudad</label><select class="msel" id="ne-ciu"><option value="wash">🌲 Washington</option><option value="chi">🌆 Chicago</option></select>
     </div>
-</div>
+
 <div class="macts"><button class="bmcancel" onclick="closeM('addE')">Cancelar</button><button class="bsave" onclick="addEmpleado()">✅ AGREGAR</button></div>
   </div>
 </div>
@@ -1956,7 +1954,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151} .live-badge{displa
       <option value="lt">lt (litro)</option>
     </select>
     </div>
-</div>
+
 <div class="macts">
       <button class="bmcancel" onclick="closeM('addMP')">Cancelar</button>
       <button class="bsave" id="mp-savebtn" onclick="saveMP()">✅ GUARDAR</button>
@@ -2219,7 +2217,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151} .live-badge{displa
       <p style="font-size:.68rem;color:var(--t3);margin-top:10px">💡 Un manager de ciudad ve todos los puestos de esa ciudad en el selector de puestos</p>
     </div>
     </div>
-</div>
+
 <div class="macts"><button class="bmcancel" onclick="closeM('addU')">Cancelar</button><button class="bsave" id="mu-savebtn" onclick="saveUsuario()">✅ GUARDAR</button></div>
   </div>
 </div>
@@ -2309,7 +2307,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151} .live-badge{displa
     <div class="mtitle" id="cf-title">⚠️ Confirmar</div>
     <p id="cf-msg" style="font-size:.9rem;color:var(--t2);margin-bottom:20px;line-height:1.5"></p>
     </div>
-</div>
+
 <div class="macts"><button class="bmcancel" onclick="closeM('confirm')">Cancelar</button><button class="bsave" style="background:linear-gradient(135deg,var(--r),#b91c1c)" id="cf-ok">🗑️ ELIMINAR</button></div>
   </div>
 </div>
@@ -2336,7 +2334,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151} .live-badge{displa
     <label class="mlbl">📝 Notas</label>
     <input class="minput" id="prov-notas" placeholder="Ej: Solo entrega martes y jueves">
     </div>
-</div>
+
 <div class="macts"><button class="bmcancel" onclick="closeM('addProv')">Cancelar</button><button class="bsave" id="prov-savebtn" onclick="saveProv()">✅ GUARDAR</button></div>
   </div>
 </div>
@@ -2352,7 +2350,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151} .live-badge{displa
     <input type="file" id="foto-input" accept="image/*" capture="environment" style="display:none" onchange="previewFoto(this)">
     <button class="boutl" style="width:100%;margin-bottom:8px" onclick="document.getElementById('foto-input').click()">📷 Tomar / Seleccionar Foto</button>
     </div>
-</div>
+
 <div class="macts"><button class="bmcancel" onclick="closeM('foto')">Cancelar</button><button class="bsave" id="foto-savebtn" onclick="guardarFoto()">💾 GUARDAR</button></div>
   </div>
 </div>
@@ -2369,7 +2367,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151} .live-badge{displa
     <button class="boutl" style="width:100%;margin-bottom:8px" onclick="document.getElementById('prov-foto-input').click()">📷 Tomar / Seleccionar Foto</button>
     <button class="boutl" id="prov-foto-del-btn" style="width:100%;margin-bottom:8px;background:var(--r);color:#fff;display:none" onclick="eliminarProvFoto()">🗑️ Eliminar Foto</button>
     </div>
-</div>
+
 <div class="macts">
       <button class="bmcancel" onclick="closeM('provFoto')">Cancelar</button>
       <button class="bsave" id="prov-foto-savebtn" onclick="guardarProvFoto()">💾 GUARDAR</button>
@@ -2469,13 +2467,21 @@ let MP_C=LL('MP_C',[...DMP]); // Productos Chicago
 
 // Helper: obtener productos de la ciudad activa
 function getMPCiudad(ciudad){
-  const c=ciudad||(CU?.rol==='admin'?NCity:getPuestoCiudad());
-  return c==='chi'?MP_C:MP;
+const c=ciudad||_detectCPCiudad();
+return c==='chi'?MP_C:MP;
 }
-function getPuestoCiudad(){
-  const p=[...EW,...EC].find(e=>e.n===CU?.user||e.user===CU?.user);
-  return p?.ciudad||([...PC].includes(CP)?'chi':'wash');
+function _detectCPCiudad(){
+// Primero: detectar por puesto activo CP
+if(CP&&PC.includes(CP)) return 'chi';
+if(CP&&PW.includes(CP)) return 'wash';
+// Segundo: ciudad del empleado
+const emp=[...EW,...EC].find(e=>e.n===CU?.user||e.user===CU?.user);
+if(emp?.ciudad) return emp.ciudad;
+// Admin fallback
+if(CU?.rol==='admin') return NCity;
+return 'wash';
 }
+function getPuestoCiudad(){ return _detectCPCiudad(); }
 let DP=LL('DP',{}),DN=LL('DN',{wash:{},chi:{}}),DA=LL('DA',{}),DF=LL('DF',{}),DG=LL('DG',{});
 let HIST=LL('HIST',[]);
 let METAS=LL('METAS',{});
@@ -3429,6 +3435,8 @@ const vt=document.getElementById('vtit');if(vt)vt.textContent=`Ventas — ${p}`;
 const at=document.getElementById('atit');if(at)at.textContent=`Asistencia — ${p}`;
 loadVF(p,currentFecha);
 renderVentaMeta();
+// Re-renderizar productos según ciudad del puesto seleccionado
+if(mpSectionOpen) renderMPRows();
 }
 const VIEWS_WITH_PSEL=['ventas'];
 function showV(id,btn){
@@ -4650,7 +4658,7 @@ to:document.getElementById('dash-date-to')?.value||null};
 return{from:null,to:null};
 }
 function getDPuestoFiltered(p,from,to){
-let keys=Object.keys(DP).filter(k=>(k.startsWith(p+'__')||k===p)&&!DP[k]?.anulado);
+let keys=Object.keys(DP).filter(k=>(k.startsWith(p+'__')||k===p)&&!DP[k]?.anulado&&!DP[k]?.deleted);
 if(from||to){
 keys=keys.filter(k=>{
 const fecha=k.includes('__')?k.split('__')[1]:null;
@@ -6088,6 +6096,7 @@ renderRegistrosVentas();
 }
 function renderRegistrosVentas(){
 const c=document.getElementById('edit-registros-list');if(!c)return;
+c.innerHTML=''; // Limpiar siempre primero
 const q=(document.getElementById('edit-search')?.value||'').toLowerCase();
 const ciudadF=document.getElementById('edit-filter-ciudad')?.value||'';
 const orden=document.getElementById('edit-filter-orden')?.value||'fecha-desc';
@@ -6103,6 +6112,7 @@ const ciudad=PW.includes(puesto)?'wash':PC.includes(puesto)?'chi':'';
 registros.push({key,puesto,fecha,ciudad,d});
 });
 registros=registros.filter(r=>{
+if(r.d.deleted) return false; // Excluir registros eliminados
 if(ciudadF&&r.ciudad!==ciudadF) return false;
 if(fechaF&&r.fecha!==fechaF) return false;
 if(orden==='anulados'&&!r.d.anulado) return false;
@@ -6265,9 +6275,12 @@ async function reactivarVenta(key,puesto,fecha){
 async function eliminarVenta(key,puesto,fecha){
 if(!confirm(`⚠️ ELIMINAR PERMANENTEMENTE\n\nEsto borrará el registro de "${puesto}" del ${fmtFecha(fecha)} para siempre.\n\n¿Estás seguro? Esta acción NO se puede deshacer.`)) return;
 const antes=`$${fmt(DP[key]?.totalVentas||0)} ventas`;
-delete DP[key];
+// Guardar con flag deleted=true en lugar de borrar — así el sync no lo restaura
+const deletedEntry={deleted:true,deletedPor:CU?.user||'admin',deletedFecha:new Date().toLocaleString('es')};
+DP[key]=deletedEntry;
 SL('DP',DP);
-await gsS('DP__'+key,'DP__'+key,JSON.stringify({deleted:true,deletedPor:CU?.user||'admin',deletedFecha:new Date().toLocaleString('es')}));
+// Sincronizar la eliminación con Sheets
+await SDp(key,deletedEntry);
 await logChange('Ventas',`ELIMINADO: ${puesto} — ${fmtFecha(fecha)}`,antes,'ELIMINADO PERMANENTE');
 renderRegistrosVentas();
 renderDash();renderReportes();
@@ -6361,7 +6374,8 @@ row.innerHTML=`
 <span style="font-size:.9rem">${renderMPIcon(item,'1em')}</span>
 <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.nombre}</span>
 </div>
-${isAdmin&&(consumido!==null||despVal>0)?`<div style="font-size:.58rem;color:var(--t3);margin-top:2px">
+<div style="font-size:.62rem;color:var(--n);font-weight:800;margin-top:1px">$${item.precio} / ${item.unidad||'pza'}</div>
+${isAdmin&&(consumido!==null||despVal>0)?`<div style="font-size:.58rem;color:var(--t3);margin-top:1px">
 ${consumido!==null?`<span style="color:var(--n);font-weight:800">🔥${consumido}</span> `:''}
 ${despVal>0?`<span style="color:var(--r);font-weight:800">🗑️${despVal}</span>`:''}
 </div>`:''}
@@ -6424,23 +6438,22 @@ ${des>0?`<span style="font-size:.62rem;color:var(--r);font-weight:800">🗑️ $
 calcMPTotal();
 }
 function calcMPTotal(){
-const isAdmin=CU?.rol==='admin';
 const mpList=getMPCiudad();
-let totalConsumo=0,totalDesp=0;let hasAny=false;
+let totalVendido=0,totalDano=0;let hasAny=false;
 mpList.forEach((item,i)=>{
 const sal=parseFloat(document.getElementById(`mp-sal-${i}`)?.value||0);
 const reg=parseFloat(document.getElementById(`mp-reg-${i}`)?.value||0);
 const des=parseFloat(document.getElementById(`mp-des-${i}`)?.value||0);
-const hasSal=document.getElementById(`mp-sal-${i}`)?.value!=='';
-const hasReg=document.getElementById(`mp-reg-${i}`)?.value!=='';
-if(hasSal&&hasReg){totalConsumo+=Math.max(0,sal-reg)*item.precio;hasAny=true;}
-if(des>0){totalDesp+=des*item.precio;hasAny=true;}
+const vendido=Math.max(0,sal-reg-des); // Sale − Regresó − Dañado = lo realmente vendido
+if(sal>0||des>0){hasAny=true;}
+totalVendido+=vendido*item.precio;
+totalDano+=des*item.precio;
 });
 const wrap=document.getElementById('mp-totales');
-if(wrap) wrap.style.display=hasAny&&isAdmin?'block':'none';
-const cv=document.getElementById('mp-costo-val');if(cv)cv.textContent='$'+fmt(totalConsumo);
-const dv=document.getElementById('mp-desp-val');if(dv)dv.textContent='$'+fmt(totalDesp);
-const tv=document.getElementById('mp-total-val');if(tv)tv.textContent='$'+fmt(totalConsumo+totalDesp);
+if(wrap) wrap.style.display=hasAny?'block':'none';
+const cv=document.getElementById('mp-costo-val');if(cv)cv.textContent='$'+fmt(totalVendido);
+const dv=document.getElementById('mp-desp-val');if(dv)dv.textContent='$'+fmt(totalDano);
+const tv=document.getElementById('mp-total-val');if(tv)tv.textContent='$'+fmt(totalVendido);
 }
 function getMPVal(idx){
 const key=dpKey(CP,currentFecha);
@@ -6544,10 +6557,11 @@ if(isNew){mpRef.push(item);}
 else{mpRef[idx]=item;}
 if(_mpCiudad==='chi'){MP_C=[...mpRef];await SD('MP_C',MP_C);}
 else{MP=[...mpRef];await SD('MP',MP);}
-await logChange('Productos',`[${_mpCiudad==='chi'?'Chicago':'Washington'}] `+(isNew?`Nuevo: ${nombre}`:`Precio actualizado: ${nombre}`),
+const ciudadNombre=_mpCiudad==='chi'?'Chicago':'Washington';
+await logChange('Productos',`[${ciudadNombre}] `+(isNew?`Nuevo: ${nombre}`:`Precio actualizado: ${nombre}`),
 antes,`$${precio}/${unidad}`);
 renderMPRows();renderCfgMP();closeM('addMP');
-showToast(isNew?`✅ "${nombre}" agregado`:`✅ "${nombre}" actualizado — todos los puestos`);
+showToast(isNew?`✅ "${nombre}" agregado en ${ciudadNombre}`:`✅ "${nombre}" — $${precio} actualizado en todos los puestos de ${ciudadNombre}`);
 }
 async function delMP(idx){
 const mpRef=getCurrentMP();

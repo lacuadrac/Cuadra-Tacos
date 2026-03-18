@@ -1320,6 +1320,11 @@ body.dark .macts{background:#1f2937;border-top-color:#374151;position:sticky;bot
         <input class="minput" type="number" id="ev-otr" inputmode="decimal" placeholder="$0" style="padding:8px 12px">
       </div>
     </div>
+    <!-- Sección de productos — visible para todos, editable solo admin -->
+    <div id="ev-productos-wrap" style="margin-bottom:14px;display:none">
+      <div style="font-size:.72rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:8px">📦 Productos</div>
+      <div id="ev-productos-list" style="background:var(--g2);border-radius:10px;padding:10px 12px"></div>
+    </div>
     <div style="font-size:.65rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:4px">📝 Motivo de edición</div>
     <input class="minput" id="ev-motivo" placeholder="¿Por qué se está editando este registro?" style="margin-bottom:14px">
     <div id="ev-totales" style="background:var(--g2);border-radius:10px;padding:10px 12px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
@@ -1327,6 +1332,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151;position:sticky;bot
       <span id="ev-total-val" style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--n)">$0</span>
     </div>
     </div>
+</div>
 <div class="macts">
       <button class="bmcancel" onclick="closeM('editVenta')">Cancelar</button>
       <button class="bsave" onclick="guardarEdicionModal()">💾 GUARDAR</button>
@@ -1364,6 +1370,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151;position:sticky;bot
     <label class="mlbl">Notas (opcional)</label>
     <input class="minput" id="gg-notas" placeholder="Descripción adicional...">
     </div>
+</div>
 <div class="macts">
       <button class="bmcancel" onclick="closeM('addGG')">Cancelar</button>
       <button class="bsave" onclick="saveGG()">💾 GUARDAR</button>
@@ -1955,6 +1962,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151;position:sticky;bot
     </select>
     </div>
 
+</div>
 <div class="macts">
       <button class="bmcancel" onclick="closeM('addMP')">Cancelar</button>
       <button class="bsave" id="mp-savebtn" onclick="saveMP()">✅ GUARDAR</button>
@@ -2216,10 +2224,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151;position:sticky;bot
       </div>
       <p style="font-size:.68rem;color:var(--t3);margin-top:10px">💡 Un manager de ciudad ve todos los puestos de esa ciudad en el selector de puestos</p>
     </div>
-    </div>
-
 <div class="macts"><button class="bmcancel" onclick="closeM('addU')">Cancelar</button><button class="bsave" id="mu-savebtn" onclick="saveUsuario()">✅ GUARDAR</button></div>
-  </div>
 </div>
 
 <!-- PERMISOS EN MASA MODAL -->
@@ -2295,6 +2300,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151;position:sticky;bot
     </div>
 
     </div>
+</div>
 <div class="macts">
       <button class="bmcancel" onclick="closeM('bulkPerms')">Cancelar</button>
       <button class="bsave" onclick="applyBulkPerms()">💾 APLICAR A SELECCIONADOS</button>
@@ -2368,6 +2374,7 @@ body.dark .macts{background:#1f2937;border-top-color:#374151;position:sticky;bot
     <button class="boutl" id="prov-foto-del-btn" style="width:100%;margin-bottom:8px;background:var(--r);color:#fff;display:none" onclick="eliminarProvFoto()">🗑️ Eliminar Foto</button>
     </div>
 
+</div>
 <div class="macts">
       <button class="bmcancel" onclick="closeM('provFoto')">Cancelar</button>
       <button class="bsave" id="prov-foto-savebtn" onclick="guardarProvFoto()">💾 GUARDAR</button>
@@ -3848,23 +3855,33 @@ if(rdifLbl){rdifLbl.textContent='⏳ Pendiente cierre';rdifWrap.style.background
 function loadVF(p,fecha){
 const key=dpKey(p,fecha||currentFecha);
 const d=DP[key]||{};
-const ef=document.getElementById('ve-dia-ef');if(ef)ef.value=d['ve-ef']||'';
-const tj=document.getElementById('ve-dia-tj');if(tj)tj.value=d['ve-tj']||'';
-const ot=document.getElementById('ve-dia-ot');if(ot)ot.value=d['ve-ot']||'';
-['gas','hie','rep','otr'].forEach(k=>{const el=document.getElementById(`g-${k}`);if(el)el.value=d[`g-${k}`]||'';});
+// ── Siempre iniciar en 0 — nunca pre-llenar ──
+const ef=document.getElementById('ve-dia-ef');if(ef)ef.value='';
+const tj=document.getElementById('ve-dia-tj');if(tj)tj.value='';
+const ot=document.getElementById('ve-dia-ot');if(ot)ot.value='';
+['gas','hie','rep','otr'].forEach(k=>{const el=document.getElementById(`g-${k}`);if(el)el.value='';});
 const enc=document.getElementById('ve-encargado');
-if(enc) enc.value=d['encargado']||CU?.user||'';
-const ci=document.getElementById('caja-inicio');if(ci)ci.value=d['caja-inicio']||'';
-const cc=document.getElementById('caja-cierre');if(cc)cc.value=d['caja-cierre']||'';
-const cn=document.getElementById('caja-notas');if(cn)cn.value=d['caja-notas']||'';
+if(enc) enc.value=CU?.user||'';
+const ci=document.getElementById('caja-inicio');if(ci)ci.value='';
+const cc=document.getElementById('caja-cierre');if(cc)cc.value='';
+const cn=document.getElementById('caja-notas');if(cn)cn.value='';
+const desc=document.getElementById('g-otr-desc');if(desc)desc.value='';
 calcCaja();
-const desc=document.getElementById('g-otr-desc');if(desc)desc.value=d['g-otr-desc']||'';
 const lbl=document.getElementById('fechaVentasLabel');
 const status=document.getElementById('fechaVentasStatus');
 const dlbl=document.getElementById('ventas-dia-lbl');
 if(lbl) lbl.textContent=fmtFecha(fecha||currentFecha);
 if(dlbl) dlbl.textContent=`📅 ${fmtFecha(fecha||currentFecha)}`;
-if(status) status.textContent=d.fechaGuardado?`Último guardado: ${d.fechaGuardado} por ${d.guardadoPor||'—'}`:'Sin registro para esta fecha';
+// Mostrar aviso si ya hay registro guardado (solo info)
+if(status){
+if(d.fechaGuardado&&!d.deleted){
+status.textContent=`⚠️ Ya hay registro: ${d.fechaGuardado} por ${d.guardadoPor||'—'}`;
+status.style.color='var(--am)';
+} else {
+status.textContent='Sin registro para esta fecha';
+status.style.color='';
+}
+}
 renderMPRows();
 calcV();
 renderVentaMeta();
@@ -6097,6 +6114,33 @@ const o=document.getElementById('edit-filter-orden');if(o)o.value='fecha-desc';
 const f=document.getElementById('edit-filter-fecha');if(f)f.value='';
 renderRegistrosVentas();
 }
+function _buildMPHistorial(d,ciudad){
+try{
+const mpList=ciudad==='chi'?MP_C:MP;
+if(!mpList||!mpList.length) return '';
+let rows='';
+mpList.forEach((item,i)=>{
+const sal=d['mp-sal-'+i]||0;
+const reg=d['mp-reg-'+i]||0;
+const des=d['mp-des-'+i]||0;
+const vendido=Math.max(0,sal-reg-des);
+if(sal===0&&reg===0&&des===0) return;
+rows+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--g3)">
+<span style="font-size:.72rem;color:var(--t2)">${item.emoji||'📦'} ${item.nombre}</span>
+<span style="font-size:.68rem;font-weight:800">
+<span style="color:var(--t3)">sale ${sal}·reg ${reg}${des>0?'·daño '+des:''} </span>
+<span style="color:var(--n)">${vendido} uds</span>
+<span style="color:var(--n);margin-left:4px">$${fmt(vendido*item.precio)}</span>
+</span>
+</div>`;
+});
+if(!rows) return '';
+return `<div style="margin-bottom:10px">
+<div style="font-size:.65rem;font-weight:900;color:var(--t3);text-transform:uppercase;margin-bottom:6px">📦 Productos vendidos</div>
+<div style="background:var(--g2);border-radius:8px;padding:8px 10px">${rows}</div>
+</div>`;
+}catch(e){return '';}
+}
 function renderRegistrosVentas(){
 const c=document.getElementById('edit-registros-list');if(!c)return;
 c.innerHTML=''; // Limpiar siempre primero
@@ -6202,6 +6246,7 @@ ${util>=0?'▲':'▼'} $${fmt(Math.abs(util))} util
 <div class="rv-stat-lbl">💚 Utilidad</div>
 </div>
 </div>
+${_buildMPHistorial(d,ciudad)}
 ${d.check_danos!==undefined?`<div style="font-size:.65rem;color:${d.check_danos?'var(--v)':'var(--r)'};font-weight:800;margin-bottom:6px">
 ${d.check_danos?'✅ Confirmó productos dañados':'⚠️ No confirmó productos dañados'}
 </div>`:''}
@@ -6300,9 +6345,17 @@ if(!isOpen) body.classList.add('open');
 }
 function abrirEditarVenta(key,puesto,fecha){
 const d=DP[key]||{};
+const isA=CU?.rol==='admin';
 document.getElementById('edit-venta-key').value=key;
 document.getElementById('edit-venta-title').textContent=puesto;
 document.getElementById('edit-venta-subtitle').textContent=`📅 ${fmtFecha(fecha)} · 👤 ${d.guardadoPor||'—'}`;
+// Solo admin puede editar montos
+const readOnly=!isA;
+['ev-ef','ev-tj','ev-gas','ev-hie','ev-rep','ev-otr'].forEach(id=>{
+const el=document.getElementById(id);
+if(el) el.readOnly=readOnly;
+if(el) el.style.opacity=readOnly?'.6':'1';
+});
 document.getElementById('ev-ef').value=d['ve-ef']||'';
 document.getElementById('ev-tj').value=(d['ve-tj']||0)+(d['ve-ot']||0)||'';
 document.getElementById('ev-gas').value=d['g-gas']||'';
@@ -6310,6 +6363,56 @@ document.getElementById('ev-hie').value=d['g-hie']||'';
 document.getElementById('ev-rep').value=d['g-rep']||'';
 document.getElementById('ev-otr').value=d['g-otr']||'';
 document.getElementById('ev-motivo').value='';
+// Productos — visible para todos, editable solo admin
+const ciudad=PW.includes(puesto)?'wash':PC.includes(puesto)?'chi':'wash';
+const mpList=ciudad==='chi'?MP_C:MP;
+const wrap=document.getElementById('ev-productos-wrap');
+const list=document.getElementById('ev-productos-list');
+if(wrap&&list&&mpList.length){
+let html='';
+let hasData=false;
+mpList.forEach((item,i)=>{
+const sal=d['mp-sal-'+i]||0;
+const reg=d['mp-reg-'+i]||0;
+const des=d['mp-des-'+i]||0;
+const vendido=Math.max(0,sal-reg-des);
+if(sal===0&&reg===0&&des===0&&!isA) return;
+hasData=true;
+if(isA){
+// Admin: inputs editables
+html+=`<div style="margin-bottom:8px">
+<div style="font-size:.72rem;font-weight:900;color:var(--t);margin-bottom:4px">${item.emoji||'📦'} ${item.nombre} <span style="color:var(--t3);font-weight:600">$${item.precio}/${item.unidad||'pza'}</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+<div><div style="font-size:.58rem;color:var(--az);font-weight:800;margin-bottom:2px">📦 SALE</div>
+<input type="number" min="0" id="ev-mp-sal-${i}" value="${sal}" inputmode="decimal"
+style="width:100%;padding:6px 8px;border:1.5px solid var(--g3);border-radius:8px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;color:var(--t);background:var(--bg);outline:none;box-sizing:border-box"
+onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'"></div>
+<div><div style="font-size:.58rem;color:var(--v);font-weight:800;margin-bottom:2px">📥 REG.</div>
+<input type="number" min="0" id="ev-mp-reg-${i}" value="${reg}" inputmode="decimal"
+style="width:100%;padding:6px 8px;border:1.5px solid var(--g3);border-radius:8px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;color:var(--t);background:var(--bg);outline:none;box-sizing:border-box"
+onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'"></div>
+<div><div style="font-size:.58rem;color:var(--r);font-weight:800;margin-bottom:2px">🗑️ DAÑO</div>
+<input type="number" min="0" id="ev-mp-des-${i}" value="${des}" inputmode="decimal"
+style="width:100%;padding:6px 8px;border:1.5px solid var(--g3);border-radius:8px;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;color:var(--t);background:var(--bg);outline:none;box-sizing:border-box"
+onfocus="this.style.borderColor='var(--n)'" onblur="this.style.borderColor='var(--g3)'"></div>
+</div>
+<div style="font-size:.62rem;color:var(--n);font-weight:800;margin-top:3px">✅ Vendido: ${vendido} × $${item.precio} = $${fmt(vendido*item.precio)}</div>
+</div>`;
+} else {
+// Encargado: solo lectura
+html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--g3)">
+<span style="font-size:.72rem;color:var(--t2)">${item.emoji||'📦'} ${item.nombre}</span>
+<span style="font-size:.68rem;font-weight:800;color:var(--t3)">sale ${sal}·reg ${reg}${des>0?'·daño '+des:''} <span style="color:var(--n)">${vendido} uds $${fmt(vendido*item.precio)}</span></span>
+</div>`;
+}
+});
+list.innerHTML=html||'<p style="font-size:.75rem;color:var(--t3);text-align:center;padding:8px">Sin datos de productos</p>';
+wrap.style.display=hasData||isA?'block':'none';
+}
+// Ocultar botón guardar si no es admin
+const saveBtn=document.querySelector('#m-editVenta .bsave');
+if(saveBtn) saveBtn.style.display=isA?'':'none';
+const motWrap=document.getElementById('ev-motivo')?.parentElement;
 calcEvTotal();
 openM('editVenta');
 }
@@ -6324,6 +6427,7 @@ document.addEventListener('input',e=>{if(e.target.id===id)calcEvTotal();});
 });
 async function guardarEdicionModal(){
 const key=document.getElementById('edit-venta-key').value;if(!key)return;
+if(CU?.rol!=='admin'){showToast('⛔ Solo el admin puede editar registros');return;}
 const parts=key.split('__');
 const puesto=parts[0];const fecha=parts[1]||currentFecha;
 const d=DP[key]||{};
@@ -6332,6 +6436,23 @@ const tj=parseFloat(document.getElementById('ev-tj').value||0);
 const motivo=document.getElementById('ev-motivo').value.trim();
 d['ve-ef']=ef;d['ve-tj']=tj;d['ve-ot']=0;
 ['gas','hie','rep','otr'].forEach(k=>{d[`g-${k}`]=parseFloat(document.getElementById(`ev-${k}`)?.value||0);});
+// Guardar productos editados
+const ciudad=PW.includes(puesto)?'wash':PC.includes(puesto)?'chi':'wash';
+const mpList=ciudad==='chi'?MP_C:MP;
+mpList.forEach((item,i)=>{
+const sal=document.getElementById(`ev-mp-sal-${i}`);
+const reg=document.getElementById(`ev-mp-reg-${i}`);
+const des=document.getElementById(`ev-mp-des-${i}`);
+if(sal) d['mp-sal-'+i]=parseFloat(sal.value||0);
+if(reg) d['mp-reg-'+i]=parseFloat(reg.value||0);
+if(des) d['mp-des-'+i]=parseFloat(des.value||0);
+if(sal&&reg&&des){
+const vendido=Math.max(0,parseFloat(sal.value||0)-parseFloat(reg.value||0)-parseFloat(des.value||0));
+d['mp-con-'+i]=vendido;
+d['mp-cos-'+i]=vendido*item.precio;
+d['mp-des-cos-'+i]=parseFloat(des.value||0)*item.precio;
+}
+});
 const antes=DP[key]?`$${fmt(DP[key].totalVentas||0)} ventas`:null;
 d.totalVentas=ef+tj;
 d.totalGastos=['gas','hie','rep','otr'].reduce((k2,k)=>k2+(d[`g-${k}`]||0),0);
@@ -6359,12 +6480,12 @@ c.innerHTML='<p style="color:var(--t3);font-size:.82rem;padding:12px;text-align:
 return;
 }
 const key=dpKey(CP,currentFecha);
-const saved=DP[key]||{};
+const saved={}; // Siempre iniciar en 0 — no pre-cargar datos guardados
 const isAdmin=CU?.rol==='admin';
 mpList.forEach((item,i)=>{
-const sal=saved[`mp-sal-${i}`]??'';
-const reg=saved[`mp-reg-${i}`]??'';
-const des=saved[`mp-des-${i}`]??'';
+const sal='';
+const reg='';
+const des='';
 const hasSal=sal!=='';const hasReg=reg!=='';
 const consumido=hasSal&&hasReg?Math.max(0,parseFloat(sal)-parseFloat(reg)):null;
 const despVal=des!==''?parseFloat(des):0;

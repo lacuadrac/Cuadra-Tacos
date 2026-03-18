@@ -3714,13 +3714,16 @@ const panel=document.getElementById('vx-panel');
 if(!panel) return;
 let totalEsperado=0;
 const detalles=[];
-MP.forEach((item,i)=>{
-const salEl=document.getElementById(`mp-sal-${i}`);
-const sal=parseFloat(salEl?.value||0);
-if(sal>0){
-const subtotal=sal*item.precio;
+const mpList=getMPCiudad();
+mpList.forEach((item,i)=>{
+const sal=parseFloat(document.getElementById(`mp-sal-${i}`)?.value||0);
+const reg=parseFloat(document.getElementById(`mp-reg-${i}`)?.value||0);
+const des=parseFloat(document.getElementById(`mp-des-${i}`)?.value||0);
+const vendido=Math.max(0,sal-reg-des); // lo realmente vendido
+if(vendido>0){
+const subtotal=vendido*item.precio;
 totalEsperado+=subtotal;
-detalles.push({nombre:item.nombre,qty:sal,precio:item.precio,subtotal});
+detalles.push({nombre:item.nombre,qty:vendido,precio:item.precio,subtotal});
 }
 });
 if(!detalles.length){panel.style.display='none';return;}

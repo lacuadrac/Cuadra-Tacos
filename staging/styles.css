@@ -349,3 +349,28 @@ body.dark .macts{background:#1f2937;border-top-color:#374151;position:sticky;bot
 .live-dot{width:6px;height:6px;background:var(--v);border-radius:50%;animation:pulse .8s infinite} .infobox{background:var(--ns);border:1px solid var(--nm);border-radius:var(--Rs);padding:14px;margin-bottom:12px}
 .infobox p{font-size:.82rem;color:var(--t2);line-height:1.5}
 .infobox strong{color:var(--n2)}
+
+/* V11: footer del modal editar venta alineado abajo */
+#m-editVenta .modal{
+  display:flex;
+  flex-direction:column;
+  max-height:min(92vh,900px);
+}
+#m-editVenta .modal-scroll{
+  flex:1 1 auto;
+  overflow-y:auto;
+}
+#m-editVenta .macts{
+  position:sticky;
+  bottom:0;
+  display:flex;
+  gap:12px;
+  padding:14px 20px 18px;
+  background:#1f2937;
+  border-top:1px solid var(--g3);
+}
+#m-editVenta .bmcancel,
+#m-editVenta .bsave{
+  flex:1;
+  margin-top:0;
+}

@@ -3808,9 +3808,23 @@ const emps=CECity==='wash'?EW:EC;const nom=emps[idx]?.n;const pos=emps[idx]?.p;
 title='⚠️ Eliminar Empleado';msg=`¿Eliminar a "${nom}" del equipo?`;
 action=async()=>{
 if(CECity==='wash')EW.splice(idx,1);else EC.splice(idx,1);
-await SD('EW',EW);await SD('EC',EC);
+
+// refresco inmediato y cierre del modal antes del sync remoto
+SL('EW',EW); SL('EC',EC);
+renderNomina();renderCfg();
+try{if(typeof renderCfgU==='function') renderCfgU();}catch{}
+closeM('confirm');
+showToast(`🗑️ ${nom} eliminado`);
+
+const okEW=await SD('EW',EW);const okEC=await SD('EC',EC);
+try{
 await logChange('Empleados',`Empleado eliminado: ${nom}`,`${pos} — ${CECity==='wash'?'Washington':'Chicago'}`,null);
-renderNomina();renderCfg();closeM('confirm');showToast(`🗑️ ${nom} eliminado`);
+}catch(err){
+console.warn('logChange eliminar empleado falló', err);
+}
+if(!(okEW&&okEC)){
+showToast('⚠️ Empleado eliminado localmente; pendiente de subir a Sheets');
+}
 };
 } else if(type==='usuario'){
 const nom=US[idx]?.user;const rolU=US[idx]?.rol;

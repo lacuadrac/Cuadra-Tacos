@@ -1273,6 +1273,21 @@ const permKey=cardMap[id];
 if(permKey) btn.style.display=p[permKey]?'':'none';
 });
 }
+function stayInCfgEmpleados(){
+try{
+  const home=document.getElementById('cfg-home');
+  const section=document.getElementById('cfg-section');
+  const lbl=document.getElementById('cfg-back-lbl');
+  if(home) home.style.display='none';
+  if(section) section.style.display='block';
+  if(lbl) lbl.textContent='Empleados';
+  ['puestos','empleados','editar','mp','metas','reportes','ajustes','historial','gastosfijos'].forEach(t=>{
+    const el=document.getElementById('cfg-'+t);
+    if(el) el.style.display=t==='empleados'?'block':'none';
+  });
+}catch{}
+}
+
 function goCfgHome(){
 document.getElementById('cfg-home').style.display='block';
 document.getElementById('cfg-section').style.display='none';
@@ -3231,9 +3246,10 @@ const sueldo=parseFloat(inp.value||0);
 const emps=city==='wash'?EW:EC;
 if(emps[idx]){emps[idx].s=sueldo;emps[idx].t='semana';}
 });
-await SD('EW',EW);await SD('EC',EC);
-renderCfgE();renderNomina();
+SL('EW',EW); SL('EC',EC);
+renderCfgE();renderNomina();stayInCfgEmpleados();
 showToast('✅ Sueldos guardados correctamente');
+await SD('EW',EW);await SD('EC',EC);
 }
 let _mpCiudad='wash'; // ciudad activa en cfg-mp
 function setMPCiudad(ciudad,btn){
@@ -3606,7 +3622,7 @@ if(rol==='admin'||idx===-1&&!isEmpEdit){
 ADMIN.user=user||ADMIN.user;
 if(pass) ADMIN.pass=pass;
 SL('ADMIN',ADMIN);
-refreshUS();renderCfgE();closeM('addU');
+refreshUS();renderCfgE();stayInCfgEmpleados();closeM('addU');
 showToast('✅ Admin actualizado');
 await gsS('ADMIN','ADMIN',ADMIN).catch(()=>{});
 return;
@@ -3640,6 +3656,7 @@ delete idxEl.dataset.empIdx;
 SL('EW',EW); SL('EC',EC);
 refreshUS();
 renderCfgE();
+stayInCfgEmpleados();
 try{if(typeof renderCfgU==='function') renderCfgU();}catch{}
 try{if(typeof renderNomina==='function') renderNomina();}catch{}
 closeM('addU');
@@ -3684,7 +3701,7 @@ if(ciu==='wash')EW.push({n:nom,p:pos,s:0,t:'semana'});else EC.push({n:nom,p:pos,
 
 // refresco inmediato de UI antes del sync remoto
 SL('EW',EW); SL('EC',EC);
-renderNomina();renderCfg();
+renderNomina();renderCfgE();stayInCfgEmpleados();
 document.getElementById('ne-nom').value='';closeM('addE');showToast(`✅ ${nom} agregado`);
 
 const okEW=await SD('EW',EW);const okEC=await SD('EC',EC);
@@ -3709,7 +3726,7 @@ if(!confirm('¿Eliminar acceso de TODOS los empleados?\nSolo quedará el admin.'
 EW.forEach(e=>{delete e.pass;delete e.rol;delete e.perms;});
 EC.forEach(e=>{delete e.pass;delete e.rol;delete e.perms;});
 await SD('EW',EW);await SD('EC',EC);
-refreshUS();renderCfgE();renderCfgU();
+refreshUS();renderCfgE();renderCfgU();stayInCfgEmpleados();
 showToast('🗑️ Accesos eliminados');
 }
 function openBulkPerms(){

@@ -51,6 +51,19 @@ let asistPosFilter='todos';
 let nomPosFilter='todos';
 const LL=(k,d)=>{try{const v=localStorage.getItem('lct_'+k);return v?JSON.parse(v):d}catch{return d}};
 const SL=(k,v)=>{try{localStorage.setItem('lct_'+k,JSON.stringify(v))}catch{}};
+function sanitizeDPMap(dpObj){
+  try{
+    const clean={};
+    Object.entries(dpObj||{}).forEach(([k,v])=>{
+      if(!v||typeof v!=='object'||Array.isArray(v)) return;
+      if(v.deleted===true) return;
+      clean[k]=v;
+    });
+    return clean;
+  }catch{
+    return {};
+  }
+}
 let PW=LL('PW',[...DW]),PC=LL('PC',[...DC]);
 let PI=LL('PI',[]);
 let EW=LL('EW',[...DEW]),EC=LL('EC',[...DEC]);

@@ -374,3 +374,29 @@ body.dark .macts{background:#1f2937;border-top-color:#374151;position:sticky;bot
   flex:1;
   margin-top:0;
 }
+
+
+/* V13: footer del modal productos alineado abajo */
+#m-addMP .modal{
+  display:flex;
+  flex-direction:column;
+  max-height:min(92vh,900px);
+}
+#m-addMP .modal-scroll{
+  flex:1 1 auto;
+  overflow-y:auto;
+}
+#m-addMP .macts{
+  position:sticky;
+  bottom:0;
+  display:flex;
+  gap:12px;
+  padding:14px 20px 18px;
+  background:#1f2937;
+  border-top:1px solid var(--g3);
+}
+#m-addMP .bmcancel,
+#m-addMP .bsave{
+  flex:1;
+  margin-top:0;
+}

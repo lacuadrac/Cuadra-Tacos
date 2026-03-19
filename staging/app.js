@@ -1275,17 +1275,15 @@ if(permKey) btn.style.display=p[permKey]?'':'none';
 }
 function stayInCfgEmpleados(){
 try{
-  const home=document.getElementById('cfg-home');
-  const section=document.getElementById('cfg-section');
-  const lbl=document.getElementById('cfg-back-lbl');
-  if(home) home.style.display='none';
-  if(section) section.style.display='block';
-  if(lbl) lbl.textContent='Empleados';
-  ['puestos','empleados','editar','mp','metas','reportes','ajustes','historial','gastosfijos'].forEach(t=>{
-    const el=document.getElementById('cfg-'+t);
-    if(el) el.style.display=t==='empleados'?'block':'none';
-  });
-}catch{}
+  const cfgBtn=document.querySelector('.nbtn[onclick*="config"]');
+  if(typeof showV==='function') showV('config', cfgBtn||null);
+  if(typeof goCfg==='function') goCfg('empleados');
+  const city = CECity || 'wash';
+  const tab = document.getElementById('emp-tab-'+city);
+  if(typeof setCEC==='function' && tab) setCEC(city, tab);
+}catch(err){
+  console.warn('stayInCfgEmpleados fallback', err);
+}
 }
 
 function goCfgHome(){
@@ -3824,29 +3822,30 @@ closeM('confirm');showToast(`🗑️ "${nom}" eliminado`);
 const emps=CECity==='wash'?EW:EC;const nom=emps[idx]?.n;const pos=emps[idx]?.p;
 title='⚠️ Eliminar Empleado';msg=`¿Eliminar a "${nom}" del equipo?`;
 action=async()=>{
-if(CECity==='wash')EW.splice(idx,1);else EC.splice(idx,1);
+const currentCity = CECity==='chi' ? 'chi' : 'wash';
+if(currentCity==='wash') EW.splice(idx,1); else EC.splice(idx,1);
 
 // refresco inmediato y cierre del modal antes del sync remoto
 SL('EW',EW); SL('EC',EC);
-renderNomina();
-try{if(typeof renderCfgE==='function') renderCfgE();}catch{}
-try{if(typeof renderCfgU==='function') renderCfgU();}catch{}
 closeM('confirm');
-// mantener vista/submódulo de empleados sin brincar a configuración general
-try{
-  const sec=document.getElementById('cfg-empleados');
-  if(sec){
-    document.querySelectorAll('[id^="cfg-"]').forEach(el=>{
-      if(el.id!=='cfg-empleados' && el.closest('#view-config')) el.style.display='none';
-    });
-    sec.style.display='block';
-  }
-}catch{}
-showToast(`🗑️ ${nom} eliminado`);
+
+// esperar un tick para que el DOM termine de cerrar el modal y luego redibujar
+requestAnimationFrame(()=>{
+  try{ if(typeof showV==='function') showV('config', document.querySelector('.nbtn[onclick*="config"]')||null); }catch{}
+  try{ if(typeof goCfg==='function') goCfg('empleados'); }catch{}
+  try{ if(typeof renderNomina==='function') renderNomina(); }catch{}
+  try{ if(typeof renderCfgE==='function') renderCfgE(); }catch{}
+  try{ if(typeof renderCfgU==='function') renderCfgU(); }catch{}
+  try{
+    const tab = document.getElementById('emp-tab-'+currentCity);
+    if(typeof setCEC==='function' && tab) setCEC(currentCity, tab);
+  }catch{}
+  showToast(`🗑️ ${nom} eliminado`);
+});
 
 const okEW=await SD('EW',EW);const okEC=await SD('EC',EC);
 try{
-await logChange('Empleados',`Empleado eliminado: ${nom}`,`${pos} — ${CECity==='wash'?'Washington':'Chicago'}`,null);
+await logChange('Empleados',`Empleado eliminado: ${nom}`,`${pos} — ${currentCity==='wash'?'Washington':'Chicago'}`,null);
 }catch(err){
 console.warn('logChange eliminar empleado falló', err);
 }

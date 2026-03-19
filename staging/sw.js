@@ -1,5 +1,5 @@
 // La Cuadra Tacos — STAGING Service Worker
-const CACHE_VERSION = 'cuadra-tacos-staging-2026-03-18-01';
+const CACHE_VERSION = 'cuadra-tacos-staging-2026-03-18-05';
 
 const STATIC_ASSETS = [
   './',

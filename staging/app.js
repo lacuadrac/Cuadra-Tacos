@@ -428,12 +428,24 @@ _touchTS('DP');
 const f=document.getElementById('syncBarFill');
 if(f){f.style.width='100%';setTimeout(()=>{f.style.width='0%';},400);}
 const sheetsKey='DP__'+puestoFechaKey;
+
+// Intento directo inmediato al backend para DP
+const directOk=await gsS('DP', sheetsKey, registro);
+if(directOk){
+  delete _syncQueue[sheetsKey];
+  _savePending(_syncQueue);
+  _updatePendingBadge();
+  return true;
+}
+
+// Fallback: dejarlo en cola si falla el guardado directo
+try{toast('⚠️ Venta guardada localmente; pendiente de subir a Sheets');}catch{}
 _syncQueue[sheetsKey]={__tabla:'DP',__clave:sheetsKey,__valor:registro};
 _savePending(_syncQueue);
 _updatePendingBadge();
 clearTimeout(_syncTimer);
 _syncTimer=setTimeout(()=>_flushSyncQueue(),800);
-return true;
+return false;
 }
 async function SD(k,v){
 _bumpVersion(k);

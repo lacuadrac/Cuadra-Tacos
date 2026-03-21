@@ -5349,6 +5349,8 @@ const today=todayStr();
 const from=document.getElementById('exp-from');const to=document.getElementById('exp-to');
 if(from&&!from.value){const d=new Date();d.setDate(1);from.value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`;}
 if(to&&!to.value) to.value=today;
+syncExportDate('from', from?.value||'');
+syncExportDate('to', to?.value||'');
 }
 if(id==='ganancia') renderGananciaReporte();
 }
@@ -5580,9 +5582,48 @@ tot.style.cssText='background:var(--n);border:none';
 tot.innerHTML=`<div class="ftot b" style="color:white"><span>💰 TOTAL DEL PERIODO</span><span>$${fmt(grandTotal)}</span></div>`;
 c.appendChild(tot);
 }
+
+let EXPORT_RANGE={from:'',to:''};
+function syncExportDate(which,val){
+try{
+  if(which!=='from'&&which!=='to') return;
+  EXPORT_RANGE[which]=String(val||'');
+}catch(err){
+  console.warn('syncExportDate', err);
+}
+}
+function getExportRange(){
+try{
+  const fromEl=document.getElementById('exp-from');
+  const toEl=document.getElementById('exp-to');
+
+  // forzar commit del valor visible en Safari/WebKit antes de exportar
+  try{ if(document.activeElement===fromEl||document.activeElement===toEl) document.activeElement.blur(); }catch{}
+
+  let from=(fromEl?.value||EXPORT_RANGE.from||'').trim();
+  let to=(toEl?.value||EXPORT_RANGE.to||'').trim();
+
+  // Si solo escogieron un día, usarlo como rango exacto
+  if(from && !to) to=from;
+  if(to && !from) from=to;
+
+  // Si quedaron invertidas, igualarlas al inicio para evitar rangos raros
+  if(from && to && to<from) to=from;
+
+  if(fromEl) fromEl.value=from;
+  if(toEl) toEl.value=to;
+  EXPORT_RANGE.from=from;
+  EXPORT_RANGE.to=to;
+
+  return {from: from||null, to: to||null};
+}catch(err){
+  console.warn('getExportRange', err);
+  return {from:null,to:null};
+}
+}
+
 function getExportData(){
-const from=document.getElementById('exp-from')?.value||null;
-const to=document.getElementById('exp-to')?.value||null;
+const {from,to}=getExportRange();
 const puestos=CU?.rol==='admin'?allP():getUserPuestos();
 const rows=[];
 puestos.forEach(p=>{
@@ -5614,8 +5655,9 @@ showToast('📊 Descargando Excel (CSV)...');
 function exportPDF(){
 const rows=getExportData();
 if(!rows.length){showToast('⚠️ Sin datos en el periodo seleccionado');return;}
-const from=document.getElementById('exp-from')?.value||'Inicio';
-const to=document.getElementById('exp-to')?.value||'Hoy';
+const range=getExportRange();
+const from=range.from||'Inicio';
+const to=range.to||'Hoy';
 const resumen={};
 rows.forEach(r=>{
 if(!resumen[r.Puesto]) resumen[r.Puesto]={v:0,g:0,u:0};
@@ -5642,8 +5684,9 @@ showToast('📄 Abriendo PDF para imprimir...');
 function exportWhatsApp(){
 const rows=getExportData();
 if(!rows.length){showToast('⚠️ Sin datos en el periodo seleccionado');return;}
-const from=document.getElementById('exp-from')?.value||'';
-const to=document.getElementById('exp-to')?.value||'';
+const range=getExportRange();
+const from=range.from||'Inicio';
+const to=range.to||'Hoy';
 const grandV=rows.reduce((a,r)=>a+r.TotalVentas,0);
 const grandG=rows.reduce((a,r)=>a+r.TotalGastos,0);
 const resumen={};
@@ -5658,8 +5701,9 @@ window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
 function exportEmail(){
 const rows=getExportData();
 if(!rows.length){showToast('⚠️ Sin datos en el periodo seleccionado');return;}
-const from=document.getElementById('exp-from')?.value||'';
-const to=document.getElementById('exp-to')?.value||'';
+const range=getExportRange();
+const from=range.from||'Inicio';
+const to=range.to||'Hoy';
 const grandV=rows.reduce((a,r)=>a+r.TotalVentas,0);
 const grandG=rows.reduce((a,r)=>a+r.TotalGastos,0);
 const subject=`Reporte La Cuadra Tacos — ${from} a ${to}`;

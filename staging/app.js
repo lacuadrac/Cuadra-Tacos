@@ -5320,6 +5320,22 @@ container.appendChild(clone);
 });
 renderReportes();
 }
+
+function openDatePicker(id){
+try{
+  const el=document.getElementById(id);
+  if(!el) return;
+  if(typeof el.showPicker === 'function'){
+    el.showPicker();
+    return;
+  }
+  el.focus();
+  try{ el.click(); }catch{}
+}catch(err){
+  console.warn('openDatePicker', err);
+}
+}
+
 function setRepTab(id,btn){
 document.querySelectorAll('#cfg-rep-tabs .tab').forEach(t=>t.classList.remove('active'));
 if(btn) btn.classList.add('active');

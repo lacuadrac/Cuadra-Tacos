@@ -493,3 +493,28 @@ body.dark .macts{background:#1f2937;border-top-color:#374151;position:sticky;bot
   flex:1;
   margin-top:0;
 }
+
+
+/* V22: exportar calendario más fácil de abrir */
+.exp-date-wrap{
+  position:relative;
+}
+.exp-date-btn{
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  font-size:1rem;
+  line-height:1;
+  padding:4px;
+  border-radius:8px;
+}
+.exp-date-btn:active{
+  transform:translateY(-50%) scale(.98);
+}
+#exp-from,#exp-to{
+  min-height:42px;
+}

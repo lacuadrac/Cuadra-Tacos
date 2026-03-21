@@ -5632,21 +5632,56 @@ try{
 }
 }
 
+
+function parseExportDPKey(key){
+try{
+  let raw=String(key||'');
+  if(raw.startsWith('DP__')) raw=raw.slice(4);
+  const idx=raw.lastIndexOf('__');
+  if(idx===-1) return {puesto: raw, fecha: ''};
+  return {
+    puesto: raw.slice(0, idx),
+    fecha: raw.slice(idx + 2)
+  };
+}catch(err){
+  console.warn('parseExportDPKey', err);
+  return {puesto:'',fecha:''};
+}
+}
+
 function getExportData(){
 const {from,to}=getExportRange();
-const puestos=CU?.rol==='admin'?allP():getUserPuestos();
+const allowedPuestos = new Set(CU?.rol==='admin' ? allP() : getUserPuestos());
 const rows=[];
-puestos.forEach(p=>{
-let keys=Object.keys(DP).filter(k=>k.startsWith(p+'__'));
-if(from||to) keys=keys.filter(k=>{const f=k.split('__')[1];return(!from||f>=from)&&(!to||f<=to);});
-keys.sort().forEach(k=>{
-const d=DP[k]||{};const fecha=k.split('__')[1];
-rows.push({Puesto:p,Fecha:fecha,Efectivo:d['ve-ef']||0,Tarjeta:(d['ve-tj']||0)+(d['ve-ot']||0),
-TotalVentas:d.totalVentas||0,TotalGastos:d.totalGastos||0,Utilidad:(d.totalVentas||0)-(d.totalGastos||0),
-Gasolina:d['g-gas']||0,Hielo:d['g-hie']||0,Reparacion:d['g-rep']||0,
-Otros:d['g-otr']||0,OtrosDesc:d['g-otr-desc']||'',Guardado:d.fechaGuardado||'',Por:d.guardadoPor||''});
+
+Object.entries(DP||{}).forEach(([key,d])=>{
+  const parsed=parseExportDPKey(key);
+  const puesto=parsed.puesto;
+  const fecha=parsed.fecha;
+  if(!puesto || !fecha) return;
+  if(allowedPuestos.size && !allowedPuestos.has(puesto)) return;
+  if(from && fecha<from) return;
+  if(to && fecha>to) return;
+
+  rows.push({
+    Puesto: puesto,
+    Fecha: fecha,
+    Efectivo: d['ve-ef']||0,
+    Tarjeta: (d['ve-tj']||0)+(d['ve-ot']||0),
+    TotalVentas: d.totalVentas||0,
+    TotalGastos: d.totalGastos||0,
+    Utilidad: (d.totalVentas||0)-(d.totalGastos||0),
+    Gasolina: d['g-gas']||0,
+    Hielo: d['g-hie']||0,
+    Reparacion: d['g-rep']||0,
+    Otros: d['g-otr']||0,
+    OtrosDesc: d['g-otr-desc']||'',
+    Guardado: d.fechaGuardado||'',
+    Por: d.guardadoPor||''
+  });
 });
-});
+
+rows.sort((a,b)=> (a.Fecha===b.Fecha ? a.Puesto.localeCompare(b.Puesto) : a.Fecha.localeCompare(b.Fecha)));
 return rows;
 }
 function exportExcel(){
